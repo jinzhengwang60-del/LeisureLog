@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LeisureLog · 统计与趋势</title>
+  <link rel="stylesheet" href="/static/style.css?v=planner3"><link rel="stylesheet" href="/static/statistics.css?v=planner1">
+  <script src="/static/statistics.js?v=planner1" type="module"></script>
+</head>
+<body>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/unclassified">待分类</a><a href="/statistics" aria-current="page">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">作品库</a></nav></header>
+  <main>
+    <section class="heading"><div><h1>统计与趋势</h1><p class="intro">按周、月、年回看活动，以已有记录为依据。</p></div><span class="scope">本地数据 · 北京时间</span></section>
+    <form id="range" class="range-form">
+      <div class="presets" role="group" aria-label="快捷日期范围"><button type="button" data-range="week" aria-pressed="true">本周</button><button type="button" data-range="month" aria-pressed="false">本月</button><button type="button" data-range="year" aria-pressed="false">今年</button></div>
+      <div class="range-inputs"><label>开始日期<input id="start" type="date" required></label><label>结束日期<input id="end" type="date" required></label><label>趋势粒度<select id="granularity"><option value="auto">自动</option><option value="day">按天</option><option value="month">按月</option></select></label><button type="submit" id="apply" class="primary">查看统计</button></div>
+    </form>
+    <p id="error" class="error" role="alert" hidden></p><p id="coverage" class="coverage" role="status">正在读取统计…</p>
+    <section class="metrics" aria-label="所选范围时长汇总">
+      <article><span>全部活动 · 按策略计入</span><strong id="active">—</strong><small>包括未分类、工作与待确认时段</small></article>
+      <article><span>娱乐分类时长</span><strong id="leisure">—</strong><small>按当前分类统计，包含社交与阅读</small></article>
+      <article><span>未分类活动</span><strong id="unknown">—</strong><small>继续记录，等待识别或纠错</small></article>
+      <article><span>工作分类时长</span><strong id="work">—</strong><small>单独展示，不计入娱乐分类</small></article>
+    </section>
+    <p id="timing" class="timing"></p>
+    <section class="chart-panel"><div class="section-head"><div><h2>时间趋势</h2><p id="trend-caption">按策略计入的时长</p></div><div class="legend"><span><i class="confirmed"></i>状态有记录</span><span><i class="uncertain"></i>状态待确认</span></div></div>
+      <p id="trend-empty" class="empty" hidden>这个范围还没有活动记录。无记录不代表没有使用电脑。</p>
+      <div class="trend-scroll"><div id="trend" class="trend-chart" aria-label="各时段活动时长"></div></div>
+    </section>
+    <div class="analysis-grid">
+      <section class="chart-panel"><div class="section-head"><div><h2>分类分布</h2><p>占全部按策略计入时长的比例</p></div></div><div id="categories" class="ranking"></div></section>
+      <section class="chart-panel"><div class="section-head"><div><h2>应用排行</h2><p>全部分类 · 显示前 20 项</p></div></div><div id="apps" class="ranking"></div></section>
+    </div>
+    <section class="chart-panel"><div class="section-head"><div><h2>已识别内容排行</h2><p>按应用与内容名称汇总 · 显示前 20 项</p></div></div><div id="contents" class="ranking contents"></div></section>
+    <p class="footnote">娱乐分类包含游戏、视频、影视、动漫、阅读、音乐、社交、直播和网络闲逛；“其他”及自定义分类仍显示在分类分布中。分类依据现有规则与人工修改，不代表对真实用途的独立判断。计时策略可以保留检测到的离开时间，详情可核对依据；有状态记录也不能证明持续观看。待确认时长保留在统计内，离开依据键鼠活动推断。不同设备和重叠来源尚未排重，图表不是精确的个人娱乐总时长。缺少记录的日期不代表零使用。</p>
+  </main>
+</body>
+</html>

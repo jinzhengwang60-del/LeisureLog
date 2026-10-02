@@ -1,0 +1,53 @@
+/* Library, shared by the game detail pages */
+#search{width:260px}
+.library-metrics{grid-template-columns:repeat(2,minmax(0,1fr));max-width:720px}
+.library-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:22px;align-items:start}
+.panel{margin-bottom:22px}
+.back{margin-bottom:22px;border:0;background:transparent;color:var(--link);padding:6px 0}
+.back::before{content:"‹";margin-right:6px}
+.back:hover{background:transparent;text-decoration:underline}
+#detail h1{overflow-wrap:anywhere;max-width:860px}
+#seen{line-height:1.8}
+.heading button{flex-shrink:0}
+
+/* sidebar forms */
+.manage{padding:20px 22px}
+.manage h2{margin-bottom:10px}
+.manage form{display:grid;gap:12px;margin-top:12px}
+.manage label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+.manage input,.manage select,.manage textarea{width:100%;max-width:100%;min-width:0}
+.manage textarea{border:1px solid var(--rule);border-radius:6px;padding:9px 12px;resize:vertical;line-height:1.7;font-size:13px}
+.manage button{justify-self:start}
+.helper{font-size:12px;line-height:1.8;color:var(--muted)}
+details{margin-top:14px;font-size:13px}
+summary{cursor:pointer;color:var(--link)}
+
+/* list rows */
+.library-title{display:block;color:var(--ink);text-align:left;background:transparent;border:0;padding:0;font-size:13px;font-weight:600;min-height:0;white-space:normal;overflow-wrap:anywhere;max-width:520px}
+.library-title:hover{color:var(--link);text-decoration:underline;background:transparent}
+.library-app{color:var(--muted);font-size:12px;margin-top:3px}
+.alias{padding:12px 0;border-bottom:1px solid var(--rule-soft);display:flex;gap:12px;align-items:center;justify-content:space-between}
+.alias div{min-width:0}
+.alias strong{font-size:13px;font-weight:500;overflow-wrap:anywhere;display:block}
+.alias small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.alias button{font-size:12px;padding:5px 10px;min-height:30px;flex-shrink:0}
+
+/* month bars & recent sessions */
+.months{padding:4px 22px 18px}
+.month{display:grid;grid-template-columns:72px minmax(20px,1fr) 120px;gap:14px;align-items:center;padding:7px 0;font-family:var(--num);font-size:13px;border-bottom:1px solid var(--rule-soft)}
+.month:last-child{border-bottom:0}
+.month-track{height:8px;border-radius:2px;background:var(--rule-soft);overflow:hidden}
+.month-fill{height:100%;background:var(--ink-2);border-radius:2px}
+.month-value{text-align:right}
+.recent{padding:0 22px 12px}
+.recent-entry{padding:12px 0 12px 14px;border-bottom:1px solid var(--rule-soft);font-size:13px;line-height:1.7;position:relative}
+.recent-entry::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:2px;background:var(--rule)}
+.recent-entry:last-child{border-bottom:0}
+.recent-entry p{margin:2px 0;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.no-data{padding:18px 0;color:var(--muted);font-size:13px}
+#merge-preview{overflow-wrap:anywhere}
+#merge-source{overflow:hidden}
+
+@media(max-width:960px){.library-layout{grid-template-columns:1fr}.library-metrics{max-width:none}}
+@media(max-width:720px){#search{width:100%}.month{grid-template-columns:64px minmax(20px,1fr) 100px;gap:10px}.months,.recent{padding-left:16px;padding-right:16px}.library-metrics{grid-template-columns:1fr 1fr}}
+.recent-entry a{text-decoration:none;font-family:var(--num);font-weight:600}.recent-entry a:hover{text-decoration:underline}

@@ -1,0 +1,88 @@
+"""Read-side day analysis with timing recalculated at calendar boundaries."""
+
+from dataclasses import asdict, replace
+from datetime import date, datetime, time, timedelta, timezone
+
+from leisurelog.analytics.summary import summarize
+from leisurelog.domain.idle import apply_idle
+
+BEIJING = timezone(timedelta(hours=8))
+
+
+def day_sessions(repo, day: date):
+    start = datetime.combine(day, time.min, BEIJING)
+    end = start + timedelta(days=1)
+    events = [
+        replace(e, start_time=max(e.start_time, start), end_time=min(e.end_time, end))
+        for e in repo.resolved_events(start=start, end=end)
+        if e.start_time < end and e.end_time > start
+    ]
+    ids = {e.id for e in events}
+    sessions = [
+        replace(
+            s,
+            start_time=max(s.start_time, start),
+            end_time=min(s.end_time, end),
+            event_ids=[key for key in s.event_ids if key in ids],
+        )
+        for s in repo.sessions(start=start, end=end)
+        if s.start_time < end and s.end_time > start
+    ]
+    sessions = [s for s in sessions if s.event_ids]
+    idle = repo.idle_events(start=start, end=end)
+    apply_idle(sessions, events, idle)
+    return sessions, events, idle
+
+
+def _matches(s, app: str, category: str, query: str) -> bool:
+    return (
+        (not app or s.app == app)
+        and (not category or s.classification.category == category)
+        and (
+            not query
+            or query.casefold()
+            in (s.app + " " + s.title + " " + (s.classification.content or "")).casefold()
+        )
+    )
+
+
+def ribbon(repo, day: date, app: str, category: str, query: str):
+    """Compact day timeline: only what the 24h strip draws, clipped to the Beijing day."""
+    sessions, _, _ = day_sessions(repo, day)
+    filtered = sorted(
+        (s for s in sessions if _matches(s, app, category, query)),
+        key=lambda s: (s.start_time, s.id),
+    )
+    return {
+        "day": day.isoformat(),
+        "items": [
+            {
+                "id": s.id,
+                "start": round(s.start_time.timestamp() * 1000),
+                "end": round(s.end_time.timestamp() * 1000),
+                "app": s.app,
+                "category": s.classification.category,
+                "content": s.classification.content,
+                "active_seconds": s.active_seconds,
+            }
+            for s in filtered
+        ],
+    }
+
+
+def dashboard(repo, day: date, app: str, category: str, query: str, limit: int, offset: int):
+    sessions, _, _ = day_sessions(repo, day)
+    options = {
+        "apps": sorted({s.app for s in sessions}),
+        "categories": sorted({s.classification.category for s in sessions}),
+    }
+    filtered = [s for s in sessions if _matches(s, app, category, query)]
+    filtered.sort(key=lambda s: (s.start_time, s.id), reverse=True)
+    return {
+        "day": day.isoformat(),
+        "timezone": "Asia/Shanghai",
+        "total": len(filtered),
+        "options": options,
+        "summary": summarize(filtered),
+        "items": [asdict(s) for s in filtered[offset : offset + limit]],
+    }

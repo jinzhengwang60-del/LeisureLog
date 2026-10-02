@@ -1,0 +1,6 @@
+Id: LeisureLog_LocalCatalog_9537d175-5263-4719-b4cc-a65332cf6f81
+Name: LeisureLog 本地游戏库连接
+Author: LeisureLog
+Version: 0.1.0
+Module: LeisureLog.psm1
+Type: Script

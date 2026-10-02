@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LeisureLog · 待分类</title>
+  <link rel="stylesheet" href="/static/style.css?v=planner3">
+  <link rel="stylesheet" href="/static/unclassified.css?v=2">
+  <script src="/static/unclassified.js?v=1" type="module"></script>
+</head>
+<body>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/unclassified" aria-current="page">待分类</a><a href="/statistics">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">作品库</a></nav></header>
+  <main>
+    <section class="heading"><div><h1>待分类</h1><p class="intro">这些应用的活动还没有分类。给一个应用选好分类后保存，它以前和以后的记录都会按这个分类统计。</p></div></section>
+    <p id="error" class="error" role="alert" hidden></p>
+    <p id="notice" class="notice" role="status" hidden></p>
+    <section class="metrics uncl-metrics" aria-label="未分类汇总">
+      <article><span>未分类时长</span><strong id="total">—</strong><small>全部历史，按计时策略</small></article>
+      <article><span>待分类的应用</span><strong id="app-count">—</strong><small>不含浏览器</small></article>
+      <article><span>浏览器里的未分类</span><strong id="browser-total">—</strong><small>需要按网站分类</small></article>
+    </section>
+    <section class="records">
+      <div class="section-head"><div><h2>应用</h2><p>按未分类时长排列。整个应用一起记住，适合用途单一的软件。</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>应用与常见窗口</th><th class="num">未分类时长</th><th class="num">片段</th><th class="num">最近出现</th><th>归入分类</th></tr></thead><tbody id="apps"></tbody></table></div>
+      <details id="minor" class="minor" hidden><summary id="minor-label"></summary><div class="table-wrap"><table><tbody id="minor-apps"></tbody></table></div></details>
+      <div id="empty" class="empty" hidden><h3>没有待分类的应用了</h3><p>新出现的应用会在同步后显示在这里。</p></div>
+    </section>
+    <section class="records browsers" id="browsers-panel" hidden>
+      <div class="section-head"><div><h2>浏览器</h2><p>浏览器里同时有视频、漫画、工作页面，不能整个应用一起分类。在活动记录里打开具体网页的“查看”，选择“记住：同一应用 + 同一网站域名”。</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>浏览器与常见页面</th><th class="num">未分类时长</th><th class="num">片段</th><th>网页地址</th></tr></thead><tbody id="browsers"></tbody></table></div>
+    </section>
+    <p class="footnote">保存后会生成一条“这个应用的所有活动”规则，不会把记录标成人工修改；你之前单独改过的记录保持不变。规则可以在活动记录页的“数据与设置 → 已记住的规则”里删除，删除后这些记录会恢复为未分类。</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+# First matching rule wins. All fields within match must match.
+rules:
+  - id: genshin
+    match:
+      app: GenshinImpact.exe
+    category: game
+    content: 原神
+    tags: [ARPG, 开放世界]
+  - id: bilibili-manga
+    match: {domain: manga.bilibili.com}
+    category: reading
+    content: 哔哩哔哩漫画
+    content_title_pattern: '(?:[0-9]+(?:[-.][0-9]+)* - )?(?P<content>.+?) - 漫画全集在线观看 - 哔哩哔哩漫画'
+  - id: bilibili-live
+    match: {domain: live.bilibili.com}
+    category: live
+    content: 哔哩哔哩直播
+  - id: bilibili-anime
+    match: {domain: bilibili.com, path_prefix: /bangumi/play/}
+    category: anime
+    content: 哔哩哔哩番剧
+  - id: bilibili-video
+    match: {domain: bilibili.com, path_prefix: /video/}
+    category: video
+    content: 哔哩哔哩
+    content_title_pattern: '(?P<content>.+?)(?:_哔哩哔哩_bilibili| - 哔哩哔哩)'
+  - id: bilibili
+    match: {domain: bilibili.com}
+    category: browsing
+    content: 哔哩哔哩
+  - id: youtube-video
+    match: {domain: youtube.com, path_prefix: /watch}
+    category: video
+    content: YouTube
+    content_title_pattern: '(?P<content>.+) - YouTube'
+  - id: youtube-short
+    match: {domain: youtube.com, path_prefix: /shorts/}
+    category: video
+    content: YouTube
+    content_title_pattern: '(?P<content>.+) - YouTube'
+  - id: youtube
+    match: {domain: youtube.com}
+    category: browsing
+    content: YouTube
+  - id: zhihu
+    match: {domain: zhihu.com}
+    category: reading
+    content: 知乎
+
+  # 浏览器没有网址时的备用识别：按窗口标题匹配，放在网址规则之后
+  - id: bilibili-manga-title
+    match: {title_contains: 漫画全集在线观看 - 哔哩哔哩漫画}
+    category: reading
+    content: 哔哩哔哩漫画
+    content_title_pattern: '(?:[0-9]+(?:[-.][0-9]+)* - )?(?P<content>.+?) - 漫画全集在线观看 - 哔哩哔哩漫画(?: 和另外 [0-9]+ 个页面)?(?: - .+)?'
+  - id: bilibili-video-title
+    match: {title_contains: _哔哩哔哩_bilibili}
+    category: video
+    content: 哔哩哔哩
+    content_title_pattern: '(?P<content>.+?)_哔哩哔哩_bilibili(?: 和另外 [0-9]+ 个页面)?(?: - .+)?'
+  - id: youtube-video-title
+    match: {title_contains: ' - YouTube'}
+    category: video
+    content: YouTube
+    content_title_pattern: '(?P<content>.+?) - YouTube(?: 和另外 [0-9]+ 个页面)?(?: - .+)?'
+  - id: bilibili-title
+    match: {title_contains: 哔哩哔哩}
+    category: browsing
+    content: 哔哩哔哩
+  # 在浏览器里查看 LeisureLog 自己的页面，和系统窗口一样归入“其他”
+  - id: leisurelog-chrome
+    match: {app: chrome.exe, title_contains: LeisureLog}
+    category: other
+  - id: leisurelog-edge
+    match: {app: msedge.exe, title_contains: LeisureLog}
+    category: other
+  # 系统窗口：归入“其他”，不算娱乐，也不再显示为未分类
+  - id: system-explorer
+    match: {app: explorer.exe}
+    category: other
+  - id: system-windowsterminal
+    match: {app: WindowsTerminal.exe}
+    category: other
+  - id: system-cmd
+    match: {app: cmd.exe}
+    category: other
+  - id: system-powershell
+    match: {app: powershell.exe}
+    category: other
+  - id: system-pwsh
+    match: {app: pwsh.exe}
+    category: other
+  - id: system-conhost
+    match: {app: conhost.exe}
+    category: other
+  - id: system-lockapp
+    match: {app: LockApp.exe}
+    category: other
+  - id: system-searchhost
+    match: {app: SearchHost.exe}
+    category: other
+  - id: system-shellhost
+    match: {app: ShellHost.exe}
+    category: other
+  - id: system-shellexperiencehost
+    match: {app: ShellExperienceHost.exe}
+    category: other
+  - id: system-startmenuexperiencehost
+    match: {app: StartMenuExperienceHost.exe}
+    category: other
+  - id: system-applicationframehost
+    match: {app: ApplicationFrameHost.exe}
+    category: other
+  - id: system-openwith
+    match: {app: OpenWith.exe}
+    category: other
+  - id: system-mmc
+    match: {app: mmc.exe}
+    category: other
+  - id: system-taskmgr
+    match: {app: Taskmgr.exe}
+    category: other
+  - id: system-systemsettings
+    match: {app: SystemSettings.exe}
+    category: other
+
+# Default remains AFK subtraction. First timing match wins; app/category conditions are AND.
+# Example opt-in: [{id: reading-foreground, category: reading, policy: foreground}]
+# Policies: afk | foreground | audible (retain AFK only on a matched audible webpage).
+timing_policies: []

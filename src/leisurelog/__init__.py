@@ -1,0 +1,1 @@
+"""LeisureLog modular monolith."""

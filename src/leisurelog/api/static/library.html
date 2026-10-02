@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LeisureLog · 作品与内容库</title>
+  <link rel="stylesheet" href="/static/style.css?v=planner3"><link rel="stylesheet" href="/static/library.css?v=planner1">
+  <script src="/static/library.js?v=planner1" type="module"></script>
+</head>
+<body>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library" aria-current="page">作品库</a></nav></header>
+  <main>
+    <p id="error" class="error" role="alert" hidden></p><p id="notice" class="notice" role="status" hidden></p>
+    <div id="catalog">
+      <section class="heading"><div><h1>作品与内容库</h1><p class="intro">回看每项内容的累计时长、使用日期和最近活动。</p></div><span class="scope">全部历史 · 本地保存</span></section>
+      <form id="filters" class="toolbar"><div class="filter-controls"><label class="sr-only" for="search">搜索作品或已关联名称</label><input id="search" type="search" maxlength="300" placeholder="搜索作品或已关联名称"><label class="sr-only" for="category">分类</label><select id="category"><option value="">全部分类</option></select><label class="sr-only" for="sort">排列方式</label><select id="sort"><option value="recent">最近使用</option><option value="time">累计时长</option></select><button type="submit" class="primary">查看</button><button type="button" id="refresh">刷新</button></div></form>
+      <section class="metrics library-metrics"><article><span>筛选结果</span><strong id="total">—</strong><small>有已关联名称的内容条目</small></article><article><span>累计计入时长</span><strong id="total-time">—</strong><small>全部历史 · 按现有计时策略</small></article></section>
+      <section class="records"><div class="section-head"><div><h2>内容条目</h2><p>识别名称相同且应用、分类一致时，自动汇集多次活动</p></div></div><div class="table-wrap"><table><thead><tr><th>作品与内容</th><th>分类</th><th class="num">累计计入</th><th class="num">有记录天数</th><th>最近使用</th><th><span class="sr-only">查看详情</span></th></tr></thead><tbody id="rows"></tbody></table></div><div id="empty" class="empty" hidden><h3>还没有匹配的内容</h3><p>先让系统识别出内容名称，或在活动详情中填写名称；新记录同步后会自动进入这里。</p></div><footer class="pagination"><span id="page-label">—</span><div><button id="prev-page">上一页</button><button id="next-page">下一页</button></div></footer></section>
+      <p class="footnote">这里只汇总已有内容名称的记录；全部电脑活动请查看活动记录或统计与趋势。未识别出具体名称时，条目可能仍是站点名称。同名内容在不同应用或分类中会先分开，你可以在详情中主动合并。缺少记录的日期不代表没有使用；跨设备重叠活动尚未排重。</p>
+    </div>
+    <section id="detail" hidden aria-label="作品详情">
+      <button id="back" class="back">返回内容库</button>
+      <div class="heading"><div><p class="eyebrow" id="detail-category"></p><h1 id="detail-name"></h1><p class="intro" id="seen"></p></div><button id="refresh-detail">刷新详情</button></div>
+      <section class="metrics"><article><span>累计计入时长</span><strong id="active">—</strong><small>按现有计时策略</small></article><article><span>原始记录时长</span><strong id="recorded">—</strong><small>片段间的间隙不计入</small></article><article><span>有记录天数</span><strong id="days-count">—</strong><small>北京时间 · 包含计入为零的日期</small></article><article><span>活动片段</span><strong id="session-count">—</strong><small>跨日片段只计一次</small></article></section>
+      <p class="footnote" id="timing-note"></p>
+      <div class="library-layout">
+        <div>
+          <section class="records panel"><div class="section-head"><div><h2>每月累计</h2><p>仅展示有记录的月份 · 条形长度按计入时长</p></div></div><div id="months" class="months"></div></section>
+          <section class="records panel"><div class="section-head"><div><h2>使用日期</h2><p>点击日期回看当天的完整活动</p></div></div><div class="table-wrap"><table><thead><tr><th>日期</th><th class="num">原始时长</th><th class="num">计入时长</th><th class="num">扣除离开</th></tr></thead><tbody id="day-rows"></tbody></table></div><footer class="pagination"><span id="day-label"></span><div><button id="previous-days">上一页</button><button id="next-days">下一页</button></div></footer></section>
+          <section class="records panel"><div class="section-head"><div><h2>最近活动</h2><p>最近 20 个片段 · 保留识别时的名称和原始标题</p></div></div><div id="recent" class="recent"></div></section>
+        </div>
+        <aside>
+          <section class="records panel manage"><h2>名称与备注</h2><form id="edit"><label>展示名称<input id="name" maxlength="300" required></label><label>备注<textarea id="notes" maxlength="2000" rows="3" placeholder="记下版本、阅读进度或其他说明"></textarea></label><button class="primary" type="submit">保存名称与备注</button></form><p class="helper">展示名称只影响作品库。识别名称、原始记录和活动分类保持各自的记录。</p></section>
+          <section class="records panel manage"><h2>已关联名称</h2><p class="helper">同一应用、分类下再次识别出这些名称时，会继续归入当前作品。可将一个名称拆回独立条目。</p><div id="aliases"></div>
+            <details><summary>关联一个新名称</summary><form id="add-alias"><label>所属应用<input id="alias-app" maxlength="300" required list="apps"></label><datalist id="apps"></datalist><label>识别名称<input id="alias-name" maxlength="300" required placeholder="填写活动分类中的内容名称"></label><button type="submit">关联名称</button></form><p class="helper">应用须与活动记录中的应用一致；这里建立名称对应关系，不会替你识别网页或修改分类。</p></details>
+          </section>
+          <section class="records panel manage"><h2>合并已有内容</h2><p class="helper">把同一作品的不同条目汇入当前作品。累计时长和日期会一起汇总；之后可按名称拆分。</p><form id="merge-search"><label>搜索同分类内容<input id="merge-query" type="search" maxlength="300" placeholder="输入另一个名称"></label><button type="submit">查找可合并内容</button></form><form id="merge"><label>合并来源<select id="merge-source" required><option value="">请先搜索</option></select></label><p id="merge-preview" class="helper"></p><button type="submit" id="merge-submit" disabled>合并到当前作品</button></form><p class="helper">只合并作品库的对应关系。另一个条目的原展示名称和备注仍保留在原详情中。</p></section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

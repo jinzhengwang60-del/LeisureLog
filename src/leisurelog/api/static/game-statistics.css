@@ -1,0 +1,15 @@
+/* Games */
+.game-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.game-state{font-size:12px;color:var(--muted);margin-top:3px}
+.game-title{max-width:400px}
+#games-body tr td:first-child a,#rows a{font-weight:600}
+.daily-track{height:8px;background:var(--rule-soft);border-radius:2px;width:180px;min-width:80px;overflow:hidden}
+.daily-fill{height:100%;background:var(--c-game);border-radius:2px}
+#detail .month-fill{background:var(--c-game)}
+#detail .recent-entry::before{background:var(--c-game)}
+#loading{color:var(--muted);font-size:13px}
+#no-history{margin-bottom:22px}
+#detail-state{line-height:1.8}
+#detail-name{overflow-wrap:anywhere}
+.recent-entry a{display:inline-block}
+@media(max-width:720px){.game-metrics{grid-template-columns:1fr 1fr}.game-metrics article:nth-child(3){grid-column:1/-1}.daily-track{width:100px}#scope{max-width:none}}

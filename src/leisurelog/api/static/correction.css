@@ -1,0 +1,14 @@
+/* Correction / timing forms inside the activity detail dialog */
+.correction{background:var(--wash);border:1px solid var(--rule);border-radius:8px;padding:18px 20px;margin-top:20px}
+.correction h3,dialog .correction h3{margin:0}
+.correction p{font-size:12px;margin:6px 0 14px}
+.correction label{font-size:12px;color:var(--muted)}
+.correction>select{display:block;margin:6px 0 12px}
+.correction-grid{display:grid;grid-template-columns:140px 1fr;gap:12px}
+.correction-field:last-child{grid-column:1/-1}
+.correction-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.correction-field input,.correction-field select{width:100%;max-width:none}
+.correction-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.correction .correction-error{color:var(--danger)}
+.badge[title="人工覆盖"]{font-weight:600}
+@media(max-width:720px){.correction-grid{grid-template-columns:1fr}}

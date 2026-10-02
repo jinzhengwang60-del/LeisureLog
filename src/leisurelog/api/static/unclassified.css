@@ -1,0 +1,28 @@
+.uncl-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.uncl-app{display:flex;gap:12px;align-items:stretch;min-width:240px;max-width:460px}
+.uncl-app .app-icon{background:var(--unknown-chip)}
+tr[class^=cat-] .uncl-app .app-icon{background:var(--cat)}
+.uncl-app .app-name small{font-weight:400;color:var(--faint);margin-left:6px;font-size:12px}
+.samples{color:var(--muted);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:380px}
+.assign{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
+.assign select{width:118px;min-height:32px;padding:5px 8px}
+.assign input{width:130px;min-height:32px;padding:5px 9px}
+.assign button{min-height:32px;padding:5px 12px}
+.assign input[hidden]{display:none}
+tr.saved td{background:var(--ok-wash)}
+tr.saved .uncl-app .app-icon{background:var(--cat)}
+.saved-label{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+.saved-label::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--cat)}
+.minor{border-top:1px solid var(--rule)}
+.minor summary{padding:12px 22px;font-size:13px;color:var(--link);cursor:pointer}
+.minor table{border-top:1px solid var(--rule)}
+.browsers{margin-top:22px}
+.url-state{font-size:12px;color:var(--muted)}
+.url-state.missing{color:var(--danger)}
+@media(max-width:720px){
+  .uncl-metrics{grid-template-columns:1fr 1fr}
+  .uncl-metrics article:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--rule)}
+  .assign{flex-wrap:wrap}
+  .assign select,.assign input{width:100%}
+  .minor summary{padding:12px 16px}
+}
