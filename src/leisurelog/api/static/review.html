@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/sky-clock.js?v=1"></script>
+  <script src="/static/theme.js?v=redesign1" type="module"></script>
+  <title>LeisureLog · 每周回顾</title>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/appearance.css?v=redesign1"><link rel="stylesheet" href="/static/statistics.css?v=system1"><link rel="stylesheet" href="/static/review.css?v=2">
+  <script src="/static/review.js?v=2" type="module"></script>
+</head>
+<body data-page="review">
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review" aria-current="page">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <main>
+    <section class="heading"><div><p class="eyebrow" id="week-label">每周回顾</p><h1 id="week-title">这一周</h1><p class="intro" id="summary">正在整理这一周…</p></div><span class="scope">周一至周日 · 北京时间</span></section>
+    <nav class="week-nav" aria-label="切换周"><button type="button" id="previous-week">‹ 上一周</button><button type="button" id="this-week">本周</button><button type="button" id="next-week">下一周 ›</button></nav>
+    <p id="error" class="error" role="alert" hidden></p>
+    <section class="metrics review-metrics" aria-label="这一周的数字">
+      <article><span>娱乐时间</span><strong id="leisure">—</strong><small id="leisure-compare">—</small></article>
+      <article><span>有记录的日子平均</span><strong id="daily">—</strong><small id="daily-note">—</small></article>
+      <article><span>最长的一次</span><strong id="longest">—</strong><small id="longest-note">—</small></article>
+      <article><span>深夜娱乐（0–5 点）</span><strong id="late">—</strong><small id="late-note">—</small></article>
+    </section>
+    <section class="chart-panel">
+      <div class="section-head"><div><h2>每天的娱乐</h2><p>按分类叠加 · 点击某一天查看当天的活动</p></div></div>
+      <div class="trend-scroll"><div class="trend-chart review-days" id="days"></div></div>
+    </section>
+    <div class="analysis-grid">
+      <section class="chart-panel">
+        <div class="section-head"><div><h2>玩得最多</h2><p>标“新”的是上周没有出现过的</p></div></div>
+        <div class="ranking" id="top"></div>
+      </section>
+      <section class="chart-panel">
+        <div class="section-head"><div><h2>按分类</h2><p>和上周比较</p></div></div>
+        <div class="ranking" id="categories"></div>
+      </section>
+    </div>
+    <p class="footnote">只统计娱乐类别：游戏、视频、影视、动漫、阅读、音乐、社交、直播、网络闲逛。工作、系统与工具和未分类的时间不计入。时长按活动记录页的计时策略（扣除离开）。</p>
+  </main>
+</body>
+</html>

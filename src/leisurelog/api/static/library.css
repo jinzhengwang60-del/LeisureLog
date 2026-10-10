@@ -16,7 +16,7 @@
 .manage form{display:grid;gap:12px;margin-top:12px}
 .manage label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
 .manage input,.manage select,.manage textarea{width:100%;max-width:100%;min-width:0}
-.manage textarea{border:1px solid var(--rule);border-radius:6px;padding:9px 12px;resize:vertical;line-height:1.7;font-size:13px}
+.manage textarea{border:1.5px solid var(--rule-strong);border-radius:12px;padding:9px 12px;resize:vertical;line-height:1.7;font-size:13px}
 .manage button{justify-self:start}
 .helper{font-size:12px;line-height:1.8;color:var(--muted)}
 details{margin-top:14px;font-size:13px}
@@ -36,12 +36,12 @@ summary{cursor:pointer;color:var(--link)}
 .months{padding:4px 22px 18px}
 .month{display:grid;grid-template-columns:72px minmax(20px,1fr) 120px;gap:14px;align-items:center;padding:7px 0;font-family:var(--num);font-size:13px;border-bottom:1px solid var(--rule-soft)}
 .month:last-child{border-bottom:0}
-.month-track{height:8px;border-radius:2px;background:var(--rule-soft);overflow:hidden}
-.month-fill{height:100%;background:var(--ink-2);border-radius:2px}
+.month-track{height:10px;border-radius:999px;background:var(--rule-soft);overflow:hidden}
+.month-fill{height:100%;background:var(--bar-confirmed);border-radius:999px}
 .month-value{text-align:right}
 .recent{padding:0 22px 12px}
 .recent-entry{padding:12px 0 12px 14px;border-bottom:1px solid var(--rule-soft);font-size:13px;line-height:1.7;position:relative}
-.recent-entry::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:2px;background:var(--rule)}
+.recent-entry::before{content:"";position:absolute;left:0;top:18px;width:8px;height:8px;border-radius:50%;background:var(--bar-confirmed)}
 .recent-entry:last-child{border-bottom:0}
 .recent-entry p{margin:2px 0;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
 .no-data{padding:18px 0;color:var(--muted);font-size:13px}

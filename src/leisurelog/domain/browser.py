@@ -28,6 +28,8 @@ class BrowserSourceRecord:
     source_event_id: str
     payload: dict
     metadata: dict
+    # (start, end): whether the source cut this slice at the requested range's edge.
+    cropped: tuple[bool, bool] = (False, False)
 
 
 @dataclass(frozen=True)

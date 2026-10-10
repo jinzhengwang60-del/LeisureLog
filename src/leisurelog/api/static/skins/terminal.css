@@ -1,0 +1,157 @@
+@import url("/static/skin-base.css?v=dups1");
+/* 旧电脑: Windows 98 in Chinese. Tahoma with SimSun, silver bevels, a navy caption gradient,
+   list-view selection on hover and a taskbar. The stable "terminal" ID is kept for saved preferences. */
+:root{
+ --text:Tahoma,"SimSun","NSimSun","Microsoft YaHei UI",sans-serif;--num:"Lucida Console",Consolas,"Courier New","SimSun",monospace;--radius:0px;
+ --ink:#000;--ink-2:#1a1a1a;--muted:#404040;--faint:#585858;
+ --paper:#008080;--sheet:#fff;--wash:#ececec;--rule:#a0a0a0;--rule-soft:#e4e4e4;--rule-strong:#808080;--row-hover:#000080;
+ --accent:#000080;--accent-soft:#d6dcf2;--on-accent:#fff;--link:#0000c8;--focus:#000;
+ --danger:#c00000;--danger-wash:#fff0f0;--ok-wash:#eef3e8;--bar-confirmed:#000080;--bar-uncertain:#8c8cc8;
+ --backdrop:rgba(0,32,32,.45);--shadow:rgba(0,0,0,.35);
+ --chrome:#c0c0c0;--chrome-light:#fff;--chrome-dark:#808080;--chrome-edge:#000;
+ --title-bar:#000080;--title-end:#1084d0;--title-text:#fff;--display-bg:#0b1a0b;--display-fg:#39ff7a;
+ --raised:inset 1px 1px var(--chrome-light),inset -1px -1px var(--chrome-dark),inset 2px 2px #dfdfdf;
+ --sunken:inset 1px 1px var(--chrome-dark),inset -1px -1px var(--chrome-light),inset 2px 2px #404040;
+ --c-game:#2a4fd6;--c-video:#c8102e;--c-film:#7a2fa0;--c-anime:#c0408f;--c-live:#d2691e;--c-reading:#0f7f5f;--c-music:#1478b4;--c-social:#b89400;--c-browsing:#3f9a1d;--c-work:#6c7a89;--c-other:#8a6d3b;--c-unknown:#a8a8a8;
+ --tip-bg:#ffffe1;--tip-fg:#000;
+}
+:root[data-theme=dark]{
+ --ink:#e8e8e8;--ink-2:#d4d4d4;--muted:#b0b0b0;--faint:#9a9a9a;
+ --paper:#0b3b3b;--sheet:#1e2224;--wash:#2c3134;--rule:#4a5054;--rule-soft:#2f3437;--rule-strong:#6a7074;--row-hover:#1c3f8f;
+ --accent:#9fb6ff;--accent-soft:#2a3558;--on-accent:#0d1530;--link:#a9c1ff;--focus:#e8e8e8;
+ --danger:#ff9a9a;--danger-wash:#4a2626;--ok-wash:#28362b;--bar-confirmed:#8aa6ff;--bar-uncertain:#4f5d8a;
+ --chrome:#3c4245;--chrome-light:#6c7478;--chrome-dark:#1f2325;--chrome-edge:#0a0c0d;
+ --raised:inset 1px 1px var(--chrome-light),inset -1px -1px var(--chrome-edge),inset 2px 2px #50575a;
+ --sunken:inset 1px 1px var(--chrome-edge),inset -1px -1px var(--chrome-light),inset 2px 2px #15181a;
+ --title-bar:#0a246a;--title-end:#3a6ea5;--display-bg:#071107;--display-fg:#39ff7a;
+ --c-game:#7d95ff;--c-video:#ff6b7f;--c-film:#c18af0;--c-anime:#f08cc8;--c-live:#ffa45c;--c-reading:#4cd0a4;--c-music:#5bb8f0;--c-social:#e8c54a;--c-browsing:#8fd06a;--c-work:#a3adb8;--c-other:#c9a27c;--c-unknown:#5a6064;
+ --backdrop:rgba(0,0,0,.65);--shadow:rgba(0,0,0,.5);--tip-bg:#2c3134;--tip-fg:#e8e8e8;
+}
+body{background:var(--paper);padding:28px 28px 64px;--retro-page:"活动记录"}
+body[data-page=unclassified]{--retro-page:"待分类"}body[data-page=statistics]{--retro-page:"统计与趋势"}body[data-page=games]{--retro-page:"游戏"}body[data-page=preferences]{--retro-page:"类型与偏好"}body[data-page=library]{--retro-page:"玩过看过"}body[data-page=review]{--retro-page:"每周回顾"}
+/* One application window sits on the desktop, rather than loose modern cards. */
+.top,main{max-width:1184px;width:100%;margin-inline:auto;border:2px solid;border-color:var(--chrome-light) var(--chrome-edge) var(--chrome-edge) var(--chrome-light);background:var(--chrome);box-shadow:2px 2px 0 var(--chrome-edge)}
+.top{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:32px 38px;gap:4px 12px;padding:3px 9px 0;min-height:0;border-bottom:0;z-index:20;isolation:isolate}
+.top::before{content:"";position:absolute;z-index:-1;top:3px;left:3px;right:3px;height:32px;background:linear-gradient(90deg,var(--title-bar),var(--title-end))}
+.brand{font-family:Tahoma,"SimSun",sans-serif;font-weight:700;color:var(--title-text);font-size:14px;letter-spacing:0;gap:8px;min-width:0;align-self:center;padding-left:2px}
+.brand .logo{display:none}.brand::before{content:"";display:block;flex-shrink:0;width:20px;height:20px;background:url("/static/retro-disk.svg") center/20px no-repeat}
+.brand::after{content:"— " var(--retro-page);font-size:12px;font-weight:400;overflow:hidden;text-overflow:ellipsis}
+.top .theme-toggle{margin-left:0;min-height:24px;align-self:center;padding:2px 8px;font-size:11px}
+.top .theme-toggle span{font-size:11px}.theme-toggle svg{display:none}
+.top .tools{align-self:center;margin:0}.tools summary{padding:2px 8px;min-height:24px;font-size:11px}
+.site-nav{grid-column:1/-1;grid-row:2;gap:2px;align-items:center;border-bottom:1px solid var(--chrome-dark);padding:0 0 4px;box-shadow:0 1px var(--chrome-light);overflow:auto}
+.site-nav a{font-size:12px;color:var(--ink);padding:4px 12px;text-decoration:none;min-height:27px;display:flex;align-items:center;border:1px solid transparent}
+.site-nav a:hover{background:var(--chrome);box-shadow:var(--raised);border-color:var(--chrome-dark)}
+.site-nav a[aria-current=page]{background:var(--chrome);color:var(--ink);font-weight:600;box-shadow:var(--sunken);border-color:var(--chrome-dark)}
+main{border-top:0;padding:20px 20px 14px;position:relative;min-width:0}
+main::after{content:"LeisureLog  /  " var(--retro-page) "  ·  本地记录";display:block;font-family:var(--num);font-size:11px;color:var(--muted);padding:5px 10px;margin:20px 0 0;box-shadow:var(--sunken);border:1px solid var(--chrome-dark)}
+h1{font-size:28px;font-weight:700;letter-spacing:0}h2{font-size:14px;font-weight:700}.intro{font-size:12px;margin-top:6px}.heading{margin-bottom:20px}.scope{font-family:var(--num);font-size:11px}
+/* Buttons have a raised edge; fields have a recessed edge. */
+button,.tools summary{background:var(--chrome);border:1px solid var(--chrome-edge);box-shadow:var(--raised);color:var(--ink);border-radius:0;padding:5px 11px;min-height:30px}
+button:hover,.tools summary:hover{background:var(--chrome);border-color:var(--chrome-edge)}
+button:active:not(:disabled){box-shadow:var(--sunken)}
+button:disabled{opacity:.55}.primary{color:var(--ink);background:var(--chrome);outline:1px solid var(--chrome-edge);outline-offset:1px}.primary:hover{background:var(--chrome);filter:none}
+input,select,textarea{border:1px solid var(--chrome-dark);box-shadow:var(--sunken);background:var(--sheet);border-radius:0;min-height:30px;padding:5px 9px;font-size:12px}
+input[type=radio],input[type=checkbox]{box-shadow:none;border:0;padding:0;background:transparent}
+:focus-visible{outline:1px dotted var(--ink);outline-offset:2px}
+.tools-menu{background:var(--chrome);border:1px solid var(--chrome-edge);padding:5px;border-radius:0;box-shadow:var(--raised),2px 2px var(--chrome-edge)}.tools-menu button{box-shadow:none;border:0}.tools-menu button:hover{background:var(--title-bar);color:var(--title-text)}
+.day-head{padding:0 2px 14px;margin-bottom:16px;border-bottom:1px solid var(--chrome-dark);box-shadow:0 1px var(--chrome-light);align-items:center}
+.day-title{gap:14px}.day-title h1{font-size:32px;font-family:var(--num);letter-spacing:-1px}.weekday{font-size:12px;color:var(--muted)}.day-tools{gap:6px}.statusbox{font-size:11px}.statusbox::before{border-radius:0;width:5px;height:5px;box-shadow:0 0 0 1px var(--chrome-dark)}
+/* The four readouts form one instrument panel with inset digital displays. */
+.metrics{gap:0;padding:8px;border:1px solid var(--chrome-dark);box-shadow:var(--sunken);background:var(--chrome);margin-bottom:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.metrics article{border:0;border-right:1px solid var(--chrome-dark);border-radius:0;background:none;padding:4px 14px 6px;box-shadow:1px 0 var(--chrome-light)}
+.metrics article:last-child{border-right:0;box-shadow:none}.metrics span{font-size:11px;font-weight:600;color:var(--ink-2)}
+.metrics strong{background:var(--display-bg);color:var(--display-fg);font:normal 24px/1.3 var(--num);letter-spacing:0;padding:7px 9px;margin:6px 0;box-shadow:var(--sunken);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.metrics small{color:var(--muted);font-size:10px;line-height:1.6}
+.records,.chart-panel,.ribbon{border-radius:0;border:1px solid var(--chrome-dark);background:var(--chrome);box-shadow:var(--raised),1px 1px var(--chrome-edge);overflow:hidden}
+/* Navy panel captions and ivory work areas echo desktop utility windows. */
+.section-head{display:flex;align-items:center;padding:8px 12px;background:var(--title-bar);color:var(--title-text);border:3px solid var(--chrome);margin:0;gap:12px}
+.section-head h2{font-size:13px;color:var(--title-text)}.section-head h2 span{color:var(--title-text);background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:0;font-size:10px;padding:0 5px}
+.section-head p{color:#d9e1f2;font-size:10px;margin:2px 0 0}.section-head a{color:#fff3bf;font-size:11px}.section-head label{color:var(--title-text)}
+:root[data-style=terminal] .section-head .legend{color:#d9e1f2}
+:root[data-style=terminal] .section-head select,:root[data-style=terminal] .section-head input{color:var(--ink);background:var(--sheet)}
+.ranking,.type-distribution,.months,.recent,.trend-scroll,.hours-scroll,.manage,.type-form{background:var(--sheet)}
+.table-wrap{margin:4px;box-shadow:var(--sunken);border:1px solid var(--chrome-dark);background:var(--sheet)}
+table{font-size:12px;background:var(--sheet)}th{font-size:11px;color:var(--ink);font-weight:500;background:var(--chrome);padding:7px 12px;border:1px solid var(--chrome-dark);box-shadow:var(--raised)}
+td{padding:10px 12px;border-bottom:1px solid var(--rule-soft)}td.time{font-family:var(--num);font-size:11px}.app-name{font-size:12px}.title{font-size:11px}.app-icon{width:10px;height:10px;border-radius:0;border:1px solid var(--chrome-dark)}
+.badge{font-size:11px;background:transparent;border:0;padding:2px 0;color:var(--ink)}.badge::before{border:1px solid var(--chrome-dark);width:8px;height:8px;border-radius:0}
+.bar{border-radius:0;height:7px;border:1px solid var(--chrome-dark)}.bar-label{font-size:10px}.detail-button{box-shadow:none;background:transparent;border:0;color:var(--link);font-size:11px;padding:3px 7px;min-height:24px}.detail-button:hover{background:var(--accent-soft)}
+.pagination{border:0;box-shadow:var(--sunken);margin:4px;padding:8px 10px;font-size:11px;background:var(--chrome)}
+.toolbar{padding:10px;border:1px solid var(--chrome-dark);box-shadow:var(--raised);background:var(--chrome);margin-bottom:14px;gap:10px}
+.filter-controls{gap:6px}.list-switches{gap:12px}.switch{font-size:11px;color:var(--ink)}.switch input{box-shadow:none;border:0;width:13px;height:13px}
+.ribbon{padding:12px;margin-bottom:16px;position:relative}
+.ribbon::before{content:"24 小时活动时间带";display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.ribbon-track{height:48px;background:repeating-linear-gradient(90deg,var(--rule-soft) 0 1px,transparent 1px calc(100%/24)),var(--sheet);box-shadow:var(--sunken);border:1px solid var(--chrome-dark);border-radius:0}
+.ribbon-track .block{top:7px;bottom:7px;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.22) 2px 3px),var(--cat)}.ribbon-track .block:hover{top:4px;bottom:4px}
+.ribbon-hours{font-family:var(--num);font-size:10px;margin-top:6px;height:16px}.ribbon-legend{gap:3px 9px;padding-top:7px;margin-top:6px;border-top:1px solid var(--chrome-dark);font-size:11px}
+.legend-filter{box-shadow:none;border:0;background:transparent;color:var(--ink);font-size:11px;padding:3px 4px;min-height:24px}.legend-filter:hover{background:var(--wash)}.legend-filter[aria-pressed=true]{background:var(--accent-soft);box-shadow:var(--sunken)}.ribbon-legend i{border-radius:0;width:8px;height:8px;border:1px solid var(--chrome-dark)}
+.footnote{max-width:none;font-size:10px;line-height:1.7;color:var(--muted);margin:14px 2px 0}
+.error,.notice{border-radius:0;font-size:12px}.empty{background:var(--sheet)}.empty h3{font-size:16px}
+/* Secondary windows follow the same caption / client-area / button language. */
+dialog{background:var(--chrome);border:2px solid;border-color:var(--chrome-light) var(--chrome-edge) var(--chrome-edge) var(--chrome-light);border-radius:0;padding:8px 20px 20px;box-shadow:var(--raised),4px 4px var(--shadow)}
+.dialog-head{background:linear-gradient(90deg,var(--title-bar),var(--title-end));color:var(--title-text);padding:7px 8px;margin:0 -14px 14px;align-items:center;gap:12px}
+.dialog-head h2{font-size:16px;color:var(--title-text)}.dialog-head .eyebrow{color:#d9e1f2;font-size:9px;margin:0 0 2px}
+.dialog-head button{background:var(--chrome);color:var(--ink);width:28px;min-height:24px;border:1px solid var(--chrome-edge);box-shadow:var(--raised);border-radius:0;font-size:12px}
+.detail-summary div{box-shadow:var(--sunken);background:var(--sheet);border-radius:0}.detail-summary strong{font-family:var(--num)}
+/* Specificity is intentional: these must override the shared per-page sheets. */
+:root[data-style=terminal] .presets,:root[data-style=terminal] .presets button,:root[data-style=terminal] .trend-stack,:root[data-style=terminal] .hours-cell,:root[data-style=terminal] .rank-track,:root[data-style=terminal] .rank-fill,:root[data-style=terminal] .month-track,:root[data-style=terminal] .month-fill,:root[data-style=terminal] .type-track,:root[data-style=terminal] .month-stack,:root[data-style=terminal] .manage textarea,:root[data-style=terminal] .type-form textarea,:root[data-style=terminal] .type-form select,:root[data-style=terminal] .correction{border-radius:0}
+:root[data-style=terminal] .presets{padding:3px;border:1px solid var(--chrome-dark);background:var(--chrome);box-shadow:var(--sunken);gap:3px}
+:root[data-style=terminal] .presets button{border:1px solid var(--chrome-edge);box-shadow:var(--raised);font-size:11px;min-height:27px}
+:root[data-style=terminal] .presets button[aria-pressed=true]{color:var(--ink);background:var(--chrome);box-shadow:var(--sunken)}
+:root[data-style=terminal] .range-panel{background:var(--chrome);box-shadow:var(--raised);padding:12px}
+:root[data-style=terminal] .range-inputs input{min-height:30px}
+:root[data-style=terminal] .section-head label{color:var(--title-text)}
+:root[data-style=terminal] .chart-panel .empty{color:var(--muted)}
+:root[data-style=terminal] .trend-chart{border-color:var(--chrome-dark)}
+:root[data-style=terminal] .analysis-grid{gap:16px}
+:root[data-style=terminal] .chart-panel{margin-bottom:16px}
+:root[data-style=terminal] .rank-track,:root[data-style=terminal] .month-track,:root[data-style=terminal] .type-track{box-shadow:var(--sunken);height:9px}
+:root[data-style=terminal] .rank-fill{background:var(--bar-confirmed)}
+:root[data-style=terminal] .manage{padding:16px}.manage h2{color:var(--ink)}
+:root[data-style=terminal] .library-metrics{max-width:none}
+:root[data-style=terminal] .back{box-shadow:none;background:none;border:0;color:var(--link)}
+:root[data-style=terminal] .library-title,:root[data-style=terminal] .type-row-heading button{box-shadow:none;border:0;background:none;color:var(--ink)}
+:root[data-style=terminal] .appearance-dialog .skin-option{box-shadow:var(--raised);border:1px solid var(--chrome-dark);border-radius:0;background:var(--chrome)}
+:root[data-style=terminal] .appearance-dialog .skin-option[aria-pressed=true]{box-shadow:var(--sunken);outline:2px solid var(--title-bar);outline-offset:-4px}
+:root[data-style=terminal] .appearance-modes{border-radius:0;box-shadow:var(--sunken);border:1px solid var(--chrome-dark)}
+:root[data-style=terminal] .appearance-footer{border-color:var(--chrome-dark)}
+/* Home becomes an instrument panel above a timeline and file-list window. */
+body[data-page=activity] main{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+body[data-page=activity] main>*{min-width:0;margin-bottom:0}
+body[data-page=activity] .day-head{grid-row:1}.metrics{min-width:0}
+body[data-page=activity] .today{grid-row:2}body[data-page=activity] .ribbon{grid-row:3}
+@media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics article:nth-child(2){border-right:0;box-shadow:none}.metrics article:nth-child(-n+2){padding-bottom:12px;margin-bottom:8px;border-bottom:1px solid var(--chrome-dark)}.brand::after{display:none}}
+@media(max-width:760px){
+ body{padding:10px 10px 24px}.top{padding:3px 7px 0;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:32px auto;gap:3px 6px}.brand{font-size:13px}.brand::before{width:17px;height:17px;background-size:17px}.top .theme-toggle{padding:2px 6px;min-height:24px}.top .theme-toggle span{font-size:10px}
+ .site-nav{grid-column:1/-1;grid-row:2;width:auto;margin:0;padding:3px 0 6px}.site-nav a{font-size:11px;padding:4px 8px;min-height:27px}.top .tools{grid-column:1/-1;grid-row:3;justify-self:end;margin-bottom:5px}
+ main{padding:14px 10px 10px}.heading{gap:10px;margin-bottom:16px}h1{font-size:23px}.day-head{gap:10px}.day-title h1{font-size:28px}.day-title{gap:10px}.day-tools{align-items:flex-start}.date-control{gap:4px}.date-control input[type=date]{width:138px}.statusbox{font-size:10px;flex-wrap:wrap}
+ .metrics{padding:5px}.metrics article{padding:5px 9px}.metrics strong{font-size:19px;padding:6px}.metrics small{font-size:10px}.ribbon{padding:10px}.ribbon-legend{gap:3px 5px}.ribbon-hours span:nth-child(even){display:none}
+ .toolbar{padding:8px;gap:8px}.filter-controls select{max-width:48%;min-width:0}.list-switches{gap:8px}.section-head{padding:7px 9px;flex-wrap:wrap;align-items:flex-start}.section-head p{font-size:10px}.section-head h2{font-size:12px}.pagination{padding:7px 8px}.pagination button{padding:4px 7px;font-size:11px}.footnote{font-size:10px}
+ dialog{padding:8px 14px 16px}.dialog-head{margin-inline:-8px}.dialog-head h2{font-size:15px}.detail-summary{grid-template-columns:1fr}.appearance-footer{flex-wrap:wrap}.appearance-footer span{max-width:70%}
+}
+/* Explorer-style selection, a taskbar and a Start button. */
+tbody tr:hover td{background:var(--row-hover);color:#fff}
+tbody tr:hover td :is(.title,.group-count,.bar-label,.manual-label,.detail-button,.app-name,.badge,a,small,.library-app,.game-state,.samples,.url-state){color:#fff}
+tbody tr:hover .bar{border-color:#fff}
+.metrics strong{text-shadow:0 0 6px color-mix(in srgb,var(--display-fg) 55%,transparent)}
+body::before{content:"";position:fixed;z-index:25;left:0;right:0;bottom:0;height:32px;background:var(--chrome);box-shadow:inset 0 1px var(--chrome-light),inset 0 2px #dfdfdf}
+body::after{content:"开始";position:fixed;z-index:26;left:3px;bottom:3px;height:26px;padding:0 12px 0 30px;display:flex;align-items:center;font:700 12px Tahoma,"SimSun",sans-serif;color:var(--ink);background:url("/static/retro-disk.svg") 8px center/16px no-repeat,var(--chrome);box-shadow:var(--raised),inset -1px -1px var(--chrome-edge)}
+:root[data-theme=dark] body::before{box-shadow:inset 0 1px var(--chrome-light)}
+@media(max-width:760px){body{padding-bottom:24px}body::before,body::after{display:none}}
+/* the day's headline: an LCD readout beside two list windows */
+.today{gap:10px}
+.today>article{border-radius:0;border:1px solid var(--chrome-dark);background:var(--chrome);box-shadow:var(--raised),1px 1px var(--chrome-edge);padding:10px 12px}
+.today-label{font-size:11px;font-weight:700;color:var(--ink-2)}
+.today-main strong{background:var(--display-bg);color:var(--display-fg);font:normal 34px/1.25 var(--num);letter-spacing:0;padding:8px 12px;margin:8px 0 6px;box-shadow:var(--sunken);text-shadow:0 0 6px color-mix(in srgb,var(--display-fg) 55%,transparent)}
+.top-list{background:var(--sheet);box-shadow:var(--sunken);border:1px solid var(--chrome-dark);padding:8px 10px;margin-top:8px}
+.top-list li{font-size:12px}.top-list i,.split-legend i{border-radius:0;border:1px solid var(--chrome-dark)}
+.split-bar{border-radius:0;height:14px;box-shadow:var(--sunken);border:1px solid var(--chrome-dark);background:var(--sheet)}
+.split-legend{font-size:11px}
+.data-details>summary{font-size:11px;color:var(--ink)}
+.cover-art{border-radius:0;box-shadow:var(--sunken);border:2px solid var(--chrome)}
+.cover-card:hover .cover-art{transform:none;outline:1px dotted var(--ink);outline-offset:2px}
+.cover-tag{border-radius:0;background:var(--title-bar);font-size:10px}
+.cover-wall{background:var(--sheet);margin:4px;box-shadow:var(--sunken)}
+.view-switch{border-radius:0;box-shadow:var(--raised);border:1px solid var(--chrome-edge)}
+:root .view-switch button{color:var(--ink);background:var(--chrome);box-shadow:var(--raised);border-radius:0}
+:root .view-switch button[aria-pressed=true]{color:var(--ink);background:var(--chrome);box-shadow:var(--sunken);font-weight:700}

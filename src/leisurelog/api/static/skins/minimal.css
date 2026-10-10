@@ -1,0 +1,106 @@
+/* 素白: warm paper, one ink-blue accent and large tabular numbers. Colour is reserved for categories. */
+@import url("/static/skin-base.css?v=dups1");
+:root[data-style=minimal]{
+ --text:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+ --display:"Segoe UI Variable Display","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;--num:var(--display);--radius:10px;
+ --ink:#1d1c1a;--ink-2:#3d3b37;--muted:#6e6a63;--faint:#8b877f;--paper:#f5f4f0;--sheet:#fff;--wash:#f4f3ef;
+ --rule:#e7e4dd;--rule-soft:#efede8;--rule-strong:#d3cfc6;--row-hover:#faf9f6;
+ --accent:#3451d1;--accent-soft:#eaedfb;--on-accent:#fff;--link:#3048c0;--focus:#3451d1;
+ --danger:#c23a32;--danger-wash:#fcefed;--ok-wash:#eef6f1;--bar-confirmed:#3451d1;--bar-uncertain:#d9b45a;--backdrop:#1d1c1a5c;--shadow:#1d1c1a12;
+ --c-game:#5865f2;--c-video:#ec5577;--c-film:#9d63e6;--c-anime:#e26bbf;--c-live:#f0883e;--c-reading:#16a085;--c-music:#2d9cdb;
+ --c-social:#e0a91b;--c-browsing:#6fb03a;--c-work:#8790a3;--c-other:#b08f68;--c-unknown:#cbc8c1;--tip-bg:#1d1c1a;--tip-fg:#fff;
+}
+:root[data-style=minimal][data-theme=dark]{
+ --ink:#ecebe6;--ink-2:#cfccc5;--muted:#9c988f;--faint:#827e76;--paper:#121211;--sheet:#1b1b19;--wash:#21211f;
+ --rule:#2d2c29;--rule-soft:#262523;--rule-strong:#43413c;--row-hover:#20201e;
+ --accent:#8197ff;--accent-soft:#252b4a;--on-accent:#0f1226;--link:#9caaff;--focus:#9caaff;
+ --danger:#ff8a80;--danger-wash:#3a2220;--ok-wash:#1d2a22;--bar-confirmed:#8197ff;--bar-uncertain:#d9b866;--backdrop:#000a;--shadow:#0007;
+ --c-game:#7b86ff;--c-video:#ff6f8f;--c-film:#b58cff;--c-anime:#f28ad3;--c-live:#ffa15c;--c-reading:#3cc9a6;--c-music:#4fb7ef;
+ --c-social:#f2c341;--c-browsing:#8fcf5a;--c-work:#959db0;--c-other:#c4a47e;--c-unknown:#5d5b56;--tip-bg:#ecebe6;--tip-fg:#121211;
+}
+:root[data-style=minimal] body{background:var(--paper)}
+/* top bar: quiet text navigation, the current page marked by an ink underline */
+:root[data-style=minimal] .top{max-width:1200px;margin:auto;padding:22px 32px 0;background:transparent;border:0;gap:28px}
+:root[data-style=minimal] .brand{font-size:17px;font-weight:650;letter-spacing:-.3px}
+:root[data-style=minimal] .site-nav{gap:22px}
+:root[data-style=minimal] .site-nav a{padding:10px 0;font-size:13.5px;color:var(--muted);border-radius:0}
+:root[data-style=minimal] .site-nav a:hover{background:transparent;color:var(--ink)}
+:root[data-style=minimal] .site-nav a[aria-current=page]{background:transparent;color:var(--ink);font-weight:600;box-shadow:inset 0 -2px var(--ink)}
+:root[data-style=minimal] .theme-toggle,:root[data-style=minimal] .tools summary{border-radius:999px;font-size:12px;min-height:32px;padding:6px 13px;background:transparent;border:1px solid var(--rule-strong)}
+:root[data-style=minimal] main{max-width:1200px;padding:34px 32px 72px}
+/* type */
+:root[data-style=minimal] h1{font-size:38px;font-weight:700;letter-spacing:-1.4px}
+:root[data-style=minimal] h2{font-size:16px;font-weight:650;letter-spacing:-.2px}
+:root[data-style=minimal] .eyebrow{font-size:11px;letter-spacing:.6px;color:var(--faint)}
+:root[data-style=minimal] .intro{font-size:14px;line-height:1.75}
+:root[data-style=minimal] .day-head{margin-bottom:30px}
+:root[data-style=minimal] .day-title{gap:14px}
+:root[data-style=minimal] .day-title h1{font-size:56px;letter-spacing:-2.4px;line-height:1}
+:root[data-style=minimal] .weekday{font-size:14px}
+:root[data-style=minimal] .heading{margin-bottom:30px}
+:root[data-style=minimal] .statusbox{padding:4px 10px;border-radius:999px;background:var(--sheet);border:1px solid var(--rule)}
+/* controls */
+:root[data-style=minimal] button,:root[data-style=minimal] input,:root[data-style=minimal] select{border-color:var(--rule-strong);background:var(--sheet)}
+:root[data-style=minimal] button:hover{background:var(--wash);border-color:var(--ink-2)}
+:root[data-style=minimal] .primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+:root[data-style=minimal] .primary:hover{background:var(--ink);filter:none;opacity:.88}
+:root[data-style=minimal] .date-control button{border-radius:999px}
+/* metrics: one sheet split by hairlines, big numbers */
+:root[data-style=minimal] .metrics{gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+:root[data-style=minimal] .metrics article{border:0;border-radius:0;padding:22px 24px 20px}
+:root[data-style=minimal] .metrics span{font-size:12px;color:var(--muted)}
+:root[data-style=minimal] .metrics strong{font-size:34px;font-weight:650;letter-spacing:-1.4px;margin:10px 0 6px}
+:root[data-style=minimal] .metrics small{font-size:11.5px}
+/* cards */
+:root[data-style=minimal] .ribbon,:root[data-style=minimal] .records,:root[data-style=minimal] .chart-panel,:root[data-style=minimal] .range-panel{border:1px solid var(--rule);border-radius:16px;box-shadow:0 1px 2px var(--shadow)}
+:root[data-style=minimal] .ribbon{padding:26px 28px 20px}
+:root[data-style=minimal] .ribbon-track{height:76px;border-radius:10px;background:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px calc(100%/24)),var(--wash)}
+:root[data-style=minimal] .ribbon-track .block{top:14px;bottom:14px;border-radius:2px}
+:root[data-style=minimal] .ribbon-now{background:var(--ink);width:2px}
+:root[data-style=minimal] .ribbon-hours{color:var(--faint)}
+:root[data-style=minimal] .ribbon-legend{border-top-color:var(--rule-soft)}
+:root[data-style=minimal] .ribbon-legend i{width:8px;height:8px;border-radius:50%}
+:root[data-style=minimal] .legend-filter{border-radius:999px}
+:root[data-style=minimal] .section-head{padding:24px 26px 18px}
+:root[data-style=minimal] .section-head h2 span{border-radius:999px;background:var(--wash);color:var(--muted)}
+/* tables: no fills, small muted heads, airy rows */
+:root[data-style=minimal] th{background:transparent;color:var(--faint);font-size:11.5px;letter-spacing:.3px;padding:10px 20px;border-top:1px solid var(--rule-soft);border-bottom:1px solid var(--rule)}
+:root[data-style=minimal] td{padding:15px 20px}
+:root[data-style=minimal] td.time{color:var(--ink-2)}
+:root[data-style=minimal] .group-count{color:var(--faint)}
+:root[data-style=minimal] .app-icon{width:8px;height:8px;border-radius:50%}
+:root[data-style=minimal] .badge{background:transparent;padding:0;border-radius:0;font-size:12px;color:var(--ink-2)}
+:root[data-style=minimal] .badge::before{width:8px;height:8px;border-radius:50%}
+:root[data-style=minimal] .bar{height:4px;border-radius:999px}
+:root[data-style=minimal] .detail-button{color:var(--muted);background:transparent}:root[data-style=minimal] .detail-button:hover{color:var(--ink);background:var(--wash)}
+:root[data-style=minimal] .pagination{border-top-color:var(--rule-soft);padding:14px 26px}
+/* statistics and library */
+:root[data-style=minimal] .presets{border:1px solid var(--rule-strong);background:var(--sheet)}
+:root[data-style=minimal] .presets button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+:root[data-style=minimal] .trend-chart{border-bottom-color:var(--rule-strong)}
+:root[data-style=minimal] .trend-stack{border-radius:6px 6px 0 0}
+:root[data-style=minimal] .rank-track,:root[data-style=minimal] .type-track,:root[data-style=minimal] .month-track,:root[data-style=minimal] .daily-track{height:6px}
+:root[data-style=minimal] .month-stack{height:10px}
+:root[data-style=minimal] .hours-grid{gap:2px}:root[data-style=minimal] .hours-cell{border-radius:3px;height:20px}
+:root[data-style=minimal] .manage textarea,:root[data-style=minimal] .type-form textarea,:root[data-style=minimal] .type-form select{border:1px solid var(--rule-strong);border-radius:10px}
+:root[data-style=minimal] .correction{border-radius:12px}
+:root[data-style=minimal] dialog{border:1px solid var(--rule);border-radius:20px;box-shadow:0 30px 80px var(--shadow)}
+:root[data-style=minimal] .detail-summary div{border-radius:12px}
+@media(max-width:1100px){:root[data-style=minimal] .site-nav{gap:14px}:root[data-style=minimal] .top{gap:18px}}
+@media(max-width:760px){
+ :root[data-style=minimal] .top{padding:16px 16px 0;gap:10px 12px}
+ :root[data-style=minimal] .site-nav{gap:18px;border-bottom:1px solid var(--rule)}
+ :root[data-style=minimal] main{padding:22px 16px 48px}
+ :root[data-style=minimal] .day-title h1{font-size:40px;letter-spacing:-1.6px}
+ :root[data-style=minimal] .metrics strong{font-size:25px}:root[data-style=minimal] .metrics article{padding:16px}
+ :root[data-style=minimal] .ribbon{padding:18px 14px 14px}:root[data-style=minimal] td{padding:13px 12px}:root[data-style=minimal] th{padding:9px 12px}
+ :root[data-style=minimal] .section-head{padding:18px 16px 14px}
+}
+/* the day's headline: one sheet split by hairlines, the leisure total set large */
+:root[data-style=minimal] .today{gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px var(--shadow)}
+:root[data-style=minimal] .today>article{border:0;border-radius:0;padding:24px 26px}
+:root[data-style=minimal] .today-main strong{font-size:58px;letter-spacing:-2.6px;font-weight:700}
+:root[data-style=minimal] .top-list i,:root[data-style=minimal] .split-legend i{border-radius:50%}
+:root[data-style=minimal] .split-bar{height:8px}
+:root[data-style=minimal] .cover-art{border-radius:10px}
+:root[data-style=minimal] .view-switch button[aria-pressed=true]{background:var(--ink);color:var(--paper)}

@@ -1,22 +1,57 @@
 import {createTiming} from "./timing.js?v=timing1";
 import {openBrowserSetup} from "./browser.js";
 import {openGames} from "./games.js";
-import {openStorage} from "./storage.js";
+import {openStorage} from "./storage.js?v=auto1";
 import {openRules} from "./rule-manager.js?v=content1";
-import {renderRibbon, titleDay} from "./timeline.js?v=planner3";
+import {renderRibbon, titleDay} from "./timeline.js?v=planner4";
 "use strict";
-import { createCorrection, categoryLabels } from "/static/correction.js?v=content1";
+import { createCorrection, categoryLabels } from "/static/correction.js?v=system1";
 const $ = id => document.getElementById(id);
 $("games-setup").onclick=openGames;
-document.addEventListener("leisurelog:changed",()=>{offset=0;load();});
+document.addEventListener("leisurelog:changed",()=>{offset=0;compareCache.clear();load();});
 const categories = categoryLabels;
 const names = {"chrome.exe":"Chrome","msedge.exe":"Microsoft Edge","ChatGPT.exe":"ChatGPT","explorer.exe":"文件管理器","QQ.exe":"QQ","Weixin.exe":"微信","LockApp.exe":"锁屏","WindowsTerminal.exe":"终端"};
 const dayText = date => new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(date);
 const clock = value => new Intl.DateTimeFormat("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date(value));
 function duration(value){let n=Math.round(value||0);if(n<60)return `${n} 秒`;let h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;return h?`${h} 小时 ${m} 分`:`${m} 分 ${s} 秒`;}
+// The day's headline: leisure total, top activities, where the time went and a 7-day comparison.
+const hm=value=>{const n=Math.round((value||0)/60);if(n<1)return value>=1?"不到 1 分钟":"0 分";const h=Math.floor(n/60),m=n%60;return h?(m?`${h} 小时 ${m} 分`:`${h} 小时`):`${m} 分`;};
+const groupLabels=[["leisure","娱乐"],["work","工作"],["other","系统与其他"],["unknown","未分类"]];
+const compareCache=new Map();
+function weekBefore(day){
+  if(!compareCache.has(day)){
+    const noon=new Date(`${day}T12:00:00+08:00`).getTime(),back=n=>dayText(new Date(noon-n*86400000));
+    compareCache.set(day,request(`/api/statistics?${new URLSearchParams({start:back(7),end:back(1),granularity:"day"})}`)
+      .then(d=>{const days=d.trend.filter(t=>t.has_records).length;return days?{avg:d.totals.leisure_seconds/days,days}:null;}).catch(()=>null));
+  }
+  return compareCache.get(day);
+}
+function renderToday(h,day,isToday){
+  $("leisure-label").textContent=isToday?"今天的娱乐时间":"这一天的娱乐时间";
+  $("leisure").textContent=hm(h.leisure_seconds);
+  const list=$("top-list");list.replaceChildren();
+  if(!h.top_activities.length)list.append(node("li",isToday?"今天还没有娱乐记录":"这一天没有娱乐记录","top-empty"));
+  for(const item of h.top_activities){const li=node("li",undefined,`cat-${item.category}`),app=names[item.app]||item.app.replace(/\.exe$/i,"");li.append(node("i"),node("b",item.content||app),node("em",hm(item.active_seconds)));li.title=`${categories[item.category]||item.category} · ${app}`;list.append(li);}
+  const total=Object.values(h.groups).reduce((a,b)=>a+b,0)||1;$("split-bar").replaceChildren();$("split-legend").replaceChildren();
+  for(const [key,label] of groupLabels){const value=h.groups[key]||0,bar=node("span",undefined,`split-${key}`),li=node("li",undefined,`split-${key}`);bar.style.width=`${value/total*100}%`;bar.title=`${label} ${hm(value)}`;$("split-bar").append(bar);li.append(node("i"),node("span",label),node("b",hm(value)));$("split-legend").append(li);}
+  const note=$("leisure-compare");note.className="";note.textContent="正在和前 7 天比较…";
+  weekBefore(day).then(result=>{
+    if($("day").value!==day)return;
+    if(!result){note.textContent="前 7 天没有记录可以比较";return;}
+    if(isToday){note.textContent=`前 7 天平均每天 ${hm(result.avg)}`;return;}
+    const diff=h.leisure_seconds-result.avg;
+    if(Math.abs(diff)<300||Math.abs(diff)<result.avg*.1){note.textContent=`和前 7 天平均（${hm(result.avg)}）差不多`;note.className="even";}
+    else{note.textContent=`比前 7 天平均${diff>0?"多":"少"} ${hm(Math.abs(diff))}（平均 ${hm(result.avg)}）`;note.className=diff>0?"more":"less";}
+  });
+}
 function node(tag,text,cls){const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(cls)element.className=cls;return element;}
 async function request(url){const response=await fetch(url);if(!response.ok)throw new Error(response.status===404?"这条活动已重新合并，请刷新列表后再查看。":"读取失败，请检查 LeisureLog 是否正在运行。");return response.json();}
 let offset=0,total=0,version=0,detailVersion=0,forceRibbon=false;
+const expanded=new Set();
+const pref=(key,fallback)=>{try{const v=localStorage.getItem(`leisurelog:${key}`);return v===null?fallback:v==="1";}catch{return fallback;}};
+const savePref=(key,value)=>{try{localStorage.setItem(`leisurelog:${key}`,value?"1":"0");}catch{}};
+$("grouped").checked=pref("grouped",true);$("show-short").checked=pref("show-short",false);
+const shortClock = value => new Intl.DateTimeFormat("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(value));
 const pageSize=50;
 const linkedDay = new URLSearchParams(location.search).get("day");
 let linkedSession = new URLSearchParams(location.search).get("session");
@@ -26,24 +61,42 @@ function setOptions(id,values,label){const chosen=$(id).value;$(id).replaceChild
 async function load(){
   const ticket=++version;$("refresh").disabled=true;$("error").hidden=true;
   try{
-    const params=new URLSearchParams({day:$("day").value,app:$("app").value,category:$("category").value,query:$("search").value,limit:pageSize,offset});
+    const params=new URLSearchParams({day:$("day").value,app:$("app").value,category:$("category").value,query:$("search").value,limit:pageSize,offset,view:$("grouped").checked?"grouped":"sessions",min_seconds:$("show-short").checked?0:60});
     const data=await request(`/api/dashboard?${params}`);if(ticket!==version)return;
     total=data.total;if(offset>0&&offset>=total){offset=Math.max(0,Math.floor((total-1)/pageSize)*pageSize);load();return;}setOptions("app",data.options.apps,"全部应用");setOptions("category",data.options.categories,"全部分类");
     const sum=values=>Object.values(values).reduce((a,b)=>a+b,0);
-    $("active").textContent=duration(sum(data.summary.active_seconds_by_category));$("recorded").textContent=duration(sum(data.summary.recorded_seconds_by_category));$("afk").textContent=duration(data.summary.afk_seconds);$("unverified").textContent=duration(data.summary.unverified_seconds);$("count").textContent=total;
-    $("rows").replaceChildren();for(const item of data.items)renderRow(item);
+    $("active").textContent=duration(sum(data.summary.active_seconds_by_category));$("recorded").textContent=duration(sum(data.summary.recorded_seconds_by_category));$("afk").textContent=duration(data.summary.afk_seconds);$("unverified").textContent=duration(data.summary.unverified_seconds);$("details-summary").textContent=`计入 ${hm(sum(data.summary.active_seconds_by_category))} · 待确认 ${hm(data.summary.unverified_seconds)}`;if(data.highlights)renderToday(data.highlights,$("day").value,$("day").value===dayText(new Date()));$("count").textContent=total;
+    $("rows").replaceChildren();for(const item of data.items)renderEntry(item);
+    const merged=data.view==="grouped"?"同一应用、同一内容、相隔不到 5 分钟的片段合并为一行，时长按片段相加。":"每个片段单独一行。";
+    $("list-note").textContent=`北京时间，最近的在前。${merged}${data.hidden_short?`已收起 ${data.hidden_short} 条不到 1 分钟的零碎记录。`:""}`;
     const today=dayText(new Date());titleDay($("day").value,today);renderRibbon({day:$("day").value,app:$("app").value,category:$("category").value,query:$("search").value},data.summary,{force:forceRibbon,isToday:$("day").value===today,onPick:showDetail});forceRibbon=false;
     $("empty").hidden=total!==0;$("page-label").textContent=total?`${offset+1}–${Math.min(offset+pageSize,total)} 条 / 共 ${total} 条`:"共 0 条";$("prev-page").disabled=offset===0;$("next-page").disabled=offset+pageSize>=total;
     if(linkedSession){const id=linkedSession;linkedSession=null;showDetail({id,app:new URLSearchParams(location.search).get('app')||'活动记录'});}
   }catch(error){if(ticket===version){$("error").textContent=error.message;$("error").hidden=false;}}
   finally{if(ticket===version)$("refresh").disabled=false;}
 }
-function renderRow(item){
-  const row=node("tr",undefined,`cat-${item.classification.category}`);row.append(node("td",`${clock(item.start_time)} – ${clock(item.end_time)}`,"time"));
+function renderEntry(item){
+  if(item.kind!=="group"){$("rows").append(renderRow(item));return;}
+  if(item.session_count===1){$("rows").append(renderRow(item.sessions[0]));return;}
+  const row=renderRow(item,{group:true});$("rows").append(row);
+  if(expanded.has(item.id))toggleGroup(item,row);
+}
+function toggleGroup(item,row){
+  const open=row.dataset.open==="1",button=row.querySelector(".detail-button");
+  if(open){let next=row.nextElementSibling;while(next&&next.dataset.parent===item.id){const gone=next;next=next.nextElementSibling;gone.remove();}row.dataset.open="0";expanded.delete(item.id);button.textContent=`展开 ${item.session_count} 段`;button.setAttribute("aria-expanded","false");return;}
+  let anchor=row;for(const session of item.sessions){const child=renderRow(session,{child:true});child.dataset.parent=item.id;anchor.after(child);anchor=child;}
+  row.dataset.open="1";expanded.add(item.id);button.textContent="收起";button.setAttribute("aria-expanded","true");
+}
+function renderRow(item,{group=false,child=false}={}){
+  const row=node("tr",undefined,`cat-${item.classification.category}${group?" group-row":""}${child?" child-row":""}`);
+  const fmt=child?clock:shortClock,when=node("td",`${fmt(item.start_time)} – ${fmt(item.end_time)}`,"time");
+  if(group)when.append(node("small",`${item.session_count} 段合并`,"group-count"));row.append(when);
   const content=node("td",undefined,"content"),line=node("div",undefined,"app-line"),name=names[item.app]||item.app||"未知应用",icon=node("span",name.slice(0,1),"app-icon"),info=node("div");info.append(node("div",name,"app-name"));const title=node("div",item.classification.content||item.title||"无窗口标题","title");title.title=item.title;info.append(title);if(item.url && item.classification.content && item.title !== item.classification.content) info.append(node("div",item.title,"title"));line.append(icon,info);content.append(line);row.append(content);
   const cat=node("td"),badge=node("span",categories[item.classification.category]||item.classification.category,"badge");badge.title=item.classification.origin==="manual"?"人工覆盖":"自动分类";badge.classList.add(`cat-${item.classification.category}`);cat.append(badge);if(item.classification.origin==="manual")cat.append(node("small","人工","manual-label"));if(item.retained_afk_seconds)cat.append(node("small",`计时保留 ${duration(item.retained_afk_seconds)}`,"manual-label"));row.append(cat,node("td",duration(item.recorded_seconds),"num"),node("td",duration(item.active_seconds),"num active-time"));
   const timing=node("td"),bar=node("div",undefined,"bar"),den=item.recorded_seconds||1;const parts=[[Math.max(0,item.active_seconds-item.unverified_seconds),"confirmed"],[item.unverified_seconds,"uncertain"],[item.afk_seconds,"away"]];for(const [seconds,cls]of parts){const part=node("span",undefined,cls);part.style.width=`${seconds/den*100}%`;bar.append(part);}bar.title=`状态有记录 ${duration(parts[0][0])} · 待确认 ${duration(item.unverified_seconds)} · 离开 ${duration(item.afk_seconds)}`;timing.append(bar,node("div",item.afk_seconds?`离开 ${duration(item.afk_seconds)}`:item.unverified_seconds?"状态待确认":"状态已覆盖","bar-label"));row.append(timing);
-  const action=node("td"),button=node("button","查看","detail-button");button.addEventListener("click",()=>showDetail(item));action.append(button);row.append(action);$("rows").append(row);
+  const action=node("td"),button=node("button",group?`展开 ${item.session_count} 段`:"查看","detail-button");
+  if(group){button.setAttribute("aria-expanded","false");button.addEventListener("click",()=>toggleGroup(item,row));}else button.addEventListener("click",()=>showDetail(item));
+  action.append(button);row.append(action);return row;
 }
 async function syncStatus(){try{const state=await request("/api/sync/status");$("sync-box").dataset.state=state.last_error?"error":state.enabled?"on":"off";$("sync-state").textContent=state.last_error?"同步暂时失败，将自动重试":state.running?"正在同步活动…":state.enabled?"自动同步运行中":"自动同步已关闭";$("sync-time").textContent=state.last_success_at?`最近成功 ${clock(state.last_success_at)}`:"尚无成功同步记录";}catch{ $("sync-box").dataset.state="error";$("sync-state").textContent="暂时无法连接后端";$("sync-time").textContent="";}}
 function detailTable(headers,rows){const table=node("table"),head=node("tr");headers.forEach(h=>head.append(node("th",h)));const thead=node("thead");thead.append(head);table.append(thead);const body=node("tbody");rows.forEach(values=>{const row=node("tr");values.forEach(value=>row.append(node("td",value)));body.append(row);});table.append(body);const wrap=node("div",undefined,"table-wrap");wrap.append(table);return wrap;}
@@ -64,6 +117,8 @@ function reset(){offset=0;load();}
 function changeDay(delta){const date=new Date(`${$("day").value}T12:00:00+08:00`);date.setTime(date.getTime()+delta*86400000);$("day").value=dayText(date);$("app").value="";$("category").value="";reset();}
 $("previous-day").onclick=()=>changeDay(-1);$("next-day").onclick=()=>changeDay(1);$("today").onclick=()=>{$("day").value=dayText(new Date());$("app").value="";$("category").value="";reset();};
 $("day").onchange=()=>{if(!$("day").value)$("day").value=dayText(new Date());$("app").value="";$("category").value="";reset();};$("app").onchange=reset;$("category").onchange=reset;
+$("grouped").onchange=()=>{savePref("grouped",$("grouped").checked);reset();};$("show-short").onchange=()=>{savePref("show-short",$("show-short").checked);reset();};
+document.addEventListener("leisurelog:category",event=>{const value=$("category").value===event.detail?"":event.detail;$("category").value=value;if($("category").value!==value){const option=node("option",categories[value]||value);option.value=value;$("category").append(option);$("category").value=value;}reset();});
 let debounce;$("search").oninput=()=>{clearTimeout(debounce);debounce=setTimeout(reset,250);};$("refresh").onclick=()=>{forceRibbon=true;load();syncStatus();};$("prev-page").onclick=()=>{offset=Math.max(0,offset-pageSize);load();};$("next-page").onclick=()=>{offset+=pageSize;load();};$("close-detail").onclick=()=>$("detail").close();
 $("detail").addEventListener("click",event=>{if(event.target===$("detail")){const rect=$("detail").getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)$("detail").close();}});
 load();syncStatus();setInterval(()=>{if(!document.hidden){syncStatus();if(!$("detail").open){forceRibbon=true;load();}}},60000);

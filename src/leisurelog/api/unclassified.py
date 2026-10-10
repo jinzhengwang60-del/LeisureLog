@@ -50,3 +50,32 @@ def remember_app(body: AppRuleRequest, svc: Service):
     except KeyError as exc:
         raise HTTPException(404, "No activity recorded for this app") from exc
     return {**result, **unclassified_report(svc.repo)}
+
+
+class AppRuleBatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    rules: list[AppRuleRequest] = Field(min_length=1, max_length=200)
+
+
+@router.post("/api/classification/app-rules/batch")
+def remember_apps(body: AppRuleBatch, svc: Service):
+    """Save many app rules (e.g. accepted suggestions) and rebuild once; all or nothing."""
+    items = [
+        (
+            rule.source,
+            rule.app,
+            Classification(
+                category=rule.category,
+                content=(rule.content or "").strip() or None,
+                origin="manual",
+            ),
+        )
+        for rule in body.rules
+    ]
+    try:
+        result = svc.remember_apps(items)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except KeyError as exc:
+        raise HTTPException(404, str(exc.args[0])) from exc
+    return {**result, **unclassified_report(svc.repo)}

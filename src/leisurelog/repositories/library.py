@@ -115,7 +115,7 @@ class SQLiteLibrary:
     def add_alias(self, item_id, value):
         row = self.db.get(Alias, value.id)
         if row and row.item_id != item_id:
-            raise ValueError("这个应用下的名称已归入其他作品，请通过合并来关联")
+            raise ValueError("这个应用下的名称已归入其他条目，请通过合并来关联")
         if row is None:
             self.db.add(
                 Alias(

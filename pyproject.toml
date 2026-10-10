@@ -20,7 +20,7 @@ dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-leisurelog = ["api/static/*"]
+leisurelog = ["api/static/*", "api/static/fonts/*", "api/static/skins/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

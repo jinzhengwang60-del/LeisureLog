@@ -15,14 +15,17 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from leisurelog.domain.storage import BackupBusy
 
+# Snapshots no current event points at, for events that still exist. raw_event_id has no index,
+# so correlated NOT EXISTS scanned every event table once per snapshot; uncorrelated IN lists
+# are built once into temporary indexes. NULLs are excluded so NOT IN keeps its meaning.
 SUPERSEDED = """
 SELECT r.id FROM raw_events r
-WHERE NOT EXISTS (SELECT 1 FROM activity_events a WHERE a.raw_event_id=r.id)
-AND NOT EXISTS (SELECT 1 FROM idle_events i WHERE i.raw_event_id=r.id)
-AND NOT EXISTS (SELECT 1 FROM browser_events b WHERE b.raw_event_id=r.id)
-AND (EXISTS (SELECT 1 FROM activity_events a WHERE a.id=r.event_id)
-     OR EXISTS (SELECT 1 FROM idle_events i WHERE i.id=r.event_id)
-     OR EXISTS (SELECT 1 FROM browser_events b WHERE b.id=r.event_id))
+WHERE r.id NOT IN (SELECT raw_event_id FROM activity_events WHERE raw_event_id IS NOT NULL)
+AND r.id NOT IN (SELECT raw_event_id FROM idle_events WHERE raw_event_id IS NOT NULL)
+AND r.id NOT IN (SELECT raw_event_id FROM browser_events WHERE raw_event_id IS NOT NULL)
+AND (r.event_id IN (SELECT id FROM activity_events)
+     OR r.event_id IN (SELECT id FROM idle_events)
+     OR r.event_id IN (SELECT id FROM browser_events))
 """
 
 BACKUP_NAME = re.compile(r"leisurelog-\d{8}T\d{6}Z-[a-f0-9]{12}\.db\Z")
@@ -154,6 +157,7 @@ class SQLiteStorage:
                     "bytes": path.stat().st_size,
                     "created_at": manifest["created_at"],
                     "verified": manifest["verification"]["verified"],
+                    "automatic": bool(manifest.get("automatic", False)),
                     "counts": {
                         k: v["count"] for k, v in manifest["verification"]["tables"].items()
                     },
@@ -171,15 +175,26 @@ class SQLiteStorage:
             raise KeyError(name)
         return path
 
-    def create_backup(self) -> dict:
+    def create_backup(self, automatic: bool = False) -> dict:
         if not self.lock.acquire(blocking=False):
             raise BackupBusy()
         try:
-            return self._create_backup()
+            return self._create_backup(automatic)
         finally:
             self.lock.release()
 
-    def _create_backup(self) -> dict:
+    def delete_backup(self, name: str) -> None:
+        """Remove one backup with its manifest, rules copy and archive."""
+        path = self.download_path(name)
+        for item in (
+            path.with_suffix(".zip"),
+            path.with_suffix(".rules.yaml"),
+            path.with_suffix(".json"),
+            path,
+        ):
+            item.unlink(missing_ok=True)
+
+    def _create_backup(self, automatic: bool = False) -> dict:
         self.directory.mkdir(parents=True, exist_ok=True)
         now = datetime.now(timezone.utc)
         name = f"leisurelog-{now:%Y%m%dT%H%M%SZ}-{uuid4().hex[:12]}.db"
@@ -193,7 +208,11 @@ class SQLiteStorage:
             verification = verify_restore(temporary)
             # Keep the YAML classifier config beside the DB. User rules are already in DB.
             shutil.copyfile(self.rules_path, path.with_suffix(".rules.yaml"))
-            manifest = {"created_at": now.isoformat(), "verification": verification}
+            manifest = {
+                "created_at": now.isoformat(),
+                "automatic": automatic,
+                "verification": verification,
+            }
             path.with_suffix(".json").write_text(
                 json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
             )

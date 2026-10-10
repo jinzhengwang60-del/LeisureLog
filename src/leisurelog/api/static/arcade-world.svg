@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" shape-rendering="crispEdges">
+ <!-- Original pixel night in the PICO-8 palette: stars, moon, hills, a lit town and a cat on the roof. -->
+ <path fill="#1d2b53" d="M0 0h480v160H0z"/>
+ <path fill="#7e2553" d="M0 96h40v-8h32v-8h40v8h24v8h40v-8h48v-8h40v8h32v8h40v-8h48v-8h40v8h32v8h24v64H0z"/>
+ <path fill="#fff1e8" d="M36 18h4v4h-4zM92 34h4v4h-4zM150 12h4v4h-4zM212 30h4v4h-4zM268 14h4v4h-4zM318 40h4v4h-4zM446 22h4v4h-4zM120 58h4v4h-4zM250 56h4v4h-4zM470 52h4v4h-4z"/>
+ <path fill="#c2c3c7" d="M62 46h4v4h-4zM180 44h4v4h-4zM296 26h4v4h-4zM410 44h4v4h-4zM14 60h4v4h-4z"/>
+ <path fill="#ffec27" d="M368 14h16v4h8v4h4v16h-4v4h-8v4h-16v-4h-8v-4h-4V22h4v-4h8z"/>
+ <path fill="#ffa300" d="M372 22h4v4h-4zM380 32h4v4h-4zM366 30h4v4h-4z"/>
+ <path fill="#000" d="M0 120h28v-28h36v16h20v-36h44v44h24v-20h32v32h28v-48h40v40h24v-24h36v28h28v-40h44v32h28v-20h48v52H0z"/>
+ <path fill="#5f574f" d="M64 92h20v4H64zM128 72h-44v-4h44zM176 80h-32v-4h32zM236 64h-40v-4h40zM296 72h-36v-4h36zM368 64h-44v-4h44zM480 84h-48v-4h48z"/>
+ <path fill="#ffa300" d="M36 100h6v6h-6zM48 112h6v6h-6zM92 80h6v6h-6zM104 80h6v6h-6zM92 96h6v6h-6zM116 108h6v6h-6zM152 100h6v6h-6zM208 76h6v6h-6zM220 92h6v6h-6zM208 108h6v6h-6zM272 84h6v6h-6zM336 80h6v6h-6zM348 96h6v6h-6zM336 112h6v6h-6zM440 96h6v6h-6zM456 96h6v6h-6zM448 112h6v6h-6z"/>
+ <path fill="#ffec27" d="M48 100h6v6h-6zM104 96h6v6h-6zM164 100h6v6h-6zM220 76h6v6h-6zM284 100h6v6h-6zM348 80h6v6h-6zM456 112h6v6h-6z"/>
+ <path fill="#29adff" d="M232 108h6v6h-6zM104 112h6v6h-6zM360 112h6v6h-6z"/>
+ <path fill="#83769c" d="M226 44h8v4h4v-4h8v12h-4v4h-12v-4h-4z"/>
+ <path fill="#000" d="M228 48h4v4h-4zM240 48h4v4h-4z"/>
+ <path fill="#83769c" d="M222 60h28v4h-28zM246 52h8v4h4v4h-8z"/>
+ <path fill="#ff77a8" d="M234 52h4v4h-4z"/>
+ <path fill="#ff004d" d="M16 140h8v-4h4v4h8v-4h4v4h4v8h-4v4h-4v4h-4v4h-4v-4h-4v-4h-4v-4h-4v-8h4z"/>
+ <path fill="#ff004d" d="M52 140h8v-4h4v4h8v-4h4v4h4v8h-4v4h-4v4h-4v4h-4v-4h-4v-4h-4v-4h-4v-8h4z"/>
+ <path fill="#5f574f" d="M88 140h8v-4h4v4h8v-4h4v4h4v8h-4v4h-4v4h-4v4h-4v-4h-4v-4h-4v-4h-4v-8h4z"/>
+ <path fill="#008751" d="M0 152h480v8H0z"/>
+ <path fill="#00e436" d="M0 152h480v2H0z"/>
+</svg>

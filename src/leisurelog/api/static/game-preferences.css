@@ -10,9 +10,9 @@
 .type-row-heading span{font-family:var(--num);color:var(--ink-2)}
 .type-row-heading button{padding:0;border:0;background:none;color:var(--ink);font-weight:600;min-height:0}
 .type-row-heading button:hover{color:var(--link);text-decoration:underline;background:none}
-.type-track{background:var(--rule-soft);border-radius:2px;height:10px;overflow:hidden}
+.type-track{background:var(--rule-soft);border-radius:999px;height:12px;overflow:hidden}
 .type-fill{height:100%}
-.month-stack{display:flex;min-width:0;max-width:100%;height:14px;border-radius:2px;overflow:hidden}
+.month-stack{display:flex;min-width:0;max-width:100%;height:14px;border-radius:999px;overflow:hidden}
 .month-segment{height:100%;min-width:0}
 .trend-chart{width:300px;min-width:100px}
 .genre-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:8px}
@@ -22,11 +22,11 @@
 /* type form on a game's detail page */
 .type-form{display:grid;gap:14px;padding:4px 22px 22px}
 .type-form label{display:grid;gap:6px;max-width:560px;font-size:12px;color:var(--muted)}
-.type-form textarea,.type-form select{padding:9px 12px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);font-size:13px;max-width:none}
+.type-form textarea,.type-form select{padding:9px 12px;border:1.5px solid var(--rule-strong);border-radius:12px;background:var(--sheet);font-size:13px;max-width:none}
 .type-form textarea{min-height:96px;resize:vertical}
 .type-actions{display:flex;gap:8px;flex-wrap:wrap}
 .type-info{font-size:13px;color:var(--muted);line-height:1.8;margin:0}
 .type-form .notice{font-size:12px;line-height:1.8;max-width:62em}
 .source-tags{overflow-wrap:anywhere}
 #loading{color:var(--muted)}
-@media(max-width:720px){.preference-metrics{grid-template-columns:1fr 1fr}.preference-metrics article:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--rule)}.trend-chart{width:140px}.type-distribution,.type-form{padding-left:16px;padding-right:16px}.range-panel{padding:14px 16px}}
+@media(max-width:720px){.preference-metrics{grid-template-columns:1fr 1fr}.preference-metrics article:nth-child(3){grid-column:1/-1}.trend-chart{width:140px}.type-distribution,.type-form{padding-left:16px;padding-right:16px}.range-panel{padding:14px 16px}}

@@ -47,6 +47,14 @@ rules:
     category: reading
     content: 知乎
 
+  - id: x
+    match: {domain: x.com}
+    category: social
+    content: X
+  - id: twitter
+    match: {domain: twitter.com}
+    category: social
+    content: X
   # 浏览器没有网址时的备用识别：按窗口标题匹配，放在网址规则之后
   - id: bilibili-manga-title
     match: {title_contains: 漫画全集在线观看 - 哔哩哔哩漫画}
@@ -67,6 +75,14 @@ rules:
     match: {title_contains: 哔哩哔哩}
     category: browsing
     content: 哔哩哔哩
+  - id: x-title-chrome
+    match: {app: chrome.exe, title_contains: ' / X'}
+    category: social
+    content: X
+  - id: x-title-edge
+    match: {app: msedge.exe, title_contains: ' / X'}
+    category: social
+    content: X
   # 在浏览器里查看 LeisureLog 自己的页面，和系统窗口一样归入“其他”
   - id: leisurelog-chrome
     match: {app: chrome.exe, title_contains: LeisureLog}

@@ -1,5 +1,6 @@
 """Composition of the scheduled use case with persistence and configuration."""
 
+import logging
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
 
@@ -11,12 +12,15 @@ from leisurelog.repositories.models import SyncCheckpointRow
 from leisurelog.repositories.sqlite import SQLiteRepository
 from leisurelog.services.processing import ProcessingService
 
+logger = logging.getLogger(__name__)
+
 
 class AutomaticSync:
-    def __init__(self, sessions, source, pipeline, settings, playnite=None):
+    def __init__(self, sessions, source, pipeline, settings, playnite=None, backup=None):
         self.sessions, self.source = sessions, source
         self.pipeline, self.settings = pipeline, settings
         self.playnite = playnite
+        self.backup, self.backup_checked = backup, None
 
     def __call__(self, stop_event):
         began = perf_counter()
@@ -77,4 +81,18 @@ class AutomaticSync:
             totals["changed"] += changed
             totals["windows"] += 1
             start = window_end
+        self._maybe_backup()
         return {**totals, "processing": work, "duration_seconds": round(perf_counter() - began, 4)}
+
+    def _maybe_backup(self):
+        """At most hourly, after a sync: an automatic backup if one is due. Never fails a sync."""
+        now = datetime.now(timezone.utc)
+        if self.backup is None or (
+            self.backup_checked and now - self.backup_checked < timedelta(hours=1)
+        ):
+            return
+        self.backup_checked = now
+        try:
+            self.backup()
+        except Exception:
+            logger.exception("Automatic backup failed; will retry in an hour")

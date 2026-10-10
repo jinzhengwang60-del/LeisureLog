@@ -1,0 +1,15 @@
+/* Weekly review. Shares the trend and ranking components of the statistics page. */
+.week-nav{display:flex;gap:8px;flex-wrap:wrap;margin:-8px 0 22px}
+.review-metrics small{min-height:1.6em}
+.review-days .trend-column.future{opacity:.35}
+.review-days .trend-column.busiest .trend-label{color:var(--link);font-weight:600}
+.review-days .trend-stack{display:flex;flex-direction:column-reverse}
+.review-days .trend-segment{background:var(--cat,var(--c-unknown))}
+.rank-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.rank-dot{width:8px;height:8px;border-radius:2px;background:var(--cat,var(--c-unknown));flex-shrink:0}
+.rank-tags{display:inline-flex;align-items:center;gap:6px}
+.rank-tags small,.rank-name .delta{font-size:11px;color:var(--muted)}
+.rank-name .delta.more{color:var(--link)}
+.new-tag{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--link)}
+.rank-fill.system{background:var(--c-system)}
+@media(max-width:760px){.week-nav{margin-top:0}.week-nav button{flex:1}.review-days{gap:3px}.review-days .trend-column{min-width:0}.review-days .trend-value{font-size:10px}.review-days .trend-label{font-size:11px}.review-days .trend-label small{display:none}}

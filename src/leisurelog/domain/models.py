@@ -31,6 +31,8 @@ class SourceRecord:
     source_event_id: str
     payload: dict[str, Any]
     metadata: dict[str, Any]
+    # (start, end): whether the source cut this slice at the requested range's edge.
+    cropped: tuple[bool, bool] = (False, False)
 
 
 @dataclass(frozen=True)
@@ -50,6 +52,8 @@ class IdleSourceRecord:
     source_event_id: str
     payload: dict[str, Any]
     metadata: dict[str, Any]
+    # (start, end): whether the source cut this slice at the requested range's edge.
+    cropped: tuple[bool, bool] = (False, False)
 
 
 @dataclass

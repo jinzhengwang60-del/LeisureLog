@@ -38,16 +38,26 @@ async function fetchAll(params) {
   return (await response.json()).items;
 }
 
-function legend(summary) {
+function legend(summary, active) {
   const root = document.getElementById("ribbon-legend");
   root.replaceChildren();
   const rows = Object.entries(summary.active_seconds_by_category || {}).filter(([, s]) => s >= 1).sort((a, b) => b[1] - a[1]);
   if (!rows.length) { root.append(el("li", "这一天还没有计入时长的活动", "ribbon-empty")); return; }
   for (const [category, seconds] of rows) {
     const li = el("li", undefined, `cat-${category}`);
-    const label = el(category === "unknown" ? "a" : "span", categoryLabels[category] || category);
-    if (category === "unknown") { label.href = "/unclassified"; label.title = "去待分类页面逐个应用分类"; }
-    li.append(el("i"), label, el("b", duration(seconds)));
+    // Clicking a category filters the list below; clicking it again clears the filter.
+    const button = el("button", undefined, "legend-filter");
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(active === category));
+    button.title = active === category ? "显示全部分类" : `只看“${categoryLabels[category] || category}”`;
+    button.append(el("i"), el("span", categoryLabels[category] || category), el("b", duration(seconds)));
+    button.onclick = () => document.dispatchEvent(new CustomEvent("leisurelog:category", {detail: category}));
+    li.append(button);
+    if (category === "unknown") {
+      const link = el("a", "去分类", "legend-link");
+      link.href = "/unclassified";
+      li.append(link);
+    }
     root.append(li);
   }
 }
@@ -99,7 +109,7 @@ function draw(track, items, day, isToday, onPick) {
 // params: day/app/category/query; summary from the dashboard response.
 export async function renderRibbon(params, summary, {force = false, isToday = false, onPick}) {
   const track = document.getElementById("ribbon");
-  legend(summary);
+  legend(summary, params.category);
   const key = JSON.stringify(params);
   const current = ++ticket;
   try {

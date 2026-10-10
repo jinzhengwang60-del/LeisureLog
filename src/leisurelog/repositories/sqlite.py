@@ -1,6 +1,6 @@
 import hashlib
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 
 from sqlalchemy import case, delete, func, select
@@ -218,16 +218,29 @@ class SQLiteRepository:
             else ActivityEventRow
         )
         row = self.db.get(row_type, event.id)
+        crop_start, crop_end = getattr(record, "cropped", (False, False))
         if row:
             previous = self.db.get(RawEventRow, row.raw_event_id)
+            # ActivityWatch crops events to the requested range, so an event running across
+            # several sync windows arrives as a different slice each time. On an edge the source
+            # cut, keep what was already stored; uncut edges are the source's truth.
+            if crop_start or crop_end:
+                event = replace(
+                    event,
+                    start_time=min(row.start_time, event.start_time)
+                    if crop_start
+                    else event.start_time,
+                    end_time=max(row.end_time, event.end_time) if crop_end else event.end_time,
+                )
             unchanged = all(
                 (tuple(getattr(row, key)) if key == "browser_apps" else getattr(row, key))
                 == getattr(event, key)
                 for key in event.__dataclass_fields__
                 if key != "classification"
             )
-            # Bucket last_updated changes every heartbeat. It is not an event revision.
-            if previous.payload == record.payload and unchanged:
+            # Bucket last_updated changes every heartbeat and is not an event revision;
+            # a cropped slice that lies inside what is stored adds nothing either.
+            if unchanged and (crop_start or crop_end or previous.payload == record.payload):
                 return False
         digest = hashlib.sha256(
             json.dumps(

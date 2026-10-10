@@ -6,7 +6,7 @@ from uuid import NAMESPACE_URL, uuid5
 
 import httpx
 
-from leisurelog.adapters.activitywatch_browser import ActivityWatchBrowserAdapter
+from leisurelog.adapters.activitywatch_browser import ActivityWatchBrowserAdapter, cropped_edges
 from leisurelog.domain.browser import BrowserSourceRecord
 from leisurelog.domain.models import ActivityEvent, IdleEvent, IdleSourceRecord, SourceRecord
 
@@ -91,6 +91,7 @@ class ActivityWatchAdapter:
                                 source_event_id=source_id,
                                 payload=payload,
                                 metadata=metadata,
+                                cropped=cropped_edges(begin, finish, start, end),
                             )
                         )
                         continue
@@ -110,6 +111,7 @@ class ActivityWatchAdapter:
                             source_event_id=source_id,
                             payload=payload,
                             metadata=metadata,
+                            cropped=cropped_edges(begin, finish, start, end),
                         )
                     )
             result.extend(

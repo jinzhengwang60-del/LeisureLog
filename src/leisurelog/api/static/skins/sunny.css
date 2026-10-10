@@ -1,0 +1,127 @@
+/* 窗边: the window-side illustration spans the page head and follows the real day (sky-clock.js);
+   the rest of the page is frosted glass over a soft sky. */
+@import url("/static/skin-base.css?v=dups1");
+:root[data-style=sunny]{
+ --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;--display:var(--text);--num:"Segoe UI Variable Display","Segoe UI",var(--text);--radius:14px;
+ --ink:#203752;--ink-2:#36516f;--muted:#5a7290;--faint:#7890a8;--paper:#eaf2fa;--sheet:#ffffffc7;--wash:#f1f6fc;
+ --rule:#dbe6f1;--rule-soft:#e8eff7;--rule-strong:#b9cde2;--row-hover:#f3f8fd;
+ --accent:#3d7cc9;--accent-soft:#e1edfa;--on-accent:#fff;--link:#2f6db8;--focus:#f08a5d;
+ --danger:#c0394f;--danger-wash:#fdeef1;--ok-wash:#e9f6f2;--bar-confirmed:#5aa0d8;--bar-uncertain:#f2c36b;--backdrop:#1b304a66;--shadow:#3a6a9a1c;
+ --c-game:#5f7cf0;--c-video:#ff7489;--c-film:#9a7cf0;--c-anime:#f08cc8;--c-live:#ffa45c;--c-reading:#3dbf9c;--c-music:#45aee8;
+ --c-social:#f2bd45;--c-browsing:#86c765;--c-work:#93a3b8;--c-other:#c9a27c;--c-unknown:#c6d1de;--tip-bg:#203752;--tip-fg:#fff;
+ --glass:#ffffffb8;--glass-edge:#ffffffe6;
+ --scene-veil:linear-gradient(90deg,#f7fbfff7 0%,#f7fbffe6 30%,#f7fbff8c 46%,#f7fbff00 62%);
+}
+:root[data-style=sunny][data-theme=dark]{
+ --ink:#e3eefb;--ink-2:#c3d4e8;--muted:#9ab0ca;--faint:#7f96b2;--paper:#0e1a2b;--sheet:#172840d9;--wash:#1d3049;
+ --rule:#2c4260;--rule-soft:#223650;--rule-strong:#40597a;--row-hover:#1f3350;
+ --accent:#8ec0ff;--accent-soft:#223a5a;--on-accent:#0e1a2b;--link:#9ccaff;--focus:#ffb38a;
+ --danger:#ff9fb0;--danger-wash:#43243a;--ok-wash:#1d3a3a;--bar-confirmed:#7dbdf0;--bar-uncertain:#f2c97d;--backdrop:#050b16c0;--shadow:#0006;
+ --c-game:#8ea2ff;--c-video:#ff8fa2;--c-film:#b8a2ff;--c-anime:#ffa6d8;--c-live:#ffbb80;--c-reading:#62d6b6;--c-music:#6cc4f5;
+ --c-social:#f7cd6a;--c-browsing:#a3d886;--c-work:#a2b0c4;--c-other:#d6b593;--c-unknown:#3d516b;--tip-bg:#e3eefb;--tip-fg:#0e1a2b;
+ --glass:#172840c2;--glass-edge:#ffffff14;
+ --scene-veil:linear-gradient(90deg,#122136f5 0%,#122136e0 30%,#12213680 46%,#12213600 62%);
+}
+:root[data-style=sunny] body{background:radial-gradient(1200px 520px at 80% -10%,#ffffffb0,transparent 60%),linear-gradient(180deg,#d5e8f8 0,#e8f1fa 420px,#f3f6fa 100%) fixed}
+:root[data-style=sunny][data-theme=dark] body{background:radial-gradient(1100px 500px at 80% -10%,#2a4a7a66,transparent 60%),linear-gradient(180deg,#0b1626 0,#0e1a2b 420px,#0f1b2c 100%) fixed}
+/* floating glass navigation */
+:root[data-style=sunny] .top{position:sticky;top:14px;max-width:1240px;margin:18px auto 0;padding:10px 12px 10px 22px;border:1px solid var(--glass-edge);border-radius:999px;background:var(--glass);backdrop-filter:blur(18px) saturate(1.5);box-shadow:0 10px 30px var(--shadow);gap:14px}
+:root[data-style=sunny] .brand{color:var(--ink);font-size:18px;letter-spacing:-.4px}
+:root[data-style=sunny] .logo path{fill:#f08a5d}
+:root[data-style=sunny] .site-nav{gap:2px}
+:root[data-style=sunny] .site-nav a{border-radius:999px;font-size:13px;padding:8px 14px;color:var(--ink-2)}
+:root[data-style=sunny] .site-nav a:hover{background:var(--accent-soft)}
+:root[data-style=sunny] .site-nav a[aria-current=page]{background:var(--ink);color:var(--paper)}
+:root[data-style=sunny][data-theme=dark] .site-nav a[aria-current=page]{background:var(--accent);color:var(--on-accent)}
+:root[data-style=sunny] .theme-toggle,:root[data-style=sunny] .tools summary{border-radius:999px;background:transparent;border:1px solid var(--rule-strong);font-size:12px}
+:root[data-style=sunny] main{max-width:1240px;padding:22px 0 64px}
+/* the window: the scene fills the head; glow layers are placed in illustration coordinates */
+:root[data-style=sunny] .day-head,:root[data-style=sunny] .heading{position:relative;isolation:isolate;min-height:300px;padding:40px 44px;border:1px solid var(--glass-edge);border-radius:30px;background-color:var(--accent-soft);overflow:hidden;box-shadow:0 18px 50px var(--shadow);margin-bottom:22px}
+:root[data-style=sunny] .heading{min-height:220px}
+:root[data-style=sunny] .day-head::before,:root[data-style=sunny] .heading::before{content:"";position:absolute;z-index:-2;left:0;top:50%;width:100%;aspect-ratio:2/1;transform:translateY(-50%);pointer-events:none;
+ background-image:
+  radial-gradient(7% 11% at 84% 72%,rgb(150 200 255/calc(var(--sky-lamp,0)*.55)),transparent),
+  radial-gradient(38% 62% at 78% 52%,rgb(255 176 96/calc(var(--sky-lamp,0)*.72)),transparent),
+  radial-gradient(1.6% 3.2% at 47% 30%,rgb(255 248 225/var(--sky-moon,0)) 70%,transparent),
+  radial-gradient(10% 20% at 47% 30%,rgb(255 240 200/calc(var(--sky-moon,0)*.3)),transparent),
+  radial-gradient(70% 45% at 30% 67%,var(--sky-glow,transparent),transparent),
+  linear-gradient(225deg,var(--sky-beam,transparent),transparent 55%),
+  linear-gradient(var(--sky-top,#fff),var(--sky-mid,#fff) 60%,var(--sky-low,#fff)),
+  url("/static/sunny-afternoon.png");
+ background-size:100% 100%;background-repeat:no-repeat;
+ background-blend-mode:screen,screen,screen,screen,screen,screen,multiply,normal}
+:root[data-style=sunny] .day-head::after,:root[data-style=sunny] .heading::after{content:"";position:absolute;z-index:-1;inset:0;background:var(--scene-veil);pointer-events:none}
+:root[data-style=sunny] .day-head{grid-template-columns:1fr;align-content:center;gap:24px}
+:root[data-style=sunny] .day-title{display:block;max-width:46%}
+:root[data-style=sunny] .day-title h1{font-size:54px;letter-spacing:-2px;line-height:1.05}
+:root[data-style=sunny] .weekday{margin-top:10px;font-size:14px}
+:root[data-style=sunny] .day-tools{align-items:flex-start;max-width:48%;gap:12px}
+:root[data-style=sunny] .heading{align-items:center}
+:root[data-style=sunny] .heading>div{max-width:48%}
+:root[data-style=sunny] .heading>.scope,:root[data-style=sunny] .heading>button{align-self:flex-end;background:var(--glass);border:1px solid var(--glass-edge);padding:5px 12px;border-radius:999px;backdrop-filter:blur(8px)}
+:root[data-style=sunny] h1{font-size:40px;letter-spacing:-1px}
+:root[data-style=sunny] .intro{line-height:1.85;color:var(--ink-2)}
+:root[data-style=sunny] .eyebrow{letter-spacing:2px;color:var(--link)}
+:root[data-style=sunny] .statusbox{background:var(--glass);border:1px solid var(--glass-edge);padding:4px 11px;border-radius:999px;backdrop-filter:blur(8px)}
+/* glass cards */
+:root[data-style=sunny] .today>article,:root[data-style=sunny] .ribbon,:root[data-style=sunny] .records,:root[data-style=sunny] .chart-panel,:root[data-style=sunny] .metrics article,:root[data-style=sunny] .range-panel{background:var(--glass);border:1px solid var(--glass-edge);border-radius:24px;box-shadow:0 10px 30px var(--shadow);backdrop-filter:blur(14px)}
+:root[data-style=sunny] .metrics{gap:16px}
+:root[data-style=sunny] .metrics article{padding:22px 24px;position:relative;overflow:hidden}
+:root[data-style=sunny] .metrics article::before{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:var(--m,#5aa0d8);opacity:.14}
+:root[data-style=sunny] .metrics article:nth-child(2){--m:#ff8f6b}:root[data-style=sunny] .metrics article:nth-child(3){--m:#3dbf9c}:root[data-style=sunny] .metrics article:nth-child(4){--m:#b39af0}
+:root[data-style=sunny] .metrics span{font-size:12px;color:var(--muted)}
+:root[data-style=sunny] .metrics strong{font-size:32px;letter-spacing:-1px;margin-block:10px 6px}
+:root[data-style=sunny] .ribbon{padding:26px 28px 20px}
+:root[data-style=sunny] .ribbon-track{height:74px;border-radius:16px;background:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px calc(100%/24)),var(--wash)}
+:root[data-style=sunny] .ribbon-track .block{border-radius:4px;top:14px;bottom:14px}
+:root[data-style=sunny] .ribbon-now{background:#f08a5d;width:3px;border-radius:2px}
+:root[data-style=sunny] .ribbon-legend{border-top-color:var(--rule-soft)}
+:root[data-style=sunny] .ribbon-legend i{border-radius:50%}
+:root[data-style=sunny] .legend-filter{border-radius:999px}
+:root[data-style=sunny] .section-head{padding:24px 28px 18px}
+:root[data-style=sunny] .section-head h2 span{border-radius:999px}
+:root[data-style=sunny] th{background:transparent;color:var(--muted);border-top:1px solid var(--rule-soft);border-bottom:1px solid var(--rule);padding:11px 20px}
+:root[data-style=sunny] td{padding:15px 20px;border-bottom-color:var(--rule-soft)}
+:root[data-style=sunny] tbody tr:hover td{background:#ffffff66}
+:root[data-style=sunny][data-theme=dark] tbody tr:hover td{background:#ffffff0d}
+:root[data-style=sunny] .app-icon{border-radius:50%;width:9px;height:9px}
+:root[data-style=sunny] .badge{border-radius:999px;padding:3px 10px;background:color-mix(in srgb,var(--cat,var(--c-unknown)) 16%,transparent)}
+:root[data-style=sunny] .badge::before{border-radius:50%}
+:root[data-style=sunny] .bar{height:5px;border-radius:999px}
+:root[data-style=sunny] .detail-button{background:transparent;border-radius:999px}
+:root[data-style=sunny] .pagination{border-top-color:var(--rule-soft);padding:14px 28px}
+/* controls */
+:root[data-style=sunny] button{border-radius:999px}
+:root[data-style=sunny] input,:root[data-style=sunny] select,:root[data-style=sunny] textarea{border-radius:12px;background:var(--glass);border-color:var(--rule-strong)}
+:root[data-style=sunny] .primary{background:linear-gradient(135deg,#4a8be0,#3d7cc9);border:0;box-shadow:0 6px 16px #3d7cc940}
+:root[data-style=sunny][data-theme=dark] .primary{background:var(--accent)}
+:root[data-style=sunny] .presets{border:1px solid var(--glass-edge);background:var(--glass)}
+/* statistics and library */
+:root[data-style=sunny] .trend-stack{border-radius:10px 10px 0 0}
+:root[data-style=sunny] .rank-track,:root[data-style=sunny] .month-track,:root[data-style=sunny] .daily-track{height:7px}
+:root[data-style=sunny] .hours-cell{border-radius:6px}
+:root[data-style=sunny] .manage textarea,:root[data-style=sunny] .type-form textarea,:root[data-style=sunny] .type-form select{border-radius:12px}
+:root[data-style=sunny] .correction{border-radius:16px}
+:root[data-style=sunny] dialog{border-radius:28px;border:1px solid var(--glass-edge);background:var(--paper)}
+:root[data-style=sunny] .detail-summary div{border-radius:16px}
+@media(max-width:1300px){:root[data-style=sunny] .top{margin-inline:24px}:root[data-style=sunny] main{margin-inline:24px}}
+@media(max-width:1050px){:root[data-style=sunny] .top{border-radius:24px;flex-wrap:wrap}:root[data-style=sunny] .site-nav{order:4;width:100%}:root[data-style=sunny] .day-tools{max-width:70%}}
+@media(max-width:760px){
+ :root[data-style=sunny] .top{position:static;margin:12px 12px 0;padding:12px;gap:8px;border-radius:22px}
+ :root[data-style=sunny] main{margin:0;padding:16px 12px 40px}
+ :root[data-style=sunny] .day-head,:root[data-style=sunny] .heading{padding:24px 20px;min-height:250px;border-radius:24px;--scene-veil:linear-gradient(90deg,var(--paper) 0%,color-mix(in srgb,var(--paper) 88%,transparent) 34%,color-mix(in srgb,var(--paper) 20%,transparent) 100%)}
+ :root[data-style=sunny] .day-head::before,:root[data-style=sunny] .heading::before{top:0;height:100%;width:auto;left:65%;transform:translateX(-65%)}
+ :root[data-style=sunny] .day-title,:root[data-style=sunny] .day-tools,:root[data-style=sunny] .heading>div,:root[data-style=sunny] .heading>.scope{max-width:100%}
+ :root[data-style=sunny] .day-title h1{font-size:38px}:root[data-style=sunny] h1{font-size:30px}
+ :root[data-style=sunny] .statusbox{flex-wrap:wrap}
+ :root[data-style=sunny] .metrics{gap:10px}:root[data-style=sunny] .metrics article{padding:16px}:root[data-style=sunny] .metrics strong{font-size:24px}
+ :root[data-style=sunny] .ribbon{padding:18px 14px}:root[data-style=sunny] .section-head{padding:20px 16px}:root[data-style=sunny] td{padding:13px 12px}
+}
+/* the day's headline */
+:root[data-style=sunny] .today{gap:16px}
+:root[data-style=sunny] .today>article{padding:24px 26px}
+:root[data-style=sunny] .today-main strong{font-size:50px;letter-spacing:-2px;background:linear-gradient(120deg,#3d7cc9,#f08a5d);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root[data-style=sunny][data-theme=dark] .today-main strong{background-image:linear-gradient(120deg,#8ec0ff,#ffb38a)}
+:root[data-style=sunny] .top-list i,:root[data-style=sunny] .split-legend i{border-radius:50%}
+:root[data-style=sunny] .cover-art{border-radius:18px}
+:root[data-style=sunny] .view-switch{border-radius:999px}

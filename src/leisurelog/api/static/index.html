@@ -2,15 +2,20 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/sky-clock.js?v=1"></script>
+  <script src="/static/theme.js?v=redesign1" type="module"></script>
   <title>LeisureLog · 活动记录</title>
-  <link rel="stylesheet" href="/static/style.css?v=planner3">
-  <link rel="stylesheet" href="/static/correction.css?v=planner1">
-  <script src="/static/app.js?v=planner4" type="module"></script>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/appearance.css?v=redesign1">
+  <link rel="stylesheet" href="/static/correction.css?v=sticker1">
+  <script src="/static/app.js?v=auto1" type="module"></script>
 </head>
-<body>
+<body data-page="activity">
   <header class="top">
     <a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a>
-    <nav class="site-nav" aria-label="页面"><a href="/" aria-current="page">活动记录</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">作品库</a></nav>
+    <nav class="site-nav" aria-label="页面"><a href="/" aria-current="page">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button>
     <details class="tools"><summary>数据与设置</summary><div class="tools-menu"><button id="games-setup">Playnite 游戏库</button><button id="browser-setup">浏览器接入</button><button id="manage-rules">已记住的规则</button><button id="reload-rules">重新读取规则文件</button><button id="storage">存储与备份</button></div></details>
   </header>
   <main>
@@ -23,24 +28,31 @@
     </section>
     <p id="error" class="error" role="alert" hidden></p>
     <p id="notice" class="notice" role="status" hidden></p>
+    <section class="today" aria-label="这一天的闲暇">
+      <article class="today-main"><span class="today-label" id="leisure-label">今天的娱乐时间</span><strong id="leisure">—</strong><small id="leisure-compare">正在和近 7 天比较…</small></article>
+      <article class="today-top"><span class="today-label">玩得最多</span><ol class="top-list" id="top-list"></ol></article>
+      <article class="today-split"><span class="today-label">时间都去哪了</span><div class="split-bar" id="split-bar" role="img" aria-label="娱乐、工作、其他与未分类的时间比例"></div><ul class="split-legend" id="split-legend"></ul></article>
+    </section>
     <section class="ribbon" aria-labelledby="ribbon-label">
       <h2 id="ribbon-label" class="sr-only">当天时间分布</h2>
       <div class="ribbon-track" id="ribbon" role="img" aria-label="当天活动时间分布"></div>
       <div class="ribbon-hours" aria-hidden="true"><span style="left:0">0</span><span style="left:8.333%">2</span><span style="left:16.667%">4</span><span style="left:25%">6</span><span style="left:33.333%">8</span><span style="left:41.667%">10</span><span style="left:50%">12</span><span style="left:58.333%">14</span><span style="left:66.667%">16</span><span style="left:75%">18</span><span style="left:83.333%">20</span><span style="left:91.667%">22</span><span style="left:100%">24</span></div>
       <ul class="ribbon-legend" id="ribbon-legend"></ul>
     </section>
-    <section class="metrics" aria-label="当天筛选结果汇总">
-      <article><span>计入时长</span><strong id="active">—</strong><small>按计时策略，含待确认时段</small></article>
-      <article><span>原始记录</span><strong id="recorded">—</strong><small>片段之间的空档不计入</small></article>
-      <article><span>已扣除离开</span><strong id="afk">—</strong><small>可在详情里核对依据</small></article>
-      <article><span>状态待确认</span><strong id="unverified">—</strong><small>这段时间没有离开状态记录</small></article>
-    </section>
+    <details class="data-details" id="data-details"><summary><span>数据明细</span><small id="details-summary"></small></summary>
+      <section class="metrics" aria-label="当天筛选结果汇总">
+        <article><span>计入时长</span><strong id="active">—</strong><small>按计时策略，含待确认时段</small></article>
+        <article><span>原始记录</span><strong id="recorded">—</strong><small>片段之间的空档不计入</small></article>
+        <article><span>已扣除离开</span><strong id="afk">—</strong><small>可在详情里核对依据</small></article>
+        <article><span>状态待确认</span><strong id="unverified">—</strong><small>这段时间没有离开状态记录</small></article>
+      </section>
+    </details>
     <section class="toolbar" aria-label="筛选记录">
       <div class="filter-controls"><label class="sr-only" for="app">应用</label><select id="app"><option value="">全部应用</option></select><label class="sr-only" for="category">分类</label><select id="category"><option value="">全部分类</option></select><label class="sr-only" for="search">搜索标题或应用</label><input id="search" type="search" placeholder="搜索标题或应用"></div>
-      <button id="refresh">刷新</button>
+      <div class="list-switches"><label class="switch"><input type="checkbox" id="grouped"><span>合并连续片段</span></label><label class="switch"><input type="checkbox" id="show-short"><span>显示零碎记录</span></label><button id="refresh">刷新</button></div>
     </section>
     <section class="records">
-      <div class="section-head"><div><h2>活动片段<span id="count">0</span></h2><p>北京时间，最近的在前。筛选会同时作用于上方时间带和汇总。</p></div></div>
+      <div class="section-head"><div><h2>活动片段<span id="count">0</span></h2><p id="list-note">北京时间，最近的在前。</p></div></div>
       <div class="table-wrap"><table><thead><tr><th>时间</th><th>应用与内容</th><th>分类</th><th class="num">原始</th><th class="num">计入</th><th>时长构成</th><th><span class="sr-only">详情</span></th></tr></thead><tbody id="rows"></tbody></table></div>
       <div id="empty" class="empty" hidden><h3>这一天没有匹配的活动</h3><p>换个日期或清除筛选。只要 ActivityWatch 和 LeisureLog 在运行，新记录会每分钟自动同步进来。</p></div>
       <footer class="pagination"><span id="page-label">—</span><div><button id="prev-page">上一页</button><button id="next-page">下一页</button></div></footer>

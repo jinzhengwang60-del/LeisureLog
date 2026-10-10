@@ -3,6 +3,8 @@
 from dataclasses import asdict, replace
 from datetime import date, datetime, time, timedelta, timezone
 
+from leisurelog.analytics.grouping import group_sessions
+from leisurelog.analytics.highlights import highlights
 from leisurelog.analytics.summary import summarize
 from leisurelog.domain.idle import apply_idle
 
@@ -70,19 +72,39 @@ def ribbon(repo, day: date, app: str, category: str, query: str):
     }
 
 
-def dashboard(repo, day: date, app: str, category: str, query: str, limit: int, offset: int):
+def dashboard(
+    repo,
+    day: date,
+    app: str,
+    category: str,
+    query: str,
+    limit: int,
+    offset: int,
+    view: str = "sessions",
+    min_seconds: float = 0,
+):
+    """Day list. ``view="grouped"`` merges nearby sessions of the same activity;
+    ``min_seconds`` hides list entries shorter than that (the summary still counts them)."""
     sessions, _, _ = day_sessions(repo, day)
     options = {
         "apps": sorted({s.app for s in sessions}),
         "categories": sorted({s.classification.category for s in sessions}),
     }
     filtered = [s for s in sessions if _matches(s, app, category, query)]
-    filtered.sort(key=lambda s: (s.start_time, s.id), reverse=True)
+    if view == "grouped":
+        entries = group_sessions(filtered)
+    else:
+        entries = [asdict(s) for s in filtered]
+    shown = [e for e in entries if e["recorded_seconds"] >= min_seconds]
+    shown.sort(key=lambda e: (e["start_time"], e["id"]), reverse=True)
     return {
         "day": day.isoformat(),
         "timezone": "Asia/Shanghai",
-        "total": len(filtered),
+        "view": view,
+        "total": len(shown),
+        "hidden_short": len(entries) - len(shown),
         "options": options,
         "summary": summarize(filtered),
-        "items": [asdict(s) for s in filtered[offset : offset + limit]],
+        "highlights": highlights(sessions),
+        "items": shown[offset : offset + limit],
     }

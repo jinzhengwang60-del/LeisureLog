@@ -2,12 +2,17 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/sky-clock.js?v=1"></script>
+  <script src="/static/theme.js?v=redesign1" type="module"></script>
   <title>LeisureLog · 统计与趋势</title>
-  <link rel="stylesheet" href="/static/style.css?v=planner3"><link rel="stylesheet" href="/static/statistics.css?v=planner1">
-  <script src="/static/statistics.js?v=planner1" type="module"></script>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/appearance.css?v=redesign1"><link rel="stylesheet" href="/static/statistics.css?v=system1">
+  <script src="/static/statistics.js?v=planner2" type="module"></script>
 </head>
-<body>
-  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/unclassified">待分类</a><a href="/statistics" aria-current="page">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">作品库</a></nav></header>
+<body data-page="statistics">
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics" aria-current="page">统计与趋势</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
   <main>
     <section class="heading"><div><h1>统计与趋势</h1><p class="intro">按周、月、年回看活动，以已有记录为依据。</p></div><span class="scope">本地数据 · 北京时间</span></section>
     <form id="range" class="range-form">
@@ -25,6 +30,9 @@
     <section class="chart-panel"><div class="section-head"><div><h2>时间趋势</h2><p id="trend-caption">按策略计入的时长</p></div><div class="legend"><span><i class="confirmed"></i>状态有记录</span><span><i class="uncertain"></i>状态待确认</span></div></div>
       <p id="trend-empty" class="empty" hidden>这个范围还没有活动记录。无记录不代表没有使用电脑。</p>
       <div class="trend-scroll"><div id="trend" class="trend-chart" aria-label="各时段活动时长"></div></div>
+    </section>
+    <section class="chart-panel"><div class="section-head"><div><h2>每天的作息</h2><p id="hours-caption">每格一小时，颜色是这一小时里时间最多的分类，越浓表示计入越多。</p></div><div class="legend hours-legend" id="hours-legend"></div></div>
+      <div class="hours-scroll"><div id="hours" class="hours-grid" aria-label="每天各小时的主要活动"></div></div>
     </section>
     <div class="analysis-grid">
       <section class="chart-panel"><div class="section-head"><div><h2>分类分布</h2><p>占全部按策略计入时长的比例</p></div></div><div id="categories" class="ranking"></div></section>

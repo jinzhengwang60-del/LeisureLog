@@ -6,6 +6,15 @@ class LibraryService:
     def __init__(self, store: LibraryStore):
         self.store = store
 
+    def merge_many(self, groups: list[tuple[str, list[str]]]) -> int:
+        """Merge several groups at once; every merge is checked like a single one."""
+        merged = 0
+        for target_id, source_ids in groups:
+            for source_id in source_ids:
+                self.merge(target_id, source_id)
+                merged += 1
+        return merged
+
     def rename(self, item_id: str, name: str, notes: str):
         self.store.item(item_id)
         self.store.update_item(item_id, name.strip(), notes.strip())
@@ -26,5 +35,5 @@ class LibraryService:
         self.store.item(item_id)
         alias = self.store.alias(alias_id)
         if alias["item_id"] != item_id:
-            raise ValueError("这个名称已经不属于当前作品，请刷新")
+            raise ValueError("这个名称已经不属于当前条目，请刷新")
         return self.store.split(alias_id)

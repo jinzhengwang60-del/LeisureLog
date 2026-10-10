@@ -7,6 +7,12 @@ from uuid import NAMESPACE_URL, uuid5
 from leisurelog.domain.browser import BrowserEvent, BrowserSourceRecord
 
 
+def cropped_edges(begin, finish, start, end) -> tuple[bool, bool]:
+    """ActivityWatch trims events to the requested range; an edge on the boundary was cut."""
+    tolerance = timedelta(milliseconds=1)
+    return abs(begin - start) <= tolerance, abs(finish - end) <= tolerance
+
+
 class ActivityWatchBrowserAdapter:
     def __init__(self, client, device_bindings=None):
         self.client = client
@@ -80,6 +86,7 @@ class ActivityWatchBrowserAdapter:
                         source_id,
                         payload,
                         {**metadata, "leisurelog_bound_device": device},
+                        cropped_edges(begin, finish, start, end),
                     )
                 )
         return result

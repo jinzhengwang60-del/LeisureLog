@@ -63,11 +63,12 @@ export async function openStorage() {
       node("p", `活动 ${data.counts.activity_events} 条 · 活动片段 ${data.counts.sessions} 个 · 原始快照 ${data.counts.raw_events} 份 · 离开状态 ${data.counts.idle_events} 条`),
       node("p", `人工分类 ${data.counts.manual_overrides} 条 · 已记住规则 ${data.counts.learned_rules} 条`),
       node("p", `主数据库 ${bytes(data.database_bytes)} · 写入日志 ${bytes(data.wal_bytes)} · 共享辅助文件 ${bytes(data.shm_bytes)}。文件大小会随写入与日志回收变化。`));
-    history.replaceChildren(node("h3", "已有备份"));
+    history.replaceChildren(node("h3", "已有备份"),
+      node("p", "每 7 天自动备份一次，自动备份只保留最近 4 份；手动创建的备份不会被自动删除。"));
     if (!data.backups.length) history.append(node("p", "还没有备份，点击上方按钮创建第一份。"));
     for (const item of data.backups) {
       const row = node("article", undefined, "correction");
-      row.append(node("p", `${time(item.created_at)} · ${bytes(item.bytes)} · ${item.verified ? "恢复核对通过" : "未验证"}`),
+      row.append(node("p", `${item.automatic ? "自动备份" : "手动备份"} · ${time(item.created_at)} · ${bytes(item.bytes)} · ${item.verified ? "恢复核对通过" : "未验证"}`),
         node("p", item.name, "detail-title"),
         node("p", `活动 ${item.counts.activity_events} 条 · 人工分类 ${item.counts.manual_overrides} 条 · 识别规则 ${item.counts.learned_rules} 条`));
       const download = node("a", "下载完整备份（含分类配置）");

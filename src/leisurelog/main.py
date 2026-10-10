@@ -14,6 +14,7 @@ from leisurelog.api.dashboard import router as dashboard_router
 from leisurelog.api.game_preferences import router as game_preferences_router
 from leisurelog.api.games import router as games_router
 from leisurelog.api.library import router as library_router
+from leisurelog.api.review import router as review_router
 from leisurelog.api.routes import router
 from leisurelog.api.rules_reload import router as rules_reload_router
 from leisurelog.api.statistics import router as statistics_router
@@ -58,8 +59,13 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
                     else ActivityWatchAdapter(client, settings.browser_device_bindings)
                 )
                 scheduler = PeriodicSync(
-                    AutomaticSync(app.state.sessions, app.state.source, pipeline, settings,
-                                  app.state.playnite),
+                    AutomaticSync(
+                        app.state.sessions, app.state.source, pipeline, settings,
+                        app.state.playnite,
+                        backup=lambda: app.state.storage.backup_if_due(
+                            settings.auto_backup_days, settings.auto_backup_keep
+                        ),
+                    ),
                     settings.auto_sync_interval_seconds,
                     settings.auto_sync_enabled,
                 )
@@ -82,6 +88,7 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
     app.include_router(game_preferences_router)
     app.include_router(unclassified_router)
     app.include_router(rules_reload_router)
+    app.include_router(review_router)
     app.mount(
         "/static", StaticFiles(directory=Path(__file__).parent / "api" / "static"), name="static"
     )

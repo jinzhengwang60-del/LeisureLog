@@ -10,10 +10,16 @@ data/
 *.db-wal
 
 # build output and local backups
+build/
 dist/
 *.bak-*
+outputs/
 
-# Local activity evidence and runtime outputs are not publication assets.
+# Temporary checks and local historical screenshots
+.tmp/
+docs/screenshots/
+
+# Local activity evidence and publication outputs.
 /*.png
 *.log
 *.zip

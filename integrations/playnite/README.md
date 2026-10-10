@@ -4,7 +4,7 @@
 
 ## 当前接入状态
 
-2026-10-02 用户已授权安装，扩展已在本机 Playnite 10.62 中运行。当前导出与 LeisureLog 中均有 251 个条目，12 个已安装；补齐进程配置后，10 款游戏具备识别依据，另两个安装条目是 OBS Studio 与 Wallpaper Engine，不参与游戏识别。数量会随 Playnite 库更新变化。ActivityWatch 自动同步正常。`dist/LeisureLog-Playnite.pext` 中的 settings.json 指向此项目的 `data/playnite-library.json`。
+2026-10-02 用户已授权安装，扩展已在本机 Playnite 10.62 中运行。当前导出与 LeisureLog 中均有 251 个条目，12 个已安装；补齐进程配置后，10 款游戏具备识别依据，另两个安装条目是 OBS Studio 与 Wallpaper Engine，不参与游戏识别。数量会随 Playnite 库更新变化。ActivityWatch 自动同步正常。安装包按下方命令重新生成到 `dist/LeisureLog-Playnite.pext`，包内 settings.json 指向此项目的 `data/playnite-library.json`。旧打包产物已清理，已安装的扩展不受影响。
 
 如需重新安装，打开包后由 Playnite 安装；确认提示并按 Playnite 要求重启。启动时会导出资料。也可在 Playnite 主菜单 → 扩展 → LeisureLog 点击“同步游戏资料到 LeisureLog”。在 LeisureLog 首页点击“Playnite 游戏库”查看结果，或者等待下一轮每分钟同步。手动修改条目后需执行菜单同步；库更新、程序启动和完整退出也会触发导出。关闭窗口至托盘不算退出。
 

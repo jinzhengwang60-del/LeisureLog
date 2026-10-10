@@ -93,3 +93,50 @@ def test_app_rule_content_name_and_rejections(app_context):
         assert client.post("/api/classification/app-rules", json=payload).status_code == status
     assert len(client.get("/api/classification/rules").json()) == 1
     assert client.get("/unclassified").status_code == 200
+
+
+def test_suggestions_are_offered_but_not_saved(app_context):
+    client, _, payloads, _, _ = app_context
+    add(payloads, 3, 400, "cloudmusic.exe", "Hey Jude - The Beatles", 120)
+    add(payloads, 4, 600, "MyGameSetup.exe", "安装向导", 30)
+    add(payloads, 5, 700, "mystery.exe", "什么都不像", 30)
+    client.post("/api/sync/activitywatch", json=WINDOW).raise_for_status()
+    report = client.get("/api/unclassified").json()
+    apps = {item["app"]: item for item in report["apps"]}
+    assert apps["cloudmusic.exe"]["suggestion"] == {
+        "category": "music", "content": "网易云音乐", "reason": "音乐软件",
+    }
+    assert apps["MyGameSetup.exe"]["suggestion"]["category"] == "system"
+    assert apps["mystery.exe"]["suggestion"] is None
+    assert report["suggested_count"] == 2
+    # Nothing was classified just by looking.
+    assert {e["classification"]["category"] for e in client.get("/api/events").json()
+            if e["app"] == "cloudmusic.exe"} == {"unknown"}
+
+
+def test_batch_rules_rebuild_once_and_are_all_or_nothing(app_context):
+    client, _, payloads, _, _ = app_context
+    add(payloads, 3, 400, "cloudmusic.exe", "Hey Jude", 120)
+    add(payloads, 4, 600, "clash-verge.exe", "Clash Verge", 30)
+    client.post("/api/sync/activitywatch", json=WINDOW).raise_for_status()
+    rule = {"source": "activitywatch", "app": "cloudmusic.exe", "category": "music"}
+    bad = client.post("/api/classification/app-rules/batch", json={"rules": [
+        rule, {"source": "activitywatch", "app": "never-seen.exe", "category": "system"},
+    ]})
+    assert bad.status_code == 404
+    events = {e["app"]: e["classification"]["category"] for e in client.get("/api/events").json()}
+    assert events["cloudmusic.exe"] == "unknown"
+    browser = client.post("/api/classification/app-rules/batch", json={"rules": [
+        {"source": "activitywatch", "app": "msedge.exe", "category": "video"},
+    ]})
+    assert browser.status_code == 422
+
+    good = client.post("/api/classification/app-rules/batch", json={"rules": [
+        rule, {"source": "activitywatch", "app": "clash-verge.exe", "category": "system"},
+    ]})
+    assert good.status_code == 200, good.text
+    assert good.json()["saved"] == 2
+    events = {e["app"]: e["classification"] for e in client.get("/api/events").json()}
+    assert events["cloudmusic.exe"]["category"] == "music"
+    assert events["clash-verge.exe"]["category"] == "system"
+    assert events["clash-verge.exe"]["origin"] == "learned"

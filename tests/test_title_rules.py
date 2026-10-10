@@ -34,6 +34,11 @@ def event(app, title, url=None):
         ("msedge.exe", f"7-51 - {JOJO}{MANGA}", "https://manga.bilibili.com/mc1/1",
          ("reading", JOJO, "rule:bilibili-manga")),
         ("explorer.exe", "下载", None, ("other", None, "rule:system-explorer")),
+        ("chrome.exe", "(8) Home / X - Google Chrome", None,
+         ("social", "X", "rule:x-title-chrome")),
+        ("msedge.exe", "Search / X - 个人 - Microsoft Edge", None,
+         ("social", "X", "rule:x-title-edge")),
+        ("chrome.exe", "Home / X", "https://x.com/home", ("social", "X", "rule:x")),
     ],
 )
 def test_title_fallback_rules(app, title, url, expected):

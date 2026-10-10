@@ -1,6 +1,7 @@
 """Read the local SDK export, without opening or changing Playnite's database."""
 
 import json
+from dataclasses import dataclass, field
 from pathlib import Path, PureWindowsPath
 from uuid import UUID
 
@@ -22,9 +23,90 @@ class PlayniteUnavailable(ValueError):
     pass
 
 
+COVER_TYPES = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}
+
+
+def cover_paths(payload) -> dict[str, Path]:
+    """Playnite game ID -> local cover image. Playnite keeps a game's images in a folder named
+    after the game ID; anything else, or any non-image path, is ignored."""
+    covers: dict[str, Path] = {}
+    games = payload.get("games") if isinstance(payload, dict) else None
+    for row in games if isinstance(games, list) else []:
+        if not isinstance(row, dict):
+            continue
+        cover, key = row.get("cover"), row.get("id")
+        if not all(isinstance(v, str) and v.strip() for v in (cover, key)):
+            continue
+        try:
+            key = str(UUID(key))
+        except ValueError:
+            continue
+        path = Path(PureWindowsPath(cover))
+        if not path.is_absolute() or path.suffix.casefold() not in COVER_TYPES:
+            continue
+        if path.parent.name.casefold() != key:
+            continue
+        covers[key] = path
+    return covers
+
+
+@dataclass(frozen=True)
+class CoverIndex:
+    games: tuple[Game, ...] = ()
+    covers: dict[str, Path] = field(default_factory=dict)
+
+    def game_for(self, name: str, apps=()) -> Game | None:
+        """The Playnite game a library item is about: the same name, then a shared program
+        file, then one name starting with the other ("潜水员戴夫" / "潜水员戴夫 DAVE THE DIVER";
+        a name merely inside another, like a platform in a game's title, does not count).
+        A step that finds two games stops the search."""
+        wanted = name.strip().casefold()
+        programs = {app.casefold() for app in apps}
+
+        def same_name(game):
+            return game.name.strip().casefold() == wanted
+
+        def same_program(game):
+            return bool(programs & {app.casefold() for app, _ in game.matches})
+
+        def prefix(game):
+            other = game.name.strip().casefold()
+            shorter = min(len(wanted), len(other))
+            return shorter >= 2 and (other.startswith(wanted) or wanted.startswith(other))
+
+        for test in (same_name, same_program, prefix):
+            found = {game.id: game for game in self.games if test(game)}
+            if len(found) > 1:
+                return None
+            if found:
+                return next(iter(found.values()))
+        return None
+
+    def cover_for(self, name: str, apps=()) -> tuple[str, Path] | None:
+        game = self.game_for(name, apps)
+        path = self.covers.get(game.id) if game else None
+        return (game.id, path) if path else None
+
+
 class PlayniteAdapter:
     def __init__(self, path: Path, bindings_path: Path):
         self.path, self.bindings_path = path, bindings_path
+        self._covers: tuple[tuple[int, int], CoverIndex] | None = None
+
+    def covers(self) -> CoverIndex:
+        """Cover lookup from the latest export and process bindings, re-read when either changes."""
+        try:
+            stamp = (self.path.stat().st_mtime_ns, self.bindings_path.stat().st_mtime_ns)
+        except OSError:
+            return CoverIndex()
+        if self._covers is None or self._covers[0] != stamp:
+            try:
+                payload, games = self.fetch()
+                index = CoverIndex(tuple(games), cover_paths(payload))
+            except PlayniteUnavailable:
+                index = CoverIndex()
+            self._covers = (stamp, index)
+        return self._covers[1]
 
     def fetch(self) -> tuple[dict, list[Game]]:
         try:

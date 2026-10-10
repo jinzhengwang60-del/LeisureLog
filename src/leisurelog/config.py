@@ -18,3 +18,5 @@ class Settings(BaseSettings):
     auto_sync_interval_seconds: float = Field(default=60, ge=1, le=86400)
     auto_sync_overlap_seconds: int = Field(default=600, ge=60, le=86400)
     auto_sync_initial_hours: int = Field(default=24, ge=1, le=168)
+    auto_backup_days: int = Field(default=7, ge=0, le=365)  # 0 turns automatic backups off
+    auto_backup_keep: int = Field(default=4, ge=1, le=100)

@@ -1,4 +1,4 @@
-import {categoryLabels} from "/static/correction.js?v=content1";
+import {categoryLabels} from "/static/correction.js?v=system1";
 
 const $ = id => document.getElementById(id);
 const names = {"chrome.exe":"Chrome","msedge.exe":"Microsoft Edge","ChatGPT.exe":"ChatGPT","explorer.exe":"文件管理器","QQ.exe":"QQ","Weixin.exe":"微信","LockApp.exe":"锁屏","WindowsTerminal.exe":"终端","claude.exe":"Claude","LeagueClientUx.exe":"英雄联盟客户端","Playnite.DesktopApp.exe":"Playnite","steamwebhelper.exe":"Steam","wegame.exe":"WeGame"};
@@ -37,6 +37,19 @@ function appCell(item) {
   return cell;
 }
 
+function suggestionLine(item, accept) {
+  const tip = item.suggestion;
+  const line = node("div", undefined, "uncl-suggest");
+  const label = categoryLabels[tip.category] || tip.category;
+  const badge = node("span", tip.content ? `${label} · ${tip.content}` : label, `badge cat-${tip.category}`);
+  const button = node("button", "采用");
+  button.type = "button";
+  button.title = `按建议归入「${label}」`;
+  button.onclick = accept;
+  line.append(node("span", "建议"), badge, node("span", tip.reason), button);
+  return line;
+}
+
 function assignForm(item, row) {
   const form = node("form", undefined, "assign");
   const select = node("select"), name = node("input"), save = node("button", "保存", "primary");
@@ -52,6 +65,13 @@ function assignForm(item, row) {
     row.className = select.value ? `cat-${select.value}` : "";
   };
   form.append(select, name, save);
+  if (item.suggestion) {
+    select.value = item.suggestion.category;
+    name.value = item.suggestion.content || "";
+    name.hidden = !named.has(select.value);
+    save.disabled = false;
+    row.className = `cat-${select.value}`;
+  }
   form.onsubmit = async event => {
     event.preventDefault();
     if (!select.value || busy) return;
@@ -81,9 +101,15 @@ function assignForm(item, row) {
 
 function appRow(item) {
   const row = node("tr");
-  const action = node("td");
-  action.append(assignForm(item, row));
-  row.append(appCell(item), node("td", duration(item.active_seconds), "num"), node("td", String(item.session_count), "num"), node("td", day(item.last_seen), "num"), action);
+  const action = node("td"), form = assignForm(item, row), cell = appCell(item);
+  action.append(form);
+  if (item.suggestion) cell.querySelector(".uncl-app > div").append(suggestionLine(item, () => {
+    const select = form.querySelector("select"), name = form.querySelector("input");
+    select.value = item.suggestion.category; select.dispatchEvent(new Event("change"));
+    name.value = item.suggestion.content || "";
+    form.requestSubmit();
+  }));
+  row.append(cell, node("td", duration(item.active_seconds), "num"), node("td", String(item.session_count), "num"), node("td", day(item.last_seen), "num"), action);
   return row;
 }
 
@@ -110,7 +136,37 @@ function render(data) {
   $("empty").hidden = apps.length > 0;
   $("browsers").replaceChildren(...browsers.map(browserRow));
   $("browsers-panel").hidden = !browsers.length;
+  suggested = apps.filter(item => item.suggestion);
+  $("suggest-all").hidden = !suggested.length;
+  $("suggest-note").textContent = `${suggested.length} 个应用有建议分类`;
 }
+
+let suggested = [];
+$("accept-all").onclick = async () => {
+  if (busy || !suggested.length) return;
+  const count = suggested.length;
+  if (!window.confirm(`按建议一次归类 ${count} 个应用？
+以后可以在活动记录页“数据与设置 → 已记住的规则”里删除任意一条。`)) return;
+  busy = true;
+  $("accept-all").textContent = "正在归类…";
+  document.querySelectorAll(".assign button, .assign select, .uncl-suggest button, #accept-all").forEach(el => { el.disabled = true; });
+  $("error").hidden = true;
+  try {
+    const rules = suggested.map(item => ({source: item.source, app: item.app, category: item.suggestion.category, content: item.suggestion.content}));
+    const response = await fetch("/api/classification/app-rules/batch", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({rules})});
+    if (!response.ok) throw new Error("批量保存失败，没有任何改动。请刷新页面后重试。");
+    $("notice").textContent = `已按建议归类 ${count} 个应用，以前和以后的记录都会按新分类统计。`;
+    $("notice").hidden = false;
+    render(await response.json());
+  } catch (error) {
+    $("error").textContent = error.message; $("error").hidden = false;
+  } finally {
+    busy = false;
+    $("accept-all").textContent = "全部采用建议";
+    document.querySelectorAll(".uncl-suggest button, #accept-all").forEach(el => { el.disabled = false; });
+    document.querySelectorAll(".assign select").forEach(el => { el.disabled = false; el.dispatchEvent(new Event("change")); });
+  }
+};
 
 async function load() {
   try {

@@ -21,7 +21,7 @@ tr.saved .uncl-app .app-icon{background:var(--cat)}
 .url-state.missing{color:var(--danger)}
 @media(max-width:720px){
   .uncl-metrics{grid-template-columns:1fr 1fr}
-  .uncl-metrics article:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--rule)}
+  .uncl-metrics article:nth-child(3){grid-column:1/-1}
   .assign{flex-wrap:wrap}
   .assign select,.assign input{width:100%}
   .minor summary{padding:12px 16px}

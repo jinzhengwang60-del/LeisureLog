@@ -112,6 +112,20 @@ class ProcessingService:
         self.repo.save_rule(remember([event], "app", value))
         return self.rebuild()
 
+    def remember_apps(self, items: list[tuple[str, str, Classification]]):
+        """Save several app-wide rules, then rebuild once. All are checked before any is saved."""
+        rules = []
+        for source, app, value in items:
+            if is_browser(app):
+                raise ValueError("Browsers mix many sites; classify them by website instead")
+            event = self.repo.app_event(source, app)
+            if event is None:
+                raise KeyError(f"No activity recorded for {app}")
+            rules.append(remember([event], "app", value))
+        for rule in rules:
+            self.repo.save_rule(rule)
+        return {"saved": len(rules), **self.rebuild()}
+
     def timing_many(self, event_ids, policy):
         existing = {e.id for e in self.repo.resolved_events(ids=event_ids)}
         if any(key not in existing for key in event_ids):

@@ -1,6 +1,7 @@
 from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -25,9 +26,19 @@ def read_dashboard(
     query: str = Query(default="", max_length=300),
     limit: Limit = 50,
     offset: Offset = 0,
+    view: Literal["sessions", "grouped"] = "sessions",
+    min_seconds: float = Query(default=0, ge=0, le=3600),
 ):
     return dashboard(
-        svc.repo, day or datetime.now(BEIJING).date(), app, category, query, limit, offset
+        svc.repo,
+        day or datetime.now(BEIJING).date(),
+        app,
+        category,
+        query,
+        limit,
+        offset,
+        view,
+        min_seconds,
     )
 
 

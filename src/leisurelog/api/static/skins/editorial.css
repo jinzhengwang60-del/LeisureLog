@@ -1,0 +1,145 @@
+/* 周刊: a printed weekly. Georgia carries Latin text and old-style figures, Song carries Chinese;
+   ink rules, a masthead, drop caps and a left column of figures on the activity page. */
+@import url("/static/skin-base.css?v=dups1");
+:root[data-style=editorial]{
+ --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+ --display:Georgia,"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",serif;--num:Georgia,"Times New Roman",serif;--radius:0px;
+ --ink:#1d1b17;--ink-2:#3f3b33;--muted:#6a6355;--faint:#8a8273;--paper:#f3eee2;--sheet:#f8f4ea;--wash:#ece6d6;
+ --rule:#cfc6b2;--rule-soft:#e2dbca;--rule-strong:#968a72;--row-hover:#f0eadc;
+ --accent:#9e2a1f;--accent-soft:#f0ddd2;--on-accent:#fbf5ea;--link:#8f2b20;--focus:#b8692c;
+ --danger:#9b2a20;--danger-wash:#f5e2d9;--ok-wash:#e7eadb;--bar-confirmed:#2f5d4a;--bar-uncertain:#c29a4c;--backdrop:#1d1b1780;--shadow:#3d301c1c;
+ --c-game:#3d5a99;--c-video:#b23a3a;--c-film:#6e4f96;--c-anime:#b0527f;--c-live:#c47a26;--c-reading:#2f7d5b;--c-music:#2f7f9b;
+ --c-social:#b38f1f;--c-browsing:#6b8e2e;--c-work:#7b8087;--c-other:#8e6c4a;--c-unknown:#b9b2a3;--tip-bg:#1d1b17;--tip-fg:#f8f4ea;
+}
+:root[data-style=editorial][data-theme=dark]{
+ --ink:#ede6d6;--ink-2:#d3cab6;--muted:#aaa08b;--faint:#8e8571;--paper:#1c1a16;--sheet:#23201b;--wash:#2c2922;
+ --rule:#4a4438;--rule-soft:#36322a;--rule-strong:#7a6f5a;--row-hover:#2a2620;
+ --accent:#e2846f;--accent-soft:#45291f;--on-accent:#1c1a16;--link:#eb9a85;--focus:#e2b965;
+ --danger:#f09a8a;--danger-wash:#46281f;--ok-wash:#2b3226;--bar-confirmed:#88b39c;--bar-uncertain:#d1ad68;--backdrop:#0b0a08c0;--shadow:#0005;
+ --c-game:#8aa3df;--c-video:#e58080;--c-film:#b39ad8;--c-anime:#e08fb4;--c-live:#e6a764;--c-reading:#78bf9a;--c-music:#78b9d0;
+ --c-social:#dcbc5e;--c-browsing:#a6c46e;--c-work:#a2a6ab;--c-other:#c29e7a;--c-unknown:#5f594d;--tip-bg:#ede6d6;--tip-fg:#1c1a16;
+}
+:root[data-style=editorial] body{background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
+/* masthead */
+:root[data-style=editorial] .top{max-width:1240px;margin:28px auto 0;background:transparent;padding:0;border:0;display:grid;grid-template-columns:1fr auto auto;gap:12px 14px;align-items:center}
+:root[data-style=editorial] .brand{grid-column:1/-1;display:block;text-align:center;font:normal 64px/1.05 var(--display);letter-spacing:-2.5px;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:16px 0 18px;margin-bottom:2px}
+:root[data-style=editorial] .brand::before{content:"THE LEISURE REVIEW · 闲暇周刊";display:block;font:500 10px/1 var(--text);letter-spacing:6px;margin-bottom:14px;color:var(--muted)}
+:root[data-style=editorial] .logo{display:none}
+:root[data-style=editorial] .site-nav{gap:0;padding:0}
+:root[data-style=editorial] .site-nav a{padding:6px 16px;border-right:1px solid var(--rule);color:var(--ink-2);font-size:13px;border-radius:0}
+:root[data-style=editorial] .site-nav a:first-child{padding-left:0}:root[data-style=editorial] .site-nav a:last-child{border-right:0}
+:root[data-style=editorial] .site-nav a:hover{background:transparent;color:var(--accent)}
+:root[data-style=editorial] .site-nav a[aria-current=page]{background:transparent;color:var(--accent);font-weight:600}
+:root[data-style=editorial] .theme-toggle,:root[data-style=editorial] .tools summary{font-size:12px;background:transparent;border:0;border-radius:0;padding:6px 2px;min-height:0;color:var(--ink-2)}
+:root[data-style=editorial] .theme-toggle:hover{background:transparent;color:var(--accent)}
+:root[data-style=editorial] main{max-width:1240px;padding:30px 0 70px;border-top:1px solid var(--ink);margin-top:10px}
+/* type */
+:root[data-style=editorial] h1{font-family:var(--display);font-weight:normal;font-size:46px;letter-spacing:-.5px}
+:root[data-style=editorial] h2{font-family:var(--display);font-size:22px;font-weight:normal}
+:root[data-style=editorial] .eyebrow{color:var(--accent);letter-spacing:3px;font-size:10px;font-weight:600}
+:root[data-style=editorial] .intro{font-family:var(--display);font-size:16px;line-height:1.9;color:var(--ink-2)}
+:root[data-style=editorial] .heading,:root[data-style=editorial] .day-head{padding-bottom:24px;border-bottom:3px double var(--ink);margin-bottom:28px}
+:root[data-style=editorial] .day-title{display:block}
+:root[data-style=editorial] .day-title h1{font-size:60px;letter-spacing:-1px;line-height:1}
+:root[data-style=editorial] .weekday{margin-top:12px;letter-spacing:4px;font-family:var(--display);color:var(--accent)}
+:root[data-style=editorial] .scope{font-family:var(--display);font-style:italic}
+:root[data-style=editorial] .statusbox{font-family:var(--display);font-style:italic}
+/* controls: ruled, square */
+:root[data-style=editorial] button,:root[data-style=editorial] input,:root[data-style=editorial] select,:root[data-style=editorial] textarea{border-radius:0;box-shadow:none;background:var(--sheet);border-color:var(--rule-strong)}
+:root[data-style=editorial] button:hover{border-color:var(--ink);background:var(--wash)}
+:root[data-style=editorial] .primary{background:var(--ink);border-color:var(--ink);color:var(--paper);letter-spacing:1px}
+:root[data-style=editorial] .primary:hover{background:var(--accent);border-color:var(--accent);filter:none}
+/* metrics */
+:root[data-style=editorial] .metrics{gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+:root[data-style=editorial] .metrics article{background:transparent;border:0;border-right:1px solid var(--rule);border-radius:0;padding:20px 24px}
+:root[data-style=editorial] .metrics article:last-child{border-right:0}
+:root[data-style=editorial] .metrics span{color:var(--accent);font-size:11px;letter-spacing:2px;font-weight:600}
+:root[data-style=editorial] .metrics strong{font-family:var(--num);font-size:36px;font-weight:normal;letter-spacing:-.5px;margin:10px 0 6px}
+:root[data-style=editorial] .metrics small{font-family:var(--display);font-style:italic;font-size:12px}
+/* sections */
+:root[data-style=editorial] .ribbon{background:transparent;border:0;border-bottom:1px solid var(--rule-strong);border-radius:0;padding:0 0 22px}
+:root[data-style=editorial] .ribbon-track{height:56px;border:1px solid var(--ink);border-radius:0;background:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px calc(100%/24)),var(--sheet)}
+:root[data-style=editorial] .ribbon-track .block{top:9px;bottom:9px}
+:root[data-style=editorial] .ribbon-now{background:var(--accent)}
+:root[data-style=editorial] .ribbon-hours{font-family:var(--num);color:var(--muted)}
+:root[data-style=editorial] .ribbon-legend{border-top:0;padding-top:4px}
+:root[data-style=editorial] .ribbon-legend i,:root[data-style=editorial] .badge::before,:root[data-style=editorial] .app-icon{border-radius:0}
+:root[data-style=editorial] .legend-filter{border-radius:0}
+:root[data-style=editorial] .records,:root[data-style=editorial] .chart-panel,:root[data-style=editorial] .range-panel{background:transparent;border:0;border-top:3px double var(--ink);border-radius:0;overflow:hidden}
+:root[data-style=editorial] .records{border-bottom:1px solid var(--ink)}
+:root[data-style=editorial] .section-head{padding:20px 0 16px}
+:root[data-style=editorial] .section-head h2 span{background:transparent;border:1px solid var(--rule-strong);border-radius:0;font-family:var(--num);color:var(--accent)}
+:root[data-style=editorial] .section-head p{font-family:var(--display);font-size:13px;font-style:italic}
+:root[data-style=editorial] th{background:transparent;color:var(--ink);font-size:11px;letter-spacing:1.5px;font-weight:600;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:10px 14px}
+:root[data-style=editorial] td{padding:16px 14px;border-color:var(--rule)}
+:root[data-style=editorial] td.time,:root[data-style=editorial] td.num,:root[data-style=editorial] .num{font-family:var(--num)}
+:root[data-style=editorial] .app-name{font-family:var(--display);font-size:15px;font-weight:normal}
+:root[data-style=editorial] .title{font-family:var(--display);font-style:italic}
+:root[data-style=editorial] .badge{background:transparent;border:0;padding:0;border-radius:0;font-family:var(--display);font-size:13px;color:var(--ink-2)}
+:root[data-style=editorial] .bar{border-radius:0;height:5px}
+:root[data-style=editorial] .detail-button{font-family:var(--display);font-style:italic;background:transparent}
+:root[data-style=editorial] .legend-filter{border-color:transparent;background:transparent}:root[data-style=editorial] .legend-filter[aria-pressed=true]{border-color:var(--ink)}
+:root[data-style=editorial] .pagination{padding:16px 0;font-family:var(--display);font-style:italic}
+:root[data-style=editorial] .footnote{font-family:var(--display);font-size:13px;border-left:2px solid var(--accent);padding-left:16px}
+/* statistics, games and library */
+:root[data-style=editorial] .analysis-grid{grid-template-columns:1.6fr 1fr;gap:40px}
+:root[data-style=editorial] .ranking,:root[data-style=editorial] .trend-scroll,:root[data-style=editorial] .hours-scroll,:root[data-style=editorial] .months,:root[data-style=editorial] .recent,:root[data-style=editorial] .type-distribution,:root[data-style=editorial] .type-form,:root[data-style=editorial] .manage{padding-left:0;padding-right:0}
+:root[data-style=editorial] .trend-chart{border-bottom-color:var(--ink)}
+:root[data-style=editorial] .trend-value,:root[data-style=editorial] .trend-label,:root[data-style=editorial] .hours-head,:root[data-style=editorial] .hours-day,:root[data-style=editorial] .rank-value,:root[data-style=editorial] .month{font-family:var(--num)}
+:root[data-style=editorial] .trend-stack,:root[data-style=editorial] .rank-track,:root[data-style=editorial] .rank-fill,:root[data-style=editorial] .type-track,:root[data-style=editorial] .month-stack,:root[data-style=editorial] .hours-cell,:root[data-style=editorial] .daily-track,:root[data-style=editorial] .daily-fill,:root[data-style=editorial] .month-track,:root[data-style=editorial] .month-fill,:root[data-style=editorial] .correction,:root[data-style=editorial] .manage textarea,:root[data-style=editorial] .type-form textarea,:root[data-style=editorial] .type-form select,:root[data-style=editorial] .detail-summary div{border-radius:0}
+:root[data-style=editorial] .rank-track,:root[data-style=editorial] .month-track,:root[data-style=editorial] .daily-track{height:5px}
+:root[data-style=editorial] .rank-name{font-family:var(--display);font-size:14px}
+:root[data-style=editorial] .presets{border:0;border-bottom:1px solid var(--ink);border-radius:0;background:transparent;padding:0;gap:4px}
+:root[data-style=editorial] .presets button{border:0;border-radius:0;background:transparent;font-family:var(--display)}
+:root[data-style=editorial] .presets button[aria-pressed=true]{background:transparent;color:var(--accent);box-shadow:inset 0 -3px var(--accent)}
+:root[data-style=editorial] .range-panel{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px 0}
+:root[data-style=editorial] .library-layout{gap:40px}
+:root[data-style=editorial] .recent-entry::before{border-radius:0}
+:root[data-style=editorial] dialog{border:1px solid var(--ink);box-shadow:10px 10px 0 var(--shadow)}
+:root[data-style=editorial] .dialog-head h2{font-size:28px}
+:root[data-style=editorial] .detail-summary{gap:0;border-block:1px solid var(--rule)}
+:root[data-style=editorial] .detail-summary div{background:transparent;border-right:1px solid var(--rule)}
+/* the activity page as a two-column spread: figures on the left, the day on the right */
+@media(min-width:1001px){
+ :root[data-style=editorial] body[data-page=activity] main{display:grid;grid-template-columns:230px minmax(0,1fr);gap:26px 40px}
+ :root[data-style=editorial] body[data-page=activity] .day-head{grid-column:1/-1;grid-row:1;margin:0}
+ :root[data-style=editorial] body[data-page=activity] .today{grid-column:1;grid-row:2/6;display:flex;flex-direction:column;align-self:start;margin:0;gap:0;border:0}
+ :root[data-style=editorial] body[data-page=activity] .today::before{content:"今日要目";font-family:var(--display);font-size:20px;border-bottom:3px double var(--ink);padding-bottom:12px}
+ :root[data-style=editorial] body[data-page=activity] .today>article{border-right:0;border-bottom:1px solid var(--rule);padding:18px 0}
+ :root[data-style=editorial] body[data-page=activity] .today-main strong{font-size:34px}
+ :root[data-style=editorial] body[data-page=activity] .ribbon{grid-column:2;grid-row:2;margin:0}
+ :root[data-style=editorial] body[data-page=activity] .data-details{grid-column:2;grid-row:3;margin:0}
+ :root[data-style=editorial] body[data-page=activity] .toolbar{grid-column:2;grid-row:4;margin:0}
+ :root[data-style=editorial] body[data-page=activity] .records{grid-column:2;grid-row:5}
+ :root[data-style=editorial] body[data-page=activity] :is(.footnote,.error,.notice){grid-column:1/-1}
+}
+@media(max-width:1300px){:root[data-style=editorial] .top,:root[data-style=editorial] main{margin-inline:28px}}
+@media(max-width:1000px){:root[data-style=editorial] .site-nav{grid-column:1/-1;grid-row:3}:root[data-style=editorial] .theme-toggle{grid-column:2;grid-row:2}:root[data-style=editorial] .tools{grid-column:3;grid-row:2}:root[data-style=editorial] .analysis-grid{grid-template-columns:1fr;gap:28px}}
+@media(max-width:760px){
+ :root[data-style=editorial] .top{margin:16px 16px 0;padding:0}
+ :root[data-style=editorial] .brand{font-size:44px;padding:12px 0 14px;letter-spacing:-1.5px}:root[data-style=editorial] .brand::before{font-size:9px;letter-spacing:3px;margin-bottom:10px}
+ :root[data-style=editorial] .site-nav{overflow:auto;border-bottom:1px solid var(--rule)}
+ :root[data-style=editorial] main{margin:10px 16px 0;padding:24px 0 44px}
+ :root[data-style=editorial] .day-title h1{font-size:42px}:root[data-style=editorial] h1{font-size:34px}
+ :root[data-style=editorial] .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ :root[data-style=editorial] .metrics article{padding:16px 12px;border-bottom:1px solid var(--rule)}
+ :root[data-style=editorial] .metrics article:nth-child(2n){border-right:0}
+ :root[data-style=editorial] .metrics strong{font-size:27px}
+ :root[data-style=editorial] .detail-summary div{border-right:0;border-bottom:1px solid var(--rule)}
+}
+/* the day's headline, set as figures */
+:root[data-style=editorial] .today{gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+:root[data-style=editorial] .today>article{background:transparent;border:0;border-right:1px solid var(--rule);border-radius:0;padding:20px 24px}
+:root[data-style=editorial] .today>article:last-child{border-right:0}
+:root[data-style=editorial] .today-label{color:var(--accent);font-size:11px;letter-spacing:2px;font-weight:600}
+:root[data-style=editorial] .today-main strong{font-weight:normal;font-size:46px;letter-spacing:-.5px}
+:root[data-style=editorial] .today-main small{font-family:var(--display);font-style:italic;font-size:13px}
+:root[data-style=editorial] .top-list b{font-family:var(--display);font-weight:normal;font-size:15px}:root[data-style=editorial] .top-list em{font-family:var(--num)}
+:root[data-style=editorial] .top-list i,:root[data-style=editorial] .split-legend i{border-radius:0}
+:root[data-style=editorial] .split-bar{border-radius:0;height:8px}:root[data-style=editorial] .split-legend b{font-family:var(--num)}
+:root[data-style=editorial] .data-details>summary{font-family:var(--display);font-style:italic}
+:root[data-style=editorial] .cover-wall{padding-inline:0}
+:root[data-style=editorial] .cover-art{box-shadow:0 0 0 1px var(--ink)}
+:root[data-style=editorial] .cover-name{font-family:var(--display);font-weight:normal;font-size:14px}
+:root[data-style=editorial] .cover-tag{border-radius:0;background:var(--paper);color:var(--accent);font-family:var(--display);backdrop-filter:none}
+:root[data-style=editorial] .cover-glyph{font-weight:normal}

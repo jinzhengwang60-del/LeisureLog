@@ -1,0 +1,141 @@
+/* 掌机: a PICO-8 style fantasy console. Its 16-colour palette, hard 2px outlines with offset shadows,
+   pressable keys, a scanlined screen for the page head and timeline, and a high-score rail. */
+@import url("/static/skin-base.css?v=dups1");
+:root[data-style=arcade]{
+ --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;--display:Consolas,"Lucida Console","Microsoft YaHei UI",monospace;--num:Consolas,"Lucida Console",monospace;--radius:0px;
+ --ink:#1d2b53;--ink-2:#34406a;--muted:#5f574f;--faint:#776e65;--paper:#fff1e8;--sheet:#fffaf5;--wash:#ffe6d6;
+ --rule:#e6cfc0;--rule-soft:#f5e3d8;--rule-strong:#1d2b53;--row-hover:#ffeadd;
+ --accent:#ff004d;--accent-soft:#ffd9e2;--on-accent:#fff1e8;--link:#c2003b;--focus:#29adff;
+ --danger:#c2003b;--danger-wash:#ffe0e6;--ok-wash:#ddf7e3;--bar-confirmed:#29adff;--bar-uncertain:#ffa300;--backdrop:#1d2b53b3;--shadow:#1d2b53;
+ --edge:#1d2b53;--key-shadow:#1d2b53;--screen:#1d2b53;--screen-ink:#fff1e8;--scan:#0000001f;
+ --c-game:#29adff;--c-video:#ff004d;--c-film:#83769c;--c-anime:#ff77a8;--c-live:#ffa300;--c-reading:#00b52c;--c-music:#12a8a0;
+ --c-social:#e6a800;--c-browsing:#008751;--c-work:#5f574f;--c-other:#ab5236;--c-unknown:#c2c3c7;
+ --hi-1:#ff004d;--hi-2:#1e8fe0;--hi-3:#008751;--hi-4:#ab5236;--tip-bg:#1d2b53;--tip-fg:#fff1e8;
+}
+:root[data-style=arcade][data-theme=dark]{
+ --ink:#fff1e8;--ink-2:#e8dcd2;--muted:#c2c3c7;--faint:#a39c95;--paper:#000;--sheet:#111a33;--wash:#1d2b53;
+ --rule:#2f3d6b;--rule-soft:#1d2b53;--rule-strong:#83769c;--row-hover:#1d2b53;
+ --accent:#ff004d;--accent-soft:#4a1230;--on-accent:#fff1e8;--link:#ff77a8;--focus:#ffec27;
+ --danger:#ff77a8;--danger-wash:#4a1230;--ok-wash:#0b3324;--bar-confirmed:#29adff;--bar-uncertain:#ffa300;--backdrop:#000c;--shadow:#000;
+ --edge:#83769c;--key-shadow:#7e2553;--screen:#1d2b53;--screen-ink:#fff1e8;--scan:#00000040;
+ --c-game:#29adff;--c-video:#ff004d;--c-film:#83769c;--c-anime:#ff77a8;--c-live:#ffa300;--c-reading:#00e436;--c-music:#2ad4c9;
+ --c-social:#ffec27;--c-browsing:#008751;--c-work:#c2c3c7;--c-other:#ab5236;--c-unknown:#5f574f;
+ --hi-1:#ff004d;--hi-2:#29adff;--hi-3:#00e436;--hi-4:#ffa300;--tip-bg:#fff1e8;--tip-fg:#000;
+}
+:root[data-style=arcade] body{background-color:var(--paper);background-image:radial-gradient(var(--rule) 1.5px,transparent 1.6px);background-size:24px 24px}
+:root[data-style=arcade][data-theme=dark] body{background-image:radial-gradient(#1d2b53 1.5px,transparent 1.6px)}
+/* console top: label strip and keys */
+:root[data-style=arcade] .top{max-width:1300px;margin:24px auto 0;padding:16px 20px;border:2px solid var(--edge);box-shadow:5px 5px 0 var(--key-shadow);background:var(--sheet);display:flex;flex-wrap:wrap;gap:14px}
+:root[data-style=arcade] .brand{font-family:var(--num);text-transform:uppercase;letter-spacing:3px;font-size:22px;font-weight:700}
+:root[data-style=arcade] .brand::after{content:"";width:10px;height:10px;background:var(--accent);box-shadow:14px 0 #ffa300,28px 0 #29adff,42px 0 #00e436;margin-left:6px}
+:root[data-style=arcade] .logo{width:24px;height:24px}
+:root[data-style=arcade] .logo circle{stroke:var(--ink);stroke-width:3}:root[data-style=arcade] .logo path{fill:var(--accent)}
+:root[data-style=arcade] .site-nav{order:4;width:100%;gap:10px;padding:2px 6px 6px 0}
+:root[data-style=arcade] .site-nav a{border:2px solid var(--edge);box-shadow:3px 3px 0 var(--key-shadow);background:var(--sheet);color:var(--ink);font-size:12px;font-weight:600;padding:7px 16px;border-radius:0}
+:root[data-style=arcade] .site-nav a:hover{background:var(--wash)}
+:root[data-style=arcade] .site-nav a[aria-current=page]{background:var(--accent);color:var(--on-accent);box-shadow:1px 1px 0 var(--key-shadow);transform:translate(2px,2px)}
+/* keys */
+:root[data-style=arcade] button,:root[data-style=arcade] .tools summary{border:2px solid var(--edge);border-radius:0;box-shadow:3px 3px 0 var(--key-shadow);padding:6px 12px;min-height:36px;background:var(--sheet);font-weight:600}
+:root[data-style=arcade] button:hover{background:var(--wash);border-color:var(--edge)}
+:root[data-style=arcade] button:active:not(:disabled){box-shadow:1px 1px 0 var(--key-shadow);transform:translate(2px,2px)}
+:root[data-style=arcade] .primary{background:var(--accent);color:var(--on-accent);border-color:var(--edge)}
+:root[data-style=arcade] .primary:hover{background:var(--accent);filter:brightness(1.08)}
+:root[data-style=arcade] input,:root[data-style=arcade] select,:root[data-style=arcade] textarea,:root[data-style=arcade] .type-form textarea,:root[data-style=arcade] .type-form select,:root[data-style=arcade] .manage textarea{border-radius:0;border:2px solid var(--edge);background:var(--sheet)}
+:root[data-style=arcade] main{max-width:1300px;padding:28px 0 60px}
+/* the screen: scanlines over a navy display and the pixel night */
+:root[data-style=arcade] .day-head,:root[data-style=arcade] .heading{min-height:200px;border:2px solid var(--edge);padding:28px 32px;box-shadow:5px 5px 0 var(--key-shadow);background:var(--screen);color:var(--screen-ink);position:relative;overflow:hidden;isolation:isolate}
+:root[data-style=arcade] .day-head::before,:root[data-style=arcade] .heading::before{content:"";position:absolute;z-index:-1;right:0;top:0;bottom:0;width:52%;background:url("/static/arcade-world.svg") right bottom/auto 100% no-repeat;image-rendering:pixelated;pointer-events:none}
+:root[data-style=arcade] .day-head::after,:root[data-style=arcade] .heading::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,var(--scan) 0 2px,transparent 2px 4px);pointer-events:none}
+:root[data-style=arcade] .day-head{grid-template-columns:1fr;gap:20px}
+:root[data-style=arcade] .day-title{display:block;max-width:55%}
+:root[data-style=arcade] .day-title h1{font-family:var(--num);font-size:44px;letter-spacing:-1px;color:#ffec27;text-shadow:3px 3px 0 #7e2553}
+:root[data-style=arcade] .weekday{color:#c2c3c7;margin-top:8px;font-family:var(--num);letter-spacing:2px}
+:root[data-style=arcade] .day-tools{align-items:flex-start;max-width:55%}
+:root[data-style=arcade] .day-tools input,:root[data-style=arcade] .day-tools button{background:#fff1e8;color:#1d2b53;border-color:#000;box-shadow:3px 3px 0 #000}
+:root[data-style=arcade] .statusbox{color:#c2c3c7;font-family:var(--num)}
+:root[data-style=arcade] .statusbox::before{border-radius:0;background:#00e436}
+:root[data-style=arcade] .heading>div{max-width:55%}
+:root[data-style=arcade] .heading h1{color:#ffec27;text-shadow:3px 3px 0 #7e2553}
+:root[data-style=arcade] .heading .intro,:root[data-style=arcade] .heading .eyebrow,:root[data-style=arcade] .heading .scope{color:#e8dcd2}
+:root[data-style=arcade] .heading>.scope,:root[data-style=arcade] .heading>button{align-self:flex-end;z-index:1}
+:root[data-style=arcade] .heading>button{background:#fff1e8;color:#1d2b53}
+:root[data-style=arcade] h1{font-size:36px;letter-spacing:0}:root[data-style=arcade] h2{font-size:17px;letter-spacing:1px}
+/* score cards */
+:root[data-style=arcade] .metrics{gap:14px}
+:root[data-style=arcade] .metrics article{border:2px solid var(--edge);box-shadow:4px 4px 0 var(--key-shadow);background:var(--sheet);padding:16px 18px;border-radius:0}
+:root[data-style=arcade] .metrics span{font-family:var(--display);font-size:12px;font-weight:600;color:var(--ink-2)}
+:root[data-style=arcade] .metrics strong{font-family:var(--num);font-size:30px;font-weight:700;letter-spacing:-1px;color:var(--hi-1)}
+:root[data-style=arcade] .metrics article:nth-child(2) strong{color:var(--hi-2)}:root[data-style=arcade] .metrics article:nth-child(3) strong{color:var(--hi-3)}:root[data-style=arcade] .metrics article:nth-child(4) strong{color:var(--hi-4)}
+/* panels */
+:root[data-style=arcade] .ribbon,:root[data-style=arcade] .records,:root[data-style=arcade] .chart-panel,:root[data-style=arcade] .range-panel{border:2px solid var(--edge);box-shadow:5px 5px 0 var(--key-shadow);border-radius:0;background:var(--sheet)}
+:root[data-style=arcade] .ribbon{padding:20px}
+:root[data-style=arcade] .ribbon-track{height:64px;border:2px solid var(--edge);border-radius:0;background:repeating-linear-gradient(0deg,#00000030 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,#ffffff1a 0 2px,transparent 2px calc(100%/24)),var(--screen)}
+:root[data-style=arcade] .ribbon-track .block{top:10px;bottom:10px}
+:root[data-style=arcade] .ribbon-now{background:#ffec27;width:3px}
+:root[data-style=arcade] .ribbon-hours{font-family:var(--num)}
+:root[data-style=arcade] .ribbon-legend{border-top:2px dashed var(--rule)}
+:root[data-style=arcade] .ribbon-legend i,:root[data-style=arcade] .badge::before,:root[data-style=arcade] .app-icon{border-radius:0}
+:root[data-style=arcade] .legend-filter{border:2px solid transparent;box-shadow:none;background:transparent;font-weight:500}
+:root[data-style=arcade] .legend-filter[aria-pressed=true]{border-color:var(--edge);background:var(--accent-soft)}
+:root[data-style=arcade] .section-head{background:var(--wash);border-bottom:2px solid var(--edge);padding:16px 20px}
+:root[data-style=arcade] .section-head h2::before{content:"";display:inline-block;vertical-align:middle;width:10px;height:10px;margin-right:10px;background:var(--accent);box-shadow:3px 3px 0 var(--key-shadow)}
+:root[data-style=arcade] .section-head h2 span{border-radius:0;background:var(--screen);color:#ffec27;font-family:var(--num)}
+:root[data-style=arcade] .section-head p{font-size:11px}
+:root[data-style=arcade] th{background:var(--sheet);color:var(--ink);font-weight:700;font-family:var(--display);border-bottom:2px solid var(--edge);border-top:0}
+:root[data-style=arcade] td.time,:root[data-style=arcade] td.num,:root[data-style=arcade] .num{font-family:var(--num)}
+:root[data-style=arcade] .badge{border:2px solid var(--cat,var(--c-unknown));background:transparent;font-weight:600;padding:1px 7px}
+:root[data-style=arcade] .bar{border-radius:0;height:8px;border:2px solid var(--edge);background:var(--sheet)}
+:root[data-style=arcade] .detail-button{border:0;box-shadow:none;background:transparent;font-weight:600}
+:root[data-style=arcade] .detail-button:active{transform:none}
+:root[data-style=arcade] .pagination{border-top:2px solid var(--edge)}
+/* charts and lists */
+:root[data-style=arcade] .rank-track,:root[data-style=arcade] .rank-fill,:root[data-style=arcade] .trend-stack,:root[data-style=arcade] .type-track,:root[data-style=arcade] .type-fill,:root[data-style=arcade] .month-stack,:root[data-style=arcade] .hours-cell,:root[data-style=arcade] .daily-track,:root[data-style=arcade] .daily-fill,:root[data-style=arcade] .month-track,:root[data-style=arcade] .month-fill,:root[data-style=arcade] .correction,:root[data-style=arcade] .detail-summary div{border-radius:0}
+:root[data-style=arcade] .rank-track,:root[data-style=arcade] .month-track,:root[data-style=arcade] .daily-track,:root[data-style=arcade] .type-track{height:10px;border:2px solid var(--edge);background:var(--sheet)}
+:root[data-style=arcade] .trend-chart{border-bottom:2px solid var(--edge)}
+:root[data-style=arcade] .trend-value,:root[data-style=arcade] .trend-label,:root[data-style=arcade] .hours-head,:root[data-style=arcade] .hours-day,:root[data-style=arcade] .rank-value{font-family:var(--num)}
+:root[data-style=arcade] .hours-grid{gap:2px}
+:root[data-style=arcade] .presets{border:0;border-radius:0;background:transparent;padding:0 4px 4px 0;gap:10px;overflow:visible;flex-wrap:wrap}
+:root[data-style=arcade] .presets button{border-radius:0;min-height:36px}
+:root[data-style=arcade] .presets button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);box-shadow:1px 1px 0 var(--key-shadow);transform:translate(2px,2px)}
+:root[data-style=arcade] .type-row-heading button,:root[data-style=arcade] .library-title,:root[data-style=arcade] .back{border:0;box-shadow:none;padding:0;background:transparent;min-height:0}
+:root[data-style=arcade] .recent-entry::before{border-radius:0}
+:root[data-style=arcade] dialog{border:2px solid var(--edge);box-shadow:8px 8px 0 var(--key-shadow);border-radius:0}
+:root[data-style=arcade] .dialog-head{border-bottom:2px solid var(--edge);padding-bottom:16px}
+/* the activity page puts a high-score rail beside the list */
+@media(min-width:1051px){
+ :root[data-style=arcade] body[data-page=activity] main{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px}
+ :root[data-style=arcade] body[data-page=activity] .day-head{grid-column:1/-1;grid-row:1;margin:0}
+ :root[data-style=arcade] body[data-page=activity] .ribbon{grid-column:1/-1;grid-row:2;margin:0}
+ :root[data-style=arcade] body[data-page=activity] .data-details{grid-column:1/-1;grid-row:3;margin:0}
+ :root[data-style=arcade] body[data-page=activity] .toolbar{grid-column:1/-1;grid-row:4;margin:0}
+ :root[data-style=arcade] body[data-page=activity] .today{grid-column:2;grid-row:5;display:flex;flex-direction:column;margin:0;align-self:start;gap:14px}
+ :root[data-style=arcade] body[data-page=activity] .today::before{content:"HI-SCORE";font:700 15px var(--num);letter-spacing:4px;background:var(--screen);color:#ffec27;text-shadow:2px 2px 0 #7e2553;padding:12px 16px;border:2px solid var(--edge);box-shadow:4px 4px 0 var(--key-shadow)}
+ :root[data-style=arcade] body[data-page=activity] .today-main strong{font-size:26px;letter-spacing:-1.5px}
+ :root[data-style=arcade] body[data-page=activity] .records{grid-column:1;grid-row:5;align-self:start}
+ :root[data-style=arcade] body[data-page=activity] :is(.footnote,.error,.notice){grid-column:1/-1}
+}
+@media(max-width:1360px){:root[data-style=arcade] .top,:root[data-style=arcade] main{margin-inline:28px}}
+@media(max-width:760px){
+ :root[data-style=arcade] .top{margin:12px 14px 0;padding:14px 12px;gap:10px}:root[data-style=arcade] .brand{font-size:18px;letter-spacing:1px}
+ :root[data-style=arcade] .brand::after{display:none}
+ :root[data-style=arcade] main{margin:0;padding:22px 14px 44px}:root[data-style=arcade] .site-nav a{padding:6px 11px}
+ :root[data-style=arcade] .day-head,:root[data-style=arcade] .heading{padding:22px 16px;min-height:240px}
+ :root[data-style=arcade] .day-head::before,:root[data-style=arcade] .heading::before{width:100%;opacity:.45;background-size:auto 60%}
+ :root[data-style=arcade] .day-title,:root[data-style=arcade] .day-tools,:root[data-style=arcade] .heading>div{max-width:100%}
+ :root[data-style=arcade] .day-title h1{font-size:34px}:root[data-style=arcade] h1{font-size:28px}
+ :root[data-style=arcade] .metrics article{padding:14px 12px}:root[data-style=arcade] .metrics strong{font-size:21px}
+ :root[data-style=arcade] .ribbon{padding:16px 12px}:root[data-style=arcade] .statusbox{flex-wrap:wrap}:root[data-style=arcade] .section-head{padding:16px 14px}
+}
+/* the day's headline as score cards */
+:root[data-style=arcade] .today{gap:14px}
+:root[data-style=arcade] .today>article{border:2px solid var(--edge);box-shadow:4px 4px 0 var(--key-shadow);background:var(--sheet);border-radius:0;padding:16px 18px}
+:root[data-style=arcade] .today-label{font-family:var(--display);font-weight:600;color:var(--ink-2)}
+:root[data-style=arcade] .today-main strong{font-family:var(--num);font-weight:700;letter-spacing:-1px;color:var(--hi-1)}
+:root[data-style=arcade] .top-list b,:root[data-style=arcade] .top-list em,:root[data-style=arcade] .split-legend b{font-family:var(--num)}
+:root[data-style=arcade] .top-list i,:root[data-style=arcade] .split-legend i{border-radius:0}
+:root[data-style=arcade] .split-bar{border-radius:0;height:12px;border:2px solid var(--edge)}
+:root[data-style=arcade] .data-details>summary{font-family:var(--display)}
+:root[data-style=arcade] .cover-art{border:2px solid var(--edge);box-shadow:4px 4px 0 var(--key-shadow);image-rendering:auto}
+:root[data-style=arcade] .cover-card:hover .cover-art{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--key-shadow)}
+:root[data-style=arcade] .cover-tag{border-radius:0;background:var(--screen);font-family:var(--num)}
+:root[data-style=arcade] .view-switch{border:2px solid var(--edge);box-shadow:3px 3px 0 var(--key-shadow)}

@@ -22,6 +22,11 @@ function Write-LeisureLogCatalog {
                     if ($tag) { $tag.Name }
                 }
             )
+            # Local cover file only; covers that are still web addresses are left out.
+            $cover = ''
+            if ($game.CoverImage -and -not ([string]$game.CoverImage).StartsWith('http')) {
+                $cover = [string]$PlayniteApi.Database.GetFullFilePath($game.CoverImage)
+            }
             [ordered]@{
                 id = $game.Id.ToString()
                 name = $game.Name
@@ -29,6 +34,7 @@ function Write-LeisureLogCatalog {
                 directory = [string]$game.InstallDirectory
                 tags = $tags
                 executables = $paths
+                cover = $cover
             }
         }
     )

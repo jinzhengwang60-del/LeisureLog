@@ -1,4 +1,5 @@
 import {categoryLabels} from "./correction.js";
+import {renderHours} from "./hours.js?v=1";
 
 const $ = id => document.getElementById(id);
 const today = () => new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
@@ -95,6 +96,7 @@ async function load() {
     ranking("apps",data.apps,row=>appName(row.app),null,"这个范围还没有应用记录。");
     ranking("contents",data.contents,row=>`${row.content} · ${appName(row.app)}`,null,"还没有带内容名称的记录。可以在活动详情中识别或填写内容名称。");
     trend(data);
+    renderHours(data.start, data.end);
   } catch (error) {
     if (current !== ticket) return;
     $("error").textContent = error.message; $("error").hidden = false;
