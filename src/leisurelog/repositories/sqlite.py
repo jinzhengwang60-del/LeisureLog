@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy import case, delete, func, select
 from sqlalchemy.orm import Session as DBSession
 
+from leisurelog.domain.activity_context import ActivityContext
 from leisurelog.domain.browser import BrowserEvent, BrowserSourceRecord, ResolvedActivity
 from leisurelog.domain.learned_rules import LearnedRule
 from leisurelog.domain.models import (
@@ -17,6 +18,7 @@ from leisurelog.domain.models import (
     SourceRecord,
 )
 from leisurelog.domain.processing import ProcessingRange
+from leisurelog.repositories.activity_context import SQLiteContext
 from leisurelog.repositories.library import SQLiteLibrary
 from leisurelog.repositories.models import (
     ActivityEventRow,
@@ -62,6 +64,20 @@ class SQLiteRepository:
 
     def processing_scope(self, gap_seconds):
         return plan(self.db, self._changes, gap_seconds)
+
+    def context_overrides(self, scope=None):
+        return SQLiteContext(self.db).context_overrides(
+            self.window_ids(scope) if scope is not None else None
+        )
+
+    def context_rules(self):
+        return SQLiteContext(self.db).context_rules()
+
+    def projects(self):
+        return SQLiteContext(self.db).projects()
+
+    def mark_context_changed(self, event):
+        self.mark_changed(self.db.get(ActivityEventRow, event.window_event_id))
 
     def clear_changes(self):
         self._changes.clear()
@@ -321,6 +337,8 @@ class SQLiteRepository:
                     key: (
                         classification(row.classification)
                         if key == "classification"
+                        else ActivityContext(**(row.context or {}))
+                        if key == "context"
                         else getattr(row, key)
                     )
                     for key in ResolvedActivity.__dataclass_fields__
@@ -480,10 +498,11 @@ class SQLiteRepository:
                 **{
                     key: getattr(row, key)
                     for key in Session.__dataclass_fields__
-                    if key not in {"classification", "event_ids"}
+                    if key not in {"classification", "event_ids", "context"}
                 },
                 classification=classification(row.classification),
                 event_ids=sorted(links.get(row.id, [])),
+                context=ActivityContext(**(row.context or {})),
             )
             for row in self.db.scalars(statement)
         ]
@@ -494,9 +513,15 @@ class SQLiteRepository:
         self.db.add_all(DailyActivityRow(**asdict(record)) for record in records)
         self.db.flush()
 
-    def range_statistics(self, start, end, granularity):
+    def range_statistics(self, start, end, granularity, purpose="", project_id=""):
         row = DailyActivityRow
-        condition = (row.day >= start, row.day <= end)
+        condition = [row.day >= start, row.day <= end]
+        if purpose:
+            condition.append(row.purpose == purpose)
+        if project_id:
+            condition.append(
+                row.project_id.is_(None) if project_id == "none" else row.project_id == project_id
+            )
         sums = [
             func.sum(getattr(row, key)).label(key)
             for key in [
@@ -536,6 +561,8 @@ class SQLiteRepository:
             "totals": {k: v or 0 for k, v in totals.items()},
             "coverage": coverage,
             "categories": grouped([row.category]),
+            "purposes": grouped([row.purpose]),
+            "projects": grouped([row.project_id]),
             "apps": grouped([row.app], 20),
             "contents": [
                 dict(value)

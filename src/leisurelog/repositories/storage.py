@@ -103,6 +103,9 @@ class SQLiteStorage:
                     "game_catalog",
                     "game_snapshots",
                     "game_type_overrides",
+                    "activity_projects",
+                    "context_overrides",
+                    "context_rules",
                 )
             }
             removable = db.execute("SELECT count(*) FROM (" + SUPERSEDED + ")").fetchone()[0]

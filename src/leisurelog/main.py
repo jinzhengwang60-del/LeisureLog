@@ -10,6 +10,7 @@ from leisurelog.adapters.activitywatch import ActivityWatchAdapter
 from leisurelog.adapters.playnite import PlayniteAdapter
 from leisurelog.adapters.rules import RuleClassifier
 from leisurelog.adapters.scheduler import PeriodicSync
+from leisurelog.api.activity_context import router as activity_context_router
 from leisurelog.api.dashboard import router as dashboard_router
 from leisurelog.api.game_preferences import router as game_preferences_router
 from leisurelog.api.games import router as games_router
@@ -34,7 +35,7 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app):
         rules = RuleClassifier(settings.rules_path)
-        pipeline = ClassificationPipeline([rules], rules.timing_rules)
+        pipeline = ClassificationPipeline([rules], rules.timing_rules, [rules])
         engine = make_engine(settings.database_url)
         app.state.settings = settings
         app.state.sessions = session_factory(engine)
@@ -60,7 +61,10 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
                 )
                 scheduler = PeriodicSync(
                     AutomaticSync(
-                        app.state.sessions, app.state.source, pipeline, settings,
+                        app.state.sessions,
+                        app.state.source,
+                        pipeline,
+                        settings,
                         app.state.playnite,
                         backup=lambda: app.state.storage.backup_if_due(
                             settings.auto_backup_days, settings.auto_backup_keep
@@ -78,7 +82,15 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
         finally:
             engine.dispose()
 
-    app = FastAPI(title="LeisureLog", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="LeisureLog · 电脑活动记录", version="0.2.0", lifespan=lifespan)
+
+    @app.middleware("http")
+    async def current_activity_data(request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/api/") or request.url.path == "/health":
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     app.include_router(router)
     app.include_router(dashboard_router)
     app.include_router(storage_router)
@@ -89,6 +101,7 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
     app.include_router(unclassified_router)
     app.include_router(rules_reload_router)
     app.include_router(review_router)
+    app.include_router(activity_context_router)
     app.mount(
         "/static", StaticFiles(directory=Path(__file__).parent / "api" / "static"), name="static"
     )

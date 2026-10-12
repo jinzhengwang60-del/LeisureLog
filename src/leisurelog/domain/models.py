@@ -4,6 +4,14 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class ActivityContext:
+    purpose: str = "unknown"
+    project_id: str | None = None
+    purpose_origin: str = "fallback"
+    project_origin: str = "fallback"
+
+
+@dataclass(frozen=True)
 class Classification:
     category: str = "unknown"
     content: str | None = None
@@ -77,3 +85,4 @@ class Session:
     retained_afk_seconds: float = 0
     timing_policy: str = "afk"
     timing_origin: str = "default"
+    context: ActivityContext = field(default_factory=ActivityContext)

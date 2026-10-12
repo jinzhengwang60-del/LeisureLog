@@ -3,6 +3,10 @@ from typing import Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
+PurposeFilter = Literal[
+    "", "work", "study", "create", "communication", "leisure", "system", "other", "unknown"
+]
+
 
 class SyncRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")

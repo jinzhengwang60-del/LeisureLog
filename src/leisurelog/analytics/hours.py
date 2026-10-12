@@ -8,7 +8,7 @@ from leisurelog.analytics.query import BEIJING, day_sessions
 MAX_DAYS = 31
 
 
-def hour_grid(repo, start: date, end: date) -> dict:
+def hour_grid(repo, start: date, end: date, purpose="", project_id="") -> dict:
     """Counted seconds per category for each hour of each day in [start, end].
 
     A session's counted (active) time is spread over its clipped span in proportion
@@ -25,6 +25,14 @@ def hour_grid(repo, start: date, end: date) -> dict:
         sessions, _, _ = day_sessions(repo, current)
         cells = [defaultdict(float) for _ in range(24)]
         for session in sessions:
+            if purpose and session.context.purpose != purpose:
+                continue
+            if project_id and (
+                session.context.project_id is not None
+                if project_id == "none"
+                else session.context.project_id != project_id
+            ):
+                continue
             span = (session.end_time - session.start_time).total_seconds()
             if span <= 0 or session.active_seconds <= 0:
                 continue
@@ -50,5 +58,9 @@ def hour_grid(repo, start: date, end: date) -> dict:
             }
         )
         current += timedelta(days=1)
-    return {"start": start.isoformat(), "end": end.isoformat(), "truncated": truncated,
-            "days": days}
+    return {
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "truncated": truncated,
+        "days": days,
+    }

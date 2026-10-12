@@ -24,6 +24,8 @@ class DailyActivity:
     detected_afk_seconds: float
     retained_afk_seconds: float
     unverified_seconds: float
+    purpose: str = "unknown"
+    project_id: str | None = None
 
 
 def daily_activity(sessions: list[Session], events: list[ActivityEvent], idle: list[IdleEvent]):
@@ -71,6 +73,8 @@ def daily_activity(sessions: list[Session], events: list[ActivityEvent], idle: l
                     detected,
                     retained,
                     unverified,
+                    session.context.purpose if session.context else "unknown",
+                    session.context.project_id if session.context else None,
                 )
             )
     return result

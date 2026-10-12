@@ -15,12 +15,17 @@ LEISURE_CATEGORIES = frozenset(
 )
 
 
-def statistics(repo, start: date, end: date, granularity: str) -> dict:
+def statistics(repo, start: date, end: date, granularity: str, purpose="", project_id="") -> dict:
     if end < start or (end - start).days >= 3660:
         raise ValueError("Date range must be ordered and at most 3660 days")
     if granularity == "auto":
         granularity = "month" if (end - start).days >= 90 else "day"
-    result = repo.range_statistics(start, end, granularity)
+    result = repo.range_statistics(start, end, granularity, purpose, project_id)
+    result["project_options"] = repo.projects()
+    result["totals"]["purpose_unknown_seconds"] = sum(
+        row["active_seconds"] for row in result["purposes"] if row["purpose"] == "unknown"
+    )
+    result["filters"] = {"purpose": purpose, "project_id": project_id}
     result["totals"]["confirmed_seconds"] = max(
         0, result["totals"]["active_seconds"] - result["totals"]["unverified_seconds"]
     )

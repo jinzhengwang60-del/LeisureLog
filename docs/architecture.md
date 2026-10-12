@@ -7,7 +7,7 @@
 ```text
 LeisureLog/
 ├── config/rules.yaml          # 有序分类规则
-├── migrations/               # Alembic 迁移，当前版本 0011
+├── migrations/               # Alembic 迁移，当前版本 0012
 ├── src/leisurelog/
 │   ├── domain/               # 纯 Python 实体、接口、分类优先级、Session 策略
 │   ├── adapters/             # ActivityWatch HTTP、YAML 规则分类器、Playnite 本地导出
@@ -34,6 +34,8 @@ API → services → domain 接口 ← repositories 的 SQLite 实现
 
 约束：domain 不导入 FastAPI、SQLAlchemy、httpx；services 依赖 domain 中的 Repository / ActivitySource / Classifier / LibraryStore 协议；analytics 定义只读查询并通过协议获取数据库汇总；具体实现由 main 和 API 事务依赖组装，API 负责提交和回滚。新增来源实现 ActivitySource，新增分类器实现 Classifier，然后在组装入口注册。不要让业务层识别具体 watcher 的 JSON。
 
+数据库依赖使用 `Depends(service, scope="function")`：写请求在路由执行前获取 SQLite 写锁，提交成功后才发送成功响应；失败时回滚。这样保存项目后立即读取列表不会读到旧状态。API 响应同时设置 `Cache-Control: no-store`。最低 FastAPI 版本为 0.121，依赖退出时机见 [官方说明](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/#early-exit-and-scope)。
+
 ## 数据结构与重处理
 
 | 表 | 职责 |
@@ -41,7 +43,10 @@ API → services → domain 接口 ← repositories 的 SQLite 实现
 | raw_events | 保存源 payload、源 metadata、接收时间及内容哈希；应用只追加快照，不覆盖已有版本 |
 | activity_events | 当前统一事件，含 source、stream、device、起止时间、app、title、url、分类结果，指向所用 raw 快照 |
 | idle_events | 独立的 afk / not-afk 状态，关联自己的原始快照；不参与娱乐分类 |
-| manual_overrides | 针对稳定事件 ID 的人工分类，独立于自动结果 |
+| manual_overrides | 针对稳定事件 ID 的人工内容分类，独立于自动结果 |
+| activity_projects | 持久化项目名称、说明、颜色与归档状态，不随重处理清空 |
+| context_overrides | 独立的人工用途和项目，绑定事件并保留原窗口锚点 |
+| context_rules | 标题、关键词、URL、网站或应用的自动归属规则 |
 | sessions | 当前合并结果，可重新生成；记录实际 active_seconds |
 | session_events | Session 与统一事件的可追溯关联 |
 | content_items | 持久化作品展示名称、分类、备注；不随重处理清空 |
@@ -52,7 +57,7 @@ API → services → domain 接口 ← repositories 的 SQLite 实现
 
 原始数据与处理数据分表。同一源事件通过稳定 ID 幂等更新；原始内容改变时留下新版本。一次同步和派生结果替换在同一 SQLite 事务内完成，失败时整体回滚；`BEGIN IMMEDIATE` 串行化写入，避免并发重建相互覆盖。
 
-`POST /api/reprocess` 从已保存的统一事件重新分类和合并，不需要访问 ActivityWatch，不会删除人工覆盖或原始快照。当前尚无“更换 Adapter 后从原始快照重新标准化”的专用用例，原始数据已为此保留。修改规则文件后重启服务，再调用重处理；错误规则在启动时校验失败，不悄悄忽略。
+`POST /api/reprocess` 从已保存的统一事件重新分类和合并，不需要访问 ActivityWatch，不会删除人工覆盖或原始快照。当前尚无“更换 Adapter 后从原始快照重新标准化”的专用用例，原始数据已为此保留。修改规则文件后可在页面点击重新读取规则文件，或重启服务后调用重处理；错误规则在启动时校验失败，不悄悄忽略。
 
 未来模型变更：修改 ORM → `alembic revision --autogenerate -m "说明"` → 人工检查迁移 → `alembic upgrade head`。初始迁移是独立冻结的 schema，不引用随开发变化的 ORM 来创建表。升级部署同步更新健康检查中的预期版本。
 
@@ -86,7 +91,7 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/api/reprocess'
 
 ## Session 语义
 
-- 仅在同一 source / device / stream 内合并，应用、标题、URL、分类（包括来源）必须一致。
+- 仅在同一 source / device / stream 内合并，应用、标题、URL、分类（包括来源）、用途与项目归属及其来源、计时策略必须一致。
 - 相邻同类事件间隔不超过配置阈值（默认 60 秒）时合并；中间存在另一种活动会截断。
 - Session 的 start/end 表示跨度，`recorded_seconds` 是窗口事件区间的并集，不计合并间隙，不重复计算同一 Session 内重叠部分。
 - `afk_seconds` 是窗口记录与同来源、同设备已知 afk 区间的交集；重复 AFK 区间先取并集，不重复扣除。同一时间有冲突状态时 afk 优先。
@@ -95,7 +100,7 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/api/reprocess'
 - 零时长事件会保留为 ActivityEvent，但不生成 Session。
 - 增量处理扩展受影响范围，包含相邻记录及旧 Session 的完整边界，保证跨同步窗口的相邻事件可合并；Session ID 由首事件产生，合并边界变化可能使 ID 改变，所以人工覆盖绑定事件而不是 Session。
 
-已实现 AFK 扣除，但没有浏览器与窗口融合、跨设备排重或跨不同活动 Session 的重叠冲突裁决。汇总的 recorded_seconds_by_category 保持原始窗口时长语义，active_seconds_by_category 为已扣除 AFK 的时长；附带 afk_seconds 和 unverified_seconds。未分类活动仍不应当作娱乐总时长。目前按完整事件标题合并的策略偏保守，窗口标题变化可能切分 Session。
+已实现 AFK 扣除与前台窗口/网页分段融合；网页只补充内容，不另加时长。跨设备排重与跨不同来源 Session 的重叠冲突裁决尚未实现。汇总的 recorded_seconds_by_category 保持原始窗口时长语义，active_seconds_by_category 为已扣除 AFK 的时长；附带 afk_seconds 和 unverified_seconds。未分类活动仍不应当作娱乐总时长。目前按完整事件标题合并的策略偏保守，窗口标题变化可能切分 Session。
 
 AFK 依据 ActivityWatch 的键鼠输入检测，并不证明使用者实际离开：观看视频、使用手柄时可能长时间没有键鼠输入。当前按 watcher 判断执行扣除，后续需加入内容活动策略。来源状态定义见 [官方数据模型](https://docs.activitywatch.net/en/latest/buckets-and-events.html)，判断实现见 [官方 AFK watcher](https://github.com/ActivityWatch/aw-watcher-afk/blob/master/aw_watcher_afk/afk.py)。
 
@@ -121,9 +126,9 @@ Invoke-RestMethod 'http://127.0.0.1:8000/api/sessions'
 
 自动同步随 LeisureLog 服务运行和停止，不是 Windows 开机启动任务。默认使用一个 Uvicorn worker；多进程启动会各自启动调度器，暂不支持多 worker 调度。通过 `GET /api/sync/status` 查看是否启用、是否正在执行、最近成功时间、导入数量和失败状态；状态在内存中，成功进度保存在 `sync_checkpoints` 表中。错误不会让服务退出；恢复 ActivityWatch 后下一轮自动重试。
 
-配置项见 `.env.example`：`AUTO_SYNC_ENABLED`、`AUTO_SYNC_INTERVAL_SECONDS`、`AUTO_SYNC_OVERLAP_SECONDS`、`AUTO_SYNC_INITIAL_HOURS`（均需 `LEISURELOG_` 前缀）。设置 `LEISURELOG_AUTO_SYNC_ENABLED=false` 可关闭自动同步。修改后重启服务。当前迁移版本为 `0011`，已有数据库升级前先停止旧后端，再执行 `alembic upgrade head`。从 AFK 迭代之前升级时，请手动重新同步需补齐 AFK 的历史时间段（每次最多 7 天）；仅增量同步不能补齐此前的全部 AFK 历史。本机已补取最近一天。
+配置项见 `.env.example`：`AUTO_SYNC_ENABLED`、`AUTO_SYNC_INTERVAL_SECONDS`、`AUTO_SYNC_OVERLAP_SECONDS`、`AUTO_SYNC_INITIAL_HOURS`（均需 `LEISURELOG_` 前缀）。设置 `LEISURELOG_AUTO_SYNC_ENABLED=false` 可关闭自动同步。修改后重启服务。当前迁移版本为 `0012`，已有数据库升级前先停止旧后端，再执行 `alembic upgrade head`。从 AFK 迭代之前升级时，请手动重新同步需补齐 AFK 的历史时间段（每次最多 7 天）；仅增量同步不能补齐此前的全部 AFK 历史。本机已补取最近一天。
 
-本机新版服务运行在 `http://127.0.0.1:8001`，最初因旧服务占用 8000 而使用该端口。查看新版文档使用 `http://127.0.0.1:8001/docs`；手动重新启动可用上述命令的 `--port 8001`。旧版后端的健康检查不认识新版迁移，升级后应使用新版后端（当前 0011）。
+本机新版服务运行在 `http://127.0.0.1:8001`，最初因旧服务占用 8000 而使用该端口。查看新版文档使用 `http://127.0.0.1:8001/docs`；手动重新启动可用上述命令的 `--port 8001`。旧版后端的健康检查不认识新版迁移，升级后应使用新版后端（当前 0012）。
 
 ## 长期运行与增量处理（迁移 0011）
 
@@ -149,3 +154,11 @@ Migration 0011 只增加范围查询及原窗口关联索引，不创建新的�
 ```
 
 本机一次测量：1096 天、21,920 个窗口事件，完整重建 17.1696 秒；一次 heartbeat 更新只处理相关 20 个窗口、1 个连续范围，0.0516 秒；重复未变化数据 0.0021 秒、处理窗口 0。增量和完整重处理的活动分类、网页片段、Session、关联及每日事实内容哈希全部一致。这是可分离日期的样本，不是所有场景的速度承诺。正式数据副本的真实来源同步处理 9 个窗口，约 0.0623 秒，也与完整处理一致。详细边界与验证见 [验证记录](verification.md)。
+
+## 独立活动用途与项目（迁移 0012）
+
+活动类型 classification 与活动归属 context 分开。ActivityContext 包含 purpose、project_id、purpose_origin、project_origin；只写入派生的 resolved_events、sessions 与 daily_activity，原始 payload 和统一源事件保持原有格式。归属优先级按字段分别应用，避免只选用途时覆盖项目。
+
+ContextClassifier 接口与原内容 Classifier 分开注册，main.py 组装配置用途分类器；ProcessingService 加载持久归属规则及保守的类型默认，最后应用人工归属。ActivityContextService 通过 ContextStore 协议访问项目与覆盖，在 API 的一致写事务中完成校验、保存和重建。人工归属沿用已有处理范围实现增量重建；全局规则变更重处理历史。
+
+项目和全部活动周汇总使用按日期范围的 SQL 事实聚合，不反序列化完整事件历史；每日用途/项目各有范围查询索引。统计、项目和导出沿用实际 active_seconds，没有新的计时来源。具体规则范围、项目生命周期和升级/回退语义见 [活动用途与项目](activity-projects.md)。

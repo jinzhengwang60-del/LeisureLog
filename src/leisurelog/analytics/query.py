@@ -36,9 +36,18 @@ def day_sessions(repo, day: date):
     return sessions, events, idle
 
 
-def _matches(s, app: str, category: str, query: str) -> bool:
+def _matches(s, app: str, category: str, query: str, purpose="", project_id="") -> bool:
     return (
         (not app or s.app == app)
+        and (not purpose or s.context.purpose == purpose)
+        and (
+            not project_id
+            or (
+                s.context.project_id is None
+                if project_id == "none"
+                else s.context.project_id == project_id
+            )
+        )
         and (not category or s.classification.category == category)
         and (
             not query
@@ -48,11 +57,11 @@ def _matches(s, app: str, category: str, query: str) -> bool:
     )
 
 
-def ribbon(repo, day: date, app: str, category: str, query: str):
+def ribbon(repo, day: date, app: str, category: str, query: str, purpose="", project_id=""):
     """Compact day timeline: only what the 24h strip draws, clipped to the Beijing day."""
     sessions, _, _ = day_sessions(repo, day)
     filtered = sorted(
-        (s for s in sessions if _matches(s, app, category, query)),
+        (s for s in sessions if _matches(s, app, category, query, purpose, project_id)),
         key=lambda s: (s.start_time, s.id),
     )
     return {
@@ -66,6 +75,8 @@ def ribbon(repo, day: date, app: str, category: str, query: str):
                 "category": s.classification.category,
                 "content": s.classification.content,
                 "active_seconds": s.active_seconds,
+                "purpose": s.context.purpose,
+                "project_id": s.context.project_id,
             }
             for s in filtered
         ],
@@ -82,6 +93,8 @@ def dashboard(
     offset: int,
     view: str = "sessions",
     min_seconds: float = 0,
+    purpose: str = "",
+    project_id: str = "",
 ):
     """Day list. ``view="grouped"`` merges nearby sessions of the same activity;
     ``min_seconds`` hides list entries shorter than that (the summary still counts them)."""
@@ -89,8 +102,9 @@ def dashboard(
     options = {
         "apps": sorted({s.app for s in sessions}),
         "categories": sorted({s.classification.category for s in sessions}),
+        "projects": repo.projects(),
     }
-    filtered = [s for s in sessions if _matches(s, app, category, query)]
+    filtered = [s for s in sessions if _matches(s, app, category, query, purpose, project_id)]
     if view == "grouped":
         entries = group_sessions(filtered)
     else:

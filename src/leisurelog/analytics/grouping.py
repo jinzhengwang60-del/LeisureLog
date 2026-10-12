@@ -15,7 +15,15 @@ SUMMED = (
 
 def _key(session):
     c = session.classification
-    return (session.app, c.category, c.content)
+    return (
+        session.source,
+        session.device,
+        session.stream,
+        session.app,
+        c.category,
+        c.content,
+        session.context,
+    )
 
 
 def group_sessions(sessions, gap_seconds: float = 300) -> list[dict]:
@@ -55,6 +63,7 @@ def _describe(members) -> dict:
             if any(s.classification.origin == "manual" for s in members)
             else first.classification.origin,
         },
+        "context": asdict(first.context) if first.context else None,
         **{name: sum(getattr(s, name) for s in members) for name in SUMMED},
         "session_count": len(members),
         "sessions": [

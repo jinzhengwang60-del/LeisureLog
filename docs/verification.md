@@ -2,6 +2,21 @@
 
 [返回项目首页](../README.md)
 
+## 2026-10-12 v0.2 公开源码验证
+
+版本为 **0.2.0**，数据库迁移单一 head 为 **0012**。本次新增独立的活动用途、项目管理、逐条与批量归属、可记忆的应用/标题/关键词/网站/URL 规则，以及全部电脑活动的首页、周回顾和统计。用途与项目分别保存，人工指定优先，原始数据和既有内容分类保持独立。
+
+- 完整后端自动测试 **224 passed**，Node 界面行为测试 **20 passed**。
+- Ruff、全部浏览器脚本语法、依赖一致性与 Git diff 空白检查通过。
+- 新增测试覆盖字段独立、网页片段继承与恢复、人工优先、规则匹配/删除/重处理、项目编辑归档、组合筛选、跨午夜 AFK、CSV 导出，以及非空数据的迁移升降级和备份恢复。
+- 项目保存的成功响应在数据库提交完成后发送；独立 WAL 读者在 ASGI response.start 时核对保存结果的回归测试通过。API 返回 `Cache-Control: no-store`。
+- 实际浏览器在隔离测试数据库核对首页批量修改、项目创建/编辑/归档、详情到组合筛选统计、CSV 下载与全部活动周回顾；六套界面的项目页在 390px 窄屏没有整体横向溢出。
+- 已有数据库先备份，再在副本和本机升级至 0012，核对原始记录、已有人工选择和规则保持不变，累计计入时长不变。完整性与外键检查通过，Alembic check 无待生成变更；本机服务与自动同步已验证成功。
+
+测试与示例活动始终使用独立临时数据库。公开仓库包含源码、配置示例、迁移、启动脚本、界面素材及测试；本机数据库、游戏库导出、日志、备份、历史截图和私人联调记录保留在本机。
+
+此前登记的四项边界问题仍暂缓处理，见下方清单。已有安装升级步骤和回退语义见 [活动用途与项目](activity-projects.md)。
+
 ## 2026-10-10 公开源码验证
 
 验证环境为 Windows / Python 3.13.9，数据库迁移单一 head 为 `0011`。
@@ -35,7 +50,7 @@
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\ruff.exe check src tests migrations scripts integrations
 .\.venv\Scripts\python.exe -m pip check
-node --test tests/js/appearance.test.cjs tests/js/sky-clock.test.cjs
+node --test tests/js/appearance.test.cjs tests/js/sky-clock.test.cjs tests/js/activity-context.test.cjs
 ```
 
 Node 用于独立界面行为测试；日常运行 LeisureLog 无需安装 Node。

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/sky-clock.js?v=1"></script>
+  <script src="/static/theme.js?v=redesign1" type="module"></script>
+  <title>LeisureLog · 项目</title>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/appearance.css?v=redesign1">
+  <link rel="stylesheet" href="/static/statistics.css?v=system1">
+  <script src="/static/projects.js?v=activity2" type="module"></script>
+  <link rel="stylesheet" href="/static/activity-context.css?v=activity2">
+</head>
+<body data-page="projects">
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/projects" aria-current="page">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <main>
+    <section class="heading"><div><h1>项目</h1><p class="intro">让文档、代码、网页和沟通记录归到同一件事上。</p></div><button id="create-project" class="primary" type="button">＋ 新建项目</button></section>
+    <form id="range" class="range-form">
+      <div class="presets" role="group" aria-label="快捷日期范围"><button type="button" data-range="week" aria-pressed="false">本周</button><button type="button" data-range="month" aria-pressed="true">本月</button><button type="button" data-range="year" aria-pressed="false">今年</button></div>
+      <div class="range-inputs"><label>开始日期<input id="start" type="date" required></label><label>结束日期<input id="end" type="date" required></label><button id="apply" class="primary" type="submit">查看项目</button></div>
+    </form>
+    <p id="error" class="error" role="alert" hidden></p><p id="coverage" class="coverage" role="status">正在读取项目…</p>
+    <section class="metrics" aria-label="项目活动汇总">
+      <article><span>电脑活动</span><strong id="active">—</strong><small>当前日期范围内，按策略计入</small></article>
+      <article><span>已关联项目</span><strong id="assigned">—</strong><small>多个应用可以属于同一项目</small></article>
+      <article><span>未关联项目</span><strong id="unassigned">—</strong><small>日常活动也可以不属于项目</small></article>
+      <article><span>有活动的项目</span><strong id="project-count">—</strong><small>包含归档项目的历史记录</small></article>
+    </section>
+    <section class="project-controls"><label for="project-search" class="sr-only">搜索项目</label><input id="project-search" type="search" placeholder="搜索项目名称或说明"><label class="switch"><input id="show-archived" type="checkbox"><span>显示归档项目</span></label><button id="manage-context" type="button">自动关联规则</button></section>
+    <section id="projects" class="project-grid" aria-label="项目列表"></section>
+    <section id="empty" class="project-empty" hidden><h2>把活动关联到你在做的事情</h2><p>先创建一个项目，再打开活动详情，选择这个项目。记住标题或网站规则后，后续匹配的活动会自动归入。</p><a href="/">查看活动记录 →</a></section>
+    <p class="footnote">项目时间按已经关联的活动相加，不包含活动之间的空档。归档会保留历史和已有自动规则；可以在规则管理中删除不再需要的关联规则。</p>
+  </main>
+  <dialog id="project-editor" aria-labelledby="editor-title"><div class="dialog-head"><h2 id="editor-title">新建项目</h2><button id="close-editor" type="button" aria-label="关闭项目编辑">✕</button></div><form id="project-form" class="project-form"><label>项目名称<input id="project-name" required maxlength="100" placeholder="例如：毕业论文、LeisureLog、视频制作"></label><label>说明<textarea id="project-description" rows="3" maxlength="2000" placeholder="可选，描述这件事的范围"></textarea></label><label>标记颜色<input id="project-color" type="color" value="#6366f1"></label><label class="switch"><input id="project-archived" type="checkbox"><span>归档项目</span></label><p id="editor-message" role="status"></p><div class="context-actions"><button id="save-project" class="primary" type="submit">保存项目</button><button id="cancel-editor" type="button">取消</button></div></form></dialog>
+  <dialog id="project-detail" aria-labelledby="project-title"><div class="dialog-head"><h2 id="project-title">项目活动</h2><button id="close-detail" type="button" aria-label="关闭项目详情">✕</button></div><div id="project-body"></div></dialog>
+</body>
+</html>

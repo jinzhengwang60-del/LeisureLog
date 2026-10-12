@@ -27,6 +27,7 @@ from leisurelog.repositories.models import (
     SessionRow,
 )
 from leisurelog.repositories.sqlite import SQLiteRepository
+from leisurelog.repositories.storage import connect_readonly, fingerprint
 from leisurelog.services.processing import ProcessingService
 from tests.test_pipeline import START, WINDOW
 
@@ -318,14 +319,20 @@ def test_index_migration_roundtrip_preserves_all_data(app_context):
     _, app, _, _, migration = app_context
     with app.state.sessions() as db:
         initial(app, db)
-        before = snapshot(db)
+    # Exercise 0011's index-only migration on its own schema. Crossing 0012 in a
+    # downgrade deliberately removes attribution columns and is covered separately.
+    command.downgrade(migration, "0011")
+    with connect_readonly(app.state.storage.store.database) as db:
+        before = fingerprint(db)
     command.downgrade(migration, "0010")
-    command.upgrade(migration, "head")
+    command.upgrade(migration, "0011")
+    with connect_readonly(app.state.storage.store.database) as db:
+        assert fingerprint(db) == before
     with app.state.sessions() as db:
-        assert snapshot(db) == before
         inspector = inspect(db.bind)
         for table in ["activity_events", "sessions", "browser_events", "idle_events"]:
             assert f"ix_{table}_processing" in {r["name"] for r in inspector.get_indexes(table)}
+    command.upgrade(migration, "head")
 
 
 def test_scoped_failure_rolls_back_raw_and_all_derived(app_context):

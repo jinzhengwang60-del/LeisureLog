@@ -27,11 +27,11 @@ function legend(seen) {
   }
 }
 
-export async function renderHours(start, end) {
+export async function renderHours(start, end, filters = {}) {
   const current = ++ticket;
   const root = $("hours");
   try {
-    const response = await fetch(`/api/statistics/hours?${new URLSearchParams({start, end})}`);
+    const response = await fetch(`/api/statistics/hours?${new URLSearchParams({start, end, ...filters})}`, {cache: "no-store"});
     if (!response.ok) throw new Error();
     const data = await response.json();
     if (current !== ticket) return;
@@ -43,12 +43,12 @@ export async function renderHours(start, end) {
       const [y, m, d] = day.day.split("-").map(Number);
       const weekday = WEEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
       const name = node("a", `${m}/${d}`, "hours-day");
-      name.href = `/?day=${day.day}`;
+      name.href = `/?${new URLSearchParams({day:day.day,...filters})}`;
       name.append(node("small", weekday));
       grid.append(name);
       day.hours.forEach((hour, h) => {
         const cell = node("a", undefined, `hours-cell${hour.top ? ` cat-${hour.top}` : ""}`);
-        cell.href = `/?day=${day.day}`;
+        cell.href = `/?${new URLSearchParams({day:day.day,...filters})}`;
         const fill = node("span");
         if (hour.top) {
           // Opacity grows with how much of the hour was counted; never fully invisible.

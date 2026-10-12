@@ -179,6 +179,7 @@ class SessionRow(Base):
     timing_policy: Mapped[str] = mapped_column(String, default="afk", server_default="afk")
     timing_origin: Mapped[str] = mapped_column(String, default="default", server_default="default")
     classification: Mapped[dict] = mapped_column(JSON)
+    context: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
 
 
 class SessionEventRow(Base):
@@ -189,12 +190,18 @@ class SessionEventRow(Base):
 
 class DailyActivityRow(Base):
     __tablename__ = "daily_activity"
-    __table_args__ = (Index("ix_daily_activity_content", "app", "category", "content"),)
+    __table_args__ = (
+        Index("ix_daily_activity_content", "app", "category", "content"),
+        Index("ix_daily_activity_purpose_day", "purpose", "day"),
+        Index("ix_daily_activity_project_day", "project_id", "day"),
+    )
     session_id: Mapped[str] = mapped_column(ForeignKey("sessions.id"), primary_key=True)
     day: Mapped[date] = mapped_column(Date, primary_key=True, index=True)
     app: Mapped[str]
     category: Mapped[str]
     content: Mapped[str | None]
+    purpose: Mapped[str] = mapped_column(String, default="unknown", server_default="unknown")
+    project_id: Mapped[str | None] = mapped_column(String)
     recorded_seconds: Mapped[float] = mapped_column(Float)
     active_seconds: Mapped[float] = mapped_column(Float)
     afk_seconds: Mapped[float] = mapped_column(Float)
@@ -238,6 +245,36 @@ class ResolvedEventRow(Base):
     timing_policy: Mapped[str] = mapped_column(String, default="afk", server_default="afk")
     timing_origin: Mapped[str] = mapped_column(String, default="default", server_default="default")
     audible: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    context: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+
+
+class ActivityProjectRow(Base):
+    __tablename__ = "activity_projects"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[str]
+    description: Mapped[str] = mapped_column(String, default="", server_default="")
+    color: Mapped[str] = mapped_column(String, default="#6366f1", server_default="#6366f1")
+    archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime)
+
+
+class ContextOverrideRow(Base):
+    __tablename__ = "context_overrides"
+    event_id: Mapped[str] = mapped_column(String, primary_key=True)
+    window_event_id: Mapped[str] = mapped_column(ForeignKey("activity_events.id"), index=True)
+    assignments: Mapped[dict] = mapped_column(JSON)
+
+
+class ContextRuleRow(Base):
+    __tablename__ = "context_rules"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    source: Mapped[str]
+    app: Mapped[str]
+    scope: Mapped[str]
+    value: Mapped[str]
+    assignments: Mapped[dict] = mapped_column(JSON)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime)
 
 
 class TimingOverrideRow(Base):

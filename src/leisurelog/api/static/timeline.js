@@ -1,5 +1,6 @@
 // Day ribbon: a 0–24h planner strip with one coloured block per activity session.
-import {categoryLabels} from "/static/correction.js?v=content1";
+import {categoryLabels} from "/static/correction.js?v=activity2";
+import {purposeLabels} from "./activity-context.js?v=2";
 
 const DAY_MS = 86400000;
 const names = {"chrome.exe":"Chrome","msedge.exe":"Microsoft Edge","ChatGPT.exe":"ChatGPT","explorer.exe":"文件管理器","QQ.exe":"QQ","Weixin.exe":"微信","LockApp.exe":"锁屏","WindowsTerminal.exe":"终端"};
@@ -33,7 +34,7 @@ export function titleDay(day, todayText) {
 }
 
 async function fetchAll(params) {
-  const response = await fetch(`/api/dashboard/ribbon?${new URLSearchParams(params)}`);
+  const response = await fetch(`/api/dashboard/ribbon?${new URLSearchParams(params)}`, {cache: "no-store"});
   if (!response.ok) throw new Error("ribbon");
   return (await response.json()).items;
 }
@@ -82,6 +83,7 @@ function draw(track, items, day, isToday, onPick) {
     block.dataset.content = item.content || "";
     block.dataset.range = `${clock(from)}–${clock(to)}`;
     block.dataset.category = categoryLabels[category] || category;
+    block.dataset.purpose = purposeLabels[item.purpose] || "用途待确认";
     block.dataset.active = duration(item.active_seconds);
     block.onclick = () => onPick(item);
     frag.append(block);
@@ -96,7 +98,7 @@ function draw(track, items, day, isToday, onPick) {
   track.onmousemove = event => {
     const block = event.target.closest(".block");
     if (!block) { t.hidden = true; return; }
-    t.replaceChildren(el("b", block.dataset.range), el("div", `${block.dataset.label} · ${block.dataset.category}`));
+    t.replaceChildren(el("b", block.dataset.range), el("div", `${block.dataset.label} · ${block.dataset.category} · ${block.dataset.purpose}`));
     if (block.dataset.content) t.append(el("div", block.dataset.content));
     t.append(el("div", `计入 ${block.dataset.active}，点击查看依据`));
     t.hidden = false;

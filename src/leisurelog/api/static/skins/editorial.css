@@ -23,7 +23,7 @@
 /* masthead */
 :root[data-style=editorial] .top{max-width:1240px;margin:28px auto 0;background:transparent;padding:0;border:0;display:grid;grid-template-columns:1fr auto auto;gap:12px 14px;align-items:center}
 :root[data-style=editorial] .brand{grid-column:1/-1;display:block;text-align:center;font:normal 64px/1.05 var(--display);letter-spacing:-2.5px;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:16px 0 18px;margin-bottom:2px}
-:root[data-style=editorial] .brand::before{content:"THE LEISURE REVIEW · 闲暇周刊";display:block;font:500 10px/1 var(--text);letter-spacing:6px;margin-bottom:14px;color:var(--muted)}
+:root[data-style=editorial] .brand::before{content:"THE ACTIVITY REVIEW · 活动周刊";display:block;font:500 10px/1 var(--text);letter-spacing:6px;margin-bottom:14px;color:var(--muted)}
 :root[data-style=editorial] .logo{display:none}
 :root[data-style=editorial] .site-nav{gap:0;padding:0}
 :root[data-style=editorial] .site-nav a{padding:6px 16px;border-right:1px solid var(--rule);color:var(--ink-2);font-size:13px;border-radius:0}

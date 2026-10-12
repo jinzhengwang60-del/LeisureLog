@@ -52,12 +52,40 @@ class RuleFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
     rules: list[Rule]
     timing_policies: list[TimingConfig] = Field(default_factory=list)
+    purpose_rules: list["PurposeRule"] = Field(default_factory=list)
+
+
+class PurposeRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    id: str = Field(min_length=1)
+    match: Match
+    purpose: Literal[
+        "work", "study", "create", "communication", "leisure", "system", "other", "unknown"
+    ]
+
+
+def matches(match, event):
+    try:
+        parsed = urlparse(event.url or "")
+        host, path = (parsed.hostname or "").casefold(), parsed.path
+    except ValueError:
+        host, path = "", ""
+    domain = match.domain.casefold() if match.domain else None
+    return (
+        (not match.app or event.app.casefold() == match.app.casefold())
+        and (not domain or host == domain or host.endswith("." + domain))
+        and (not match.path_prefix or path.startswith(match.path_prefix))
+        and (not match.title_contains or match.title_contains.casefold() in event.title.casefold())
+    )
 
 
 class RuleClassifier:
     def __init__(self, path: Path):
         config = RuleFile.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
         self.rules = config.rules
+        self.purpose_rules = config.purpose_rules
+        if len({r.id for r in self.purpose_rules}) != len(self.purpose_rules):
+            raise ValueError("Purpose rule IDs must be unique")
         self.timing_rules = [TimingRule(**r.model_dump()) for r in config.timing_policies]
         if len({r.id for r in self.timing_rules}) != len(self.timing_rules):
             raise ValueError("Timing rule IDs must be unique")
@@ -70,27 +98,16 @@ class RuleClassifier:
         }
 
     def classify(self, event: ActivityEvent) -> Classification | None:
-        try:
-            parsed = urlparse(event.url or "")
-            host, path = (parsed.hostname or "").casefold(), parsed.path
-        except ValueError:
-            host, path = "", ""
         for rule in self.rules:
-            match = rule.match
-            if match.app and event.app.casefold() != match.app.casefold():
-                continue
-            if match.domain:
-                domain = match.domain.casefold()
-                if host != domain and not host.endswith("." + domain):
-                    continue
-            if match.path_prefix and not path.startswith(match.path_prefix):
-                continue
-            if (
-                match.title_contains
-                and match.title_contains.casefold() not in event.title.casefold()
-            ):
+            if not matches(rule.match, event):
                 continue
             extractor = self.extractors.get(rule.id)
             content = (extractor.extract(event.title) if extractor else None) or rule.content
             return Classification(rule.category, content, tuple(rule.tags), "rule:" + rule.id)
+        return None
+
+    def classify_context(self, event):
+        for rule in self.purpose_rules:
+            if matches(rule.match, event):
+                return {"purpose": rule.purpose, "origin": "config:" + rule.id}
         return None

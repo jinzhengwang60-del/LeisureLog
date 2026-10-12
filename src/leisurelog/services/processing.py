@@ -1,6 +1,11 @@
 from dataclasses import replace
 from datetime import datetime
 
+from leisurelog.domain.activity_context import (
+    CategoryPurposeClassifier,
+    LearnedContextClassifier,
+    resolve_context,
+)
 from leisurelog.domain.browser import resolve_browser
 from leisurelog.domain.classification import ClassificationPipeline
 from leisurelog.domain.daily import daily_activity
@@ -52,8 +57,19 @@ class ProcessingService:
             for e in resolve_browser(windows, self.repo.browser_events(scope=scope))
         ]
         timing = self.repo.timing_overrides(scope)
+        context_overrides = self.repo.context_overrides(scope)
+        context_classifiers = [
+            LearnedContextClassifier(self.repo.context_rules()),
+            *self.pipeline.context_classifiers,
+            CategoryPurposeClassifier(),
+        ]
         events = [
-            replace(e, timing_policy=choice[0], timing_origin=choice[1])
+            replace(
+                e,
+                timing_policy=choice[0],
+                timing_origin=choice[1],
+                context=resolve_context(e, context_classifiers, context_overrides),
+            )
             for e in events
             for choice in [resolve_timing(e, timing, self.pipeline.timing_rules)]
         ]

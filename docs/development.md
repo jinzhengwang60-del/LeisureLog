@@ -18,7 +18,7 @@ ActivityWatch 接口依据：[官方 REST 文档](https://docs.activitywatch.net
 
 ## 已知待修复问题（2026-10-10 检查）
 
-以下问题已用独立测试数据复现，本次目录整理没有修改这些业务实现：
+以下问题已用独立测试数据复现，v0.2 继续暂缓这些修复；旧版周回顾指标接口仍保留相应边界：
 
 1. ActivityWatch 离线导致同步失败时，本轮自动备份检查不会执行。
 2. 深夜娱乐按整个 Session 的有效时间比例估算，可能将 0–5 点内的离开时间误计入。
@@ -32,7 +32,7 @@ New-Item -ItemType Directory -Force .tmp | Out-Null
 .\.venv\Scripts\python.exe -m pytest tests/review_cases.py -q --basetemp .tmp/review-cases
 ```
 
-现有 192 项后端测试和 16 项 Node 界面行为测试在本次检查中通过；这不代表上述边界问题已修复。
+2026-10-10 检查时的 192 项后端测试和 16 项 Node 界面行为测试通过。2026-10-12 v0.2 最终验证为 **224 项后端测试、20 项 Node 测试通过**，同时完成真实备份副本和正式库迁移核验；完整证据见 [验证记录](verification.md)。这不代表上述边界问题已修复。
 
 
 ## 临时产物约定

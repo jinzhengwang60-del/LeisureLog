@@ -1,6 +1,7 @@
 from collections import defaultdict
 from uuid import NAMESPACE_URL, uuid5
 
+from leisurelog.domain.activity_context import ActivityContext
 from leisurelog.domain.models import ActivityEvent, Session
 
 
@@ -20,6 +21,7 @@ def merge_sessions(events: list[ActivityEvent], gap_seconds: float) -> list[Sess
                 event.title,
                 event.url,
                 event.classification,
+                getattr(event, "context", ActivityContext()),
                 getattr(event, "timing_policy", "afk"),
                 getattr(event, "timing_origin", "default"),
                 getattr(event, "timing_policy", "afk") == "audible"
@@ -47,6 +49,7 @@ def merge_sessions(events: list[ActivityEvent], gap_seconds: float) -> list[Sess
                     active_seconds=(event.end_time - event.start_time).total_seconds(),
                     classification=event.classification,
                     event_ids=[event.id],
+                    context=getattr(event, "context", ActivityContext()),
                     timing_policy=getattr(event, "timing_policy", "afk"),
                     timing_origin=getattr(event, "timing_origin", "default"),
                 )

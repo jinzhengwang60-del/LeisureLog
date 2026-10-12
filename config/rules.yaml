@@ -144,3 +144,20 @@ rules:
 # Example opt-in: [{id: reading-foreground, category: reading, policy: foreground}]
 # Policies: afk | foreground | audible (retain AFK only on a matched audible webpage).
 timing_policies: []
+
+# 用途与内容分类独立；这里的规则只给用途，不修改 category/content/tags。
+# 对浏览器、文档和代码编辑器不默认猜工作/学习，可在活动详情里记住更具体的规则。
+# First matching purpose rule wins. Manual choices and learned rules take priority.
+purpose_rules:
+  - id: anki-study
+    match: {app: anki.exe}
+    purpose: study
+  - id: obs-create
+    match: {app: obs64.exe}
+    purpose: create
+  - id: blender-create
+    match: {app: blender.exe}
+    purpose: create
+  - id: zoom-communication
+    match: {app: Zoom.exe}
+    purpose: communication

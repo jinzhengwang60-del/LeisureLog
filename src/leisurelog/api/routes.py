@@ -41,7 +41,9 @@ def service(request: Request):
             raise
 
 
-Service = Annotated[ProcessingService, Depends(service)]
+# Commit/rollback before sending a response so an immediately following read sees
+# the saved state, and a failed commit cannot be reported as a successful save.
+Service = Annotated[ProcessingService, Depends(service, scope="function")]
 Limit = Annotated[int, Query(ge=1, le=1000)]
 Offset = Annotated[int, Query(ge=0)]
 
@@ -53,9 +55,9 @@ def health(request: Request):
             revision = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
         except Exception as exc:
             raise HTTPException(503, "Database is not migrated; run alembic upgrade head") from exc
-    if revision != "0011":
+    if revision != "0012":
         raise HTTPException(503, "Unexpected database revision")
-    return {"status": "ok", "database_revision": revision}
+    return {"status": "ok", "database_revision": revision, "version": "0.2.0"}
 
 
 @router.get("/api/sync/status")

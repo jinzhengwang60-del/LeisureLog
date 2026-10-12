@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "leisurelog"
-version = "0.1.0"
-description = "Local-first modular leisure activity backend"
+version = "0.2.0"
+description = "Local-first modular computer activity tracking and project analytics"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi>=0.115,<1", "uvicorn>=0.30,<1", "sqlalchemy>=2.0,<3",
+  "fastapi>=0.121,<1", "uvicorn>=0.30,<1", "sqlalchemy>=2.0,<3",
   "alembic>=1.13,<2", "httpx>=0.27,<1", "pydantic-settings>=2.5,<3",
   "PyYAML>=6,<7",
 ]

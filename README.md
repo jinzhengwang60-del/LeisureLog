@@ -1,14 +1,24 @@
 # LeisureLog
 
-本地娱乐活动自动记录与分析系统，逐步扩展的本地 MVP。采用 **模块化单体**：一个进程、一套 SQLite 数据库，模块按职责分开，后续优先扩展接口实现而不是堆叠条件分支。
+本地电脑活动自动记录与分析系统。记录前台应用、网页与离开状态，回看工作、学习、创作、沟通和娱乐，并把不同应用中的活动关联到同一个项目。采用 **模块化单体**：一个进程、一套 SQLite 数据库，模块按职责分开，后续优先扩展接口实现而不是堆叠条件分支。
 
 已实现：ActivityWatch 前台窗口、AFK 与网页数据读取、统一 ActivityEvent / Session、原始数据版本留存、SQLite、Alembic 迁移、FastAPI、自动同步、Session 合并、AFK 时长扣除、配置分类、人工覆盖、可持久化的识别规则、基础分类汇总、本地活动查看页面、玩过看过及名称管理；Playnite 本地导出 Adapter、游戏目录与可插拔游戏分类器已完成真实安装和游戏库接入。已核对现有历史游玩记录；游戏统计、主类型与补充标签管理、月度/年度偏好分析已完成。同步及本次记录纠错已支持受影响范围增量重建，日视图和明细列表使用数据库范围查询/分页。AI 分类和手机端暂未实现。
+
+## v0.2：全部活动与项目关联
+
+首页、统计与每周回顾覆盖全部活动。**活动类型**描述视频、游戏、文档等内容；独立的**用途**描述工作、学习、创作等目的。用途不能可靠判断时保留待确认，不把所有视频或网页默认算成娱乐。
+
+在“项目”页创建项目后，可以在活动详情或首页勾选记录，指定用途与项目；支持批量修改。可以记住同一应用、标题、标题关键词、网页地址或网站的归属，自动处理已有和未来的匹配活动。人工选择优先，用途和项目分别保存，修改其中一项不会覆盖另一项。项目可编辑、归档，并查询应用分布、用途分布和活动日期；统计支持用途/项目筛选以及 CSV 导出。
+
+已有内容识别、游戏、偏好、作品库、六套界面和脚本启动继续保留。详细用法及升级步骤见 [活动用途与项目](docs/activity-projects.md)。当前版本 **0.2.0**，数据库迁移 **0012**。
 
 ## 本地运行与数据
 
 从源码创建运行环境后，双击 `start-leisurelog.bat` 即可打开本地网页，地址为 `http://127.0.0.1:8001/`。首次安装步骤见下方“快速运行”。
 
 活动数据库和游戏库导出保存在本机 `data/`，备份在 `data/backups/`。这些个人数据及本机历史截图不包含在公开仓库中。
+
+已有安装升级到 v0.2 时，先创建并验证完整备份、停止旧服务，执行 `alembic upgrade head`，启动新版，再执行一次 `POST /api/reprocess` 回填历史用途。详细步骤见 [活动用途与项目](docs/activity-projects.md)。
 
 ## 快速运行（Windows PowerShell，Python 3.11+）
 
@@ -25,7 +35,7 @@ Copy-Item .env.example .env
 如果 `.venv`、依赖和数据库已经准备好，只需运行最后一条启动命令。依赖范围在 `pyproject.toml`，当前验证环境的精确依赖版本另存于 `requirements-lock.txt`；重建同一环境可先 `pip install -r requirements-lock.txt`，再 `pip install --no-deps -e .`。精确版本文件针对本次 Windows / Python 3.13 环境，其他 Python 版本优先使用 pyproject 中的兼容范围。
 
 - 交互接口文档：http://127.0.0.1:8001/docs
-- 活动查看首页：http://localhost:8001/（本机当前服务使用 8001）
+- 活动查看首页：http://localhost:8001/（默认端口 8001）
 - 健康检查：http://127.0.0.1:8001/health
 - SQLite 默认文件：`data/leisurelog.db`
 - 不自动建表、不在应用启动时偷偷改表；必须先执行迁移。
@@ -56,11 +66,10 @@ LeisureLog/
 │   ├── playnite-library.json  # Playnite 游戏库导出
 │   ├── backups/               # 已验证的完整数据库备份
 │   ├── logs/                  # 运行日志
-│   └── archives/              # 搬迁及目录整理记录
+│   └── archives/              # 本机维护记录
 ├── docs/                     # 功能、架构、接口、存储与验证说明
-│   └── screenshots/           # 本机历史截图，不提交到 Git
 ├── integrations/playnite/    # Playnite 扩展源码与打包工具
-├── migrations/              # Alembic 数据库迁移，当前 0011
+├── migrations/              # Alembic 数据库迁移，当前 0012
 ├── scripts/                 # 启动管理与性能测量工具
 ├── src/leisurelog/           # 模块化单体的实现
 │   ├── adapters/              # 外部数据源、配置和定时器适配
@@ -87,11 +96,12 @@ LeisureLog/
 | 文档 | 内容 |
 |---|---|
 | [功能与使用说明](docs/features.md) | 活动记录、网页接入、每周回顾、游戏分析、内容条目与六套界面 |
+| [活动用途与项目](docs/activity-projects.md) | v0.2 的用途、项目、批量关联、自动规则与迁移说明 |
 | [架构与数据模型](docs/architecture.md) | 模块职责、依赖方向、原始与派生数据、分类优先级、Session 与增量处理 |
 | [基础接口索引](docs/api.md) | 主要 API 与本机交互接口文档入口 |
 | [存储、备份与恢复](docs/storage.md) | 自动与手动备份、长期保存、快照整理、独立恢复 |
 | [开发与验证](docs/development.md) | 测试方法、工程边界及待修复问题 |
-| [验证记录](docs/verification.md) | 当前公开源码的检查结果及已知问题 |
+| [验证记录](docs/verification.md) | 公开源码测试、界面验收及已知问题 |
 | [界面素材说明](docs/appearance-artwork.md) | 插画、字体和矢量素材的来源与用法 |
 | [Playnite 扩展说明](integrations/playnite/README.md) | 本地导出扩展、重新打包和进程匹配边界 |
 

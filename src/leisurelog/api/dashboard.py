@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 
 from leisurelog.analytics.query import BEIJING, dashboard, day_sessions, ribbon
 from leisurelog.api.routes import Limit, Offset, Service
+from leisurelog.api.schemas import PurposeFilter
 
 router = APIRouter()
 
@@ -28,6 +29,8 @@ def read_dashboard(
     offset: Offset = 0,
     view: Literal["sessions", "grouped"] = "sessions",
     min_seconds: float = Query(default=0, ge=0, le=3600),
+    purpose: PurposeFilter = "",
+    project_id: str = Query(default="", max_length=100),
 ):
     return dashboard(
         svc.repo,
@@ -39,6 +42,8 @@ def read_dashboard(
         offset,
         view,
         min_seconds,
+        purpose,
+        project_id,
     )
 
 
@@ -49,8 +54,12 @@ def read_ribbon(
     app: str = Query(default="", max_length=300),
     category: str = Query(default="", max_length=100),
     query: str = Query(default="", max_length=300),
+    purpose: PurposeFilter = "",
+    project_id: str = Query(default="", max_length=100),
 ):
-    return ribbon(svc.repo, day or datetime.now(BEIJING).date(), app, category, query)
+    return ribbon(
+        svc.repo, day or datetime.now(BEIJING).date(), app, category, query, purpose, project_id
+    )
 
 
 @router.get("/api/sessions/{session_id}/details")

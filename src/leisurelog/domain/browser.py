@@ -1,10 +1,11 @@
 """Enrich foreground window intervals; browser telemetry never adds time by itself."""
 
 from bisect import bisect_left
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from uuid import NAMESPACE_URL, uuid5
 
+from leisurelog.domain.activity_context import ActivityContext
 from leisurelog.domain.models import ActivityEvent
 
 
@@ -39,6 +40,7 @@ class ResolvedActivity(ActivityEvent):
     timing_policy: str = "afk"
     timing_origin: str = "default"
     audible: bool = False
+    context: ActivityContext = field(default_factory=ActivityContext)
 
 
 def matching_title(window: ActivityEvent, browser: BrowserEvent) -> bool:

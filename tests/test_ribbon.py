@@ -26,8 +26,20 @@ def test_ribbon_matches_dashboard_items_and_filters(app_context):
     starts = [i["start"] for i in strip["items"]]
     assert starts == sorted(starts)
     first = strip["items"][0]
-    assert set(first) == {"id", "start", "end", "app", "category", "content", "active_seconds"}
+    assert set(first) == {
+        "id",
+        "start",
+        "end",
+        "app",
+        "category",
+        "content",
+        "active_seconds",
+        "purpose",
+        "project_id",
+    }
     match = next(i for i in board["items"] if i["id"] == first["id"])
+    assert first["purpose"] == match["context"]["purpose"]
+    assert first["project_id"] == match["context"]["project_id"]
     assert first["start"] == round(datetime.fromisoformat(match["start_time"]).timestamp() * 1000)
     # Filters behave exactly like the activity list.
     games = client.get("/api/dashboard/ribbon", params={"day": day, "category": "game"}).json()
