@@ -1,15 +1,2 @@
-# Bind a Playnite game name to its real gameplay process when its action opens a launcher.
-# Shared processes always need an additional title condition. Installed games only.
-bindings:
-  - {name: 绝区零, app: ZenlessZoneZero.exe}
-  - {name: 英雄联盟WeGame版, app: League of Legends.exe}
-  - {name: 'Minecraft（PCL）', app: javaw.exe, title_contains: Minecraft}
-  # Confirmed in the installed directories on 2026-10-02. Steam-managed
-  # launch actions do not supply these file paths in the SDK catalog.
-  - {name: 'Hollow Knight: Silksong', app: Hollow Knight Silksong.exe}
-  - {name: Slay the Spire 2, app: SlayTheSpire2.exe}
-  - {name: 你嫂子, app: Your Fiancée.exe}
-  - {name: 边缘世界 RimWorld, app: RimWorldWin64.exe}
-  # A generic shipping process needs the game's title as additional evidence.
-  - {name: 鸣潮, app: Client-Win64-Shipping.exe, title_contains: Wuthering Waves}
-  - {name: 鸣潮, app: Client-Win64-Shipping.exe, title_contains: 鸣潮}
+# Each user can add their own process bindings after connecting Playnite.
+bindings: []

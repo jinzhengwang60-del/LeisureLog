@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LeisureLog · 本机设置</title>
+  <script src="/static/appearance-init.js"></script>
+  <script src="/static/motion.js"></script>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/setup.css">
+  <script src="/static/setup.js" type="module"></script>
+</head>
+<body>
+  <main class="setup-shell">
+    <header class="setup-header"><a class="setup-brand" href="/">◷ LeisureLog</a><span id="version">本机安装版</span></header>
+    <section class="setup-intro"><p class="setup-kicker">让每一天都有迹可循</p><h1 id="heading">欢迎使用 LeisureLog</h1><p>记录电脑上的主要活动，回看时间花在了哪里，并把工作、学习、创作和娱乐关联到你的项目。</p></section>
+    <div class="setup-grid">
+      <section class="setup-card"><span class="setup-step">01 · 本机数据</span><h2>你的记录留在这台电脑</h2>
+        <p>LeisureLog 从 ActivityWatch 读取前台应用、窗口标题、使用时间与离开状态。接入浏览器后，还可读取当前网页的标题和地址。</p>
+        <p>记录、人工分类和项目资料保存在本机。此版本没有云端上传、账号登录或遥测。</p>
+        <div class="setup-note"><strong>个人数据目录</strong><code id="data-dir">正在读取…</code><small>升级和卸载会保留这里的数据。备份位于其中的 backups 文件夹。</small></div>
+      </section>
+      <section class="setup-card"><span class="setup-step">02 · 活动来源</span><h2>连接 ActivityWatch</h2>
+        <p id="aw-status" class="setup-status" role="status">正在检查本机连接…</p><ul id="aw-details" class="setup-checks"></ul>
+        <div class="setup-actions"><button id="check-aw" type="button">重新检查</button><a href="https://activitywatch.net/downloads/" target="_blank" rel="noopener noreferrer">官方下载 ActivityWatch ↗</a></div>
+        <p class="setup-hint">安装后从开始菜单启动 ActivityWatch，确保其托盘程序正在运行，再点击重新检查。它需要独立安装；LeisureLog 不会静默安装其他程序。</p>
+      </section>
+      <section class="setup-card setup-start" id="first-run"><span class="setup-step">03 · 开始记录</span><h2>由你决定何时开始</h2>
+        <p>第一次打开时，自动同步保持关闭。确认后每分钟读取一次 ActivityWatch，新记录会自动整理为活动片段。</p>
+        <label class="setup-range" for="initial-hours">首次导入范围<select id="initial-hours"><option value="1">最近 1 小时</option><option value="24">最近 24 小时</option></select></label>
+        <label class="setup-consent"><input id="consent" type="checkbox"><span>我了解将读取上述本机活动信息，并将所选时间范围内的记录保存到 LeisureLog。</span></label>
+        <button class="setup-primary" id="finish-setup" type="button" disabled>开启本机活动同步</button><p class="setup-hint" id="offline-note" hidden>ActivityWatch 尚未就绪。你仍可完成设置，连接恢复后会自动重试。</p>
+      </section>
+      <section class="setup-card setup-start" id="running-settings" hidden><span class="setup-step">03 · 后台状态</span><h2 id="sync-label">正在读取…</h2>
+        <p>关闭网页后，LeisureLog 仍可在后台运行。通过系统托盘可以重新打开、控制同步或退出。</p><p id="sync-error" class="setup-hint"></p>
+        <div class="setup-actions"><button id="toggle-sync" type="button">切换自动同步</button><a class="setup-primary" href="/">打开活动记录</a></div>
+      </section>
+      <section class="setup-card"><span class="setup-step">可选 · 丰富记录</span><h2>按需要连接更多资料</h2>
+        <p><strong>网页详情：</strong>在实际使用的 Edge 或 Chrome 中安装官方 Web Watcher 扩展，连接本机 ActivityWatch；然后在首页“浏览器接入”中核对。</p>
+        <a href="https://docs.activitywatch.net/en/latest/watchers.html#aw-watcher-web" target="_blank" rel="noopener noreferrer">查看官方浏览器扩展说明 ↗</a>
+        <p><strong>Playnite 游戏库：</strong>仅需要游戏资料时再安装本地连接扩展。这里下载的扩展会导出到当前用户的数据目录，不包含其他人的游戏资料。</p>
+        <a href="/_desktop/playnite.pext" download>下载本机 Playnite 10 连接扩展</a>
+      </section>
+    </div>
+    <p id="setup-error" class="setup-error" role="alert" hidden></p>
+    <footer class="setup-footer"><p>“停止自动同步”控制 LeisureLog 的导入。ActivityWatch 是独立的采集程序；需要停止采集时，请在它的托盘中关闭相应 watcher。退出 LeisureLog 也不会自动退出 ActivityWatch。</p><p>删除 LeisureLog 数据不会删除 ActivityWatch 保存的原始记录。</p></footer>
+  </main>
+</body>
+</html>
