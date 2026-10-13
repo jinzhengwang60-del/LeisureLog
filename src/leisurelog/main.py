@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.engine import make_url
 
+from leisurelog import __version__
 from leisurelog.adapters.activitywatch import ActivityWatchAdapter
 from leisurelog.adapters.playnite import PlayniteAdapter
 from leisurelog.adapters.rules import RuleClassifier
@@ -26,7 +27,7 @@ from leisurelog.domain.classification import ClassificationPipeline
 from leisurelog.repositories.database import make_engine, session_factory
 from leisurelog.repositories.storage import SQLiteStorage
 from leisurelog.runtime import AutomaticSync
-from leisurelog.services.storage import StorageService
+from leisurelog.services.storage import AutomaticBackup, StorageService
 
 
 def create_app(settings: Settings | None = None, source=None) -> FastAPI:
@@ -66,23 +67,31 @@ def create_app(settings: Settings | None = None, source=None) -> FastAPI:
                         pipeline,
                         settings,
                         app.state.playnite,
-                        backup=lambda: app.state.storage.backup_if_due(
-                            settings.auto_backup_days, settings.auto_backup_keep
-                        ),
                     ),
                     settings.auto_sync_interval_seconds,
                     settings.auto_sync_enabled,
                 )
                 app.state.scheduler = scheduler
+                backup_scheduler = PeriodicSync(
+                    AutomaticBackup(
+                        app.state.storage, settings.auto_backup_days, settings.auto_backup_keep
+                    ),
+                    settings.auto_backup_check_seconds,
+                    settings.auto_backup_days > 0,
+                    task="backup",
+                )
+                app.state.backup_scheduler = backup_scheduler
                 scheduler.start()
+                backup_scheduler.start()
                 try:
                     yield
                 finally:
                     scheduler.stop()
+                    backup_scheduler.stop()
         finally:
             engine.dispose()
 
-    app = FastAPI(title="LeisureLog · 电脑活动记录", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="LeisureLog · 电脑活动记录", version=__version__, lifespan=lifespan)
 
     @app.middleware("http")
     async def current_activity_data(request, call_next):

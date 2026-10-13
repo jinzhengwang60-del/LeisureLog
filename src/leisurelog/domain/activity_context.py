@@ -73,19 +73,26 @@ class LearnedContextClassifier:
 
     def classify_context(self, event):
         choices = {}
+        rule_ids = {}
         for rule in self.rules:
-            if (
-                event.source == rule.source
-                and event.app.casefold() == rule.app
-                and (
-                    rule.value in event.title.casefold()
-                    if rule.scope == "title_contains"
-                    else match_value(event, rule.scope) == rule.value
-                )
-            ):
+            if context_rule_matches(event, rule):
                 for key, value in rule.assignments.items():
-                    choices.setdefault(key, value)
-        return {**choices, "origin": "learned"} if choices else None
+                    if key not in choices:
+                        choices[key] = value
+                        rule_ids[key] = rule.id
+        return {**choices, "origin": "learned", "rule_ids": rule_ids} if choices else None
+
+
+def context_rule_matches(event, rule):
+    return (
+        event.source == rule.source
+        and event.app.casefold() == rule.app
+        and (
+            rule.value in event.title.casefold()
+            if rule.scope == "title_contains"
+            else match_value(event, rule.scope) == rule.value
+        )
+    )
 
 
 class CategoryPurposeClassifier:
@@ -145,3 +152,12 @@ class ContextStore(Protocol):
     def delete_context_rule(self, rule_id: str) -> None: ...
     def project_facts(self, start, end, project_id=None) -> dict: ...
     def week_facts(self, start, end) -> dict: ...
+    def pending_facts(self, start, end, limit, offset, search) -> dict: ...
+    def pending_events(self, start, end, source, app, website, limit, offset) -> dict: ...
+    def decision_snapshot(self, event_ids, rule_id=None) -> dict: ...
+    def restore_decisions(self, snapshot) -> None: ...
+    def save_change(self, action, before, after) -> str | None: ...
+    def change(self, change_id) -> dict: ...
+    def changes(self, limit, offset) -> dict: ...
+    def mark_undone(self, change_id) -> None: ...
+    def project_lifetime_seconds(self) -> dict: ...

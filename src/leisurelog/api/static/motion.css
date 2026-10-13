@@ -1,0 +1,92 @@
+/* Shared motion changes no layout, data, or skin artwork. */
+:root {
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+  --motion-quick: 160ms;
+  --motion-dialog: 220ms;
+  --motion-lift: -1px;
+  --motion-press: .985;
+}
+:root[data-style=minimal] { --motion-dialog: 180ms; }
+:root[data-style=sunny] { --motion-dialog: 260ms; }
+:root:is([data-style=terminal], [data-style=arcade]) {
+  --motion-quick: 110ms;
+  --motion-dialog: 170ms;
+  --motion-lift: 0px;
+  --motion-press: 1;
+}
+
+:root[data-motion=on] :is(button, .site-nav a, .tools summary, input, select, textarea) {
+  transition: background-color var(--motion-quick) ease, color var(--motion-quick) ease,
+    border-color var(--motion-quick) ease, box-shadow var(--motion-quick) ease,
+    opacity var(--motion-quick) ease, translate var(--motion-quick) var(--motion-ease),
+    scale var(--motion-quick) var(--motion-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  :root[data-motion=on] :is(button:not(:disabled), .site-nav a, .tools summary):hover {
+    translate: 0 var(--motion-lift);
+  }
+  :root[data-motion=on] .project-card:hover { translate: 0 -2px; }
+}
+:root[data-motion=on] :is(button:not(:disabled), .site-nav a, .tools summary):active {
+  translate: 0 1px;
+  scale: var(--motion-press);
+}
+:root[data-motion=on] .project-card {
+  transition: translate 220ms var(--motion-ease), border-color var(--motion-quick) ease,
+    box-shadow 220ms var(--motion-ease);
+}
+:root[data-motion=on] :is(.cover-art, .badge, tbody td, .split-legend li) {
+  transition: background-color var(--motion-quick) ease, color var(--motion-quick) ease,
+    transform 220ms var(--motion-ease), box-shadow 220ms var(--motion-ease);
+}
+:root[data-motion=on] :is(.rank-fill, .month-fill, .daily-fill) { transform-origin: left center; }
+:root[data-motion=on] .ribbon-track .block {
+  transition: top var(--motion-quick) var(--motion-ease), bottom var(--motion-quick) var(--motion-ease),
+    filter var(--motion-quick) ease;
+}
+:root[data-motion=on] :is(.notice, .error):not([hidden]),
+:root[data-motion=on] .tools[open] .tools-menu {
+  animation: motion-feedback-in 180ms var(--motion-ease) both;
+}
+@keyframes motion-feedback-in {
+  from { opacity: 0; translate: 0 -5px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* Keep native dialog close, Escape, focus and top-layer handling intact. */
+@supports (transition-behavior: allow-discrete) {
+  :root[data-motion=on] dialog {
+    opacity: 0;
+    translate: 0 10px;
+    scale: .985;
+    transition: opacity var(--motion-dialog) ease, translate var(--motion-dialog) var(--motion-ease),
+      scale var(--motion-dialog) var(--motion-ease),
+      display var(--motion-dialog) allow-discrete, overlay var(--motion-dialog) allow-discrete;
+  }
+  :root[data-motion=on] dialog[open] { opacity: 1; translate: 0 0; scale: 1; }
+  :root[data-motion=on] dialog::backdrop {
+    opacity: 0;
+    transition: opacity var(--motion-dialog) ease, display var(--motion-dialog) allow-discrete,
+      overlay var(--motion-dialog) allow-discrete;
+  }
+  :root[data-motion=on] dialog[open]::backdrop { opacity: 1; }
+  @starting-style {
+    :root[data-motion=on] dialog[open] { opacity: 0; translate: 0 10px; scale: .985; }
+    :root[data-motion=on] dialog[open]::backdrop { opacity: 0; }
+  }
+}
+
+/* Browser-managed navigation: links retain normal history and fallback behavior. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+::view-transition-group(*) { animation-duration: 240ms; animation-timing-function: var(--motion-ease); }
+::view-transition-old(root) { animation: motion-page-out 140ms ease both; }
+::view-transition-new(root) { animation: motion-page-in 220ms var(--motion-ease) both; }
+@keyframes motion-page-out { to { opacity: 0; } }
+@keyframes motion-page-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

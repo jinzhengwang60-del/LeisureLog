@@ -106,6 +106,7 @@ class SQLiteStorage:
                     "activity_projects",
                     "context_overrides",
                     "context_rules",
+                    "context_changes",
                 )
             }
             removable = db.execute("SELECT count(*) FROM (" + SUPERSEDED + ")").fetchone()[0]

@@ -62,9 +62,12 @@
 .appearance-modes legend{font-size:13px;padding:0 6px;color:var(--ink)}
 .appearance-modes label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
 .appearance-modes input{width:16px;height:16px;min-height:0;padding:0;margin:0;accent-color:var(--accent)}
+.appearance-motion{margin-top:12px}.appearance-motion small{color:var(--muted);font-size:12px}
 .appearance-dialog .appearance-message{min-height:20px;color:var(--link);font-size:12px}
 .appearance-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--rule);padding-top:12px}
 .appearance-footer span{font-size:12px;color:var(--muted)}
+:root[data-motion=off] *,:root[data-motion=off] *::before,:root[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(max-width:760px){
  .top .theme-toggle{padding-inline:8px}.top .theme-toggle svg{display:none}.top .theme-toggle span{font-size:11px}
  .appearance-dialog .skin-options{grid-template-columns:1fr;gap:10px}.appearance-dialog .skin-option{display:flex;flex-direction:column;align-items:stretch;position:relative;padding-left:128px;min-height:112px;justify-content:center}

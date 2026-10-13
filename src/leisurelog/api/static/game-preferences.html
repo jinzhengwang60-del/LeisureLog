@@ -3,14 +3,16 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="/static/appearance-init.js?v=redesign1"></script>
   <script src="/static/sky-clock.js?v=1"></script>
-  <script src="/static/theme.js?v=redesign1" type="module"></script>
+  <script src="/static/motion.js?v=2" type="module"></script>
+  <script src="/static/theme.js?v=motion2" type="module"></script>
 <title>LeisureLog · 游戏类型与偏好</title>
 <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
   <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
-  <link rel="stylesheet" href="/static/appearance.css?v=redesign1"><link rel="stylesheet" href="/static/library.css?v=sticker1"><link rel="stylesheet" href="/static/game-preferences.css?v=sticker1">
-<script type="module" src="/static/game-preferences.js?v=planner1"></script>  <link rel="stylesheet" href="/static/activity-context.css?v=activity2">
+  <link rel="stylesheet" href="/static/appearance.css?v=motion1"><link rel="stylesheet" href="/static/library.css?v=sticker1"><link rel="stylesheet" href="/static/game-preferences.css?v=sticker1">
+<script type="module" src="/static/game-preferences.js?v=planner1"></script>  <link rel="stylesheet" href="/static/activity-context.css?v=activity3">
+  <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
 </head>
-<body data-page="preferences"><header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences" aria-current="page">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+<body data-page="preferences"><header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences" aria-current="page">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
 <main><section class="heading"><div><h1>游戏类型与偏好</h1><p class="intro">按一个主类型汇总时间，补充标签帮助描述游戏。</p></div><span class="scope">本地记录 · 北京时间</span></section>
 <form id="range" class="records range-panel"><div class="presets" role="group" aria-label="快捷日期范围"><button type="button" data-range="month">本月</button><button type="button" data-range="year">今年</button><button type="button" data-range="last-year">去年</button><label>年份<input id="year" type="number" min="1" max="9998" aria-label="选择年份"></label><button type="button" id="choose-year">按年查看</button></div><div class="range-inputs"><label>开始日期<input aria-label="开始日期" id="start" type="date" required max="9998-12-31"></label><label>结束日期<input aria-label="结束日期" id="end" type="date" required max="9998-12-31"></label><button class="primary" type="submit">查看偏好</button><button type="button" id="refresh">刷新</button></div></form>
 <p id="error" class="error" role="alert" hidden></p><p id="loading" role="status" hidden>正在读取类型统计…</p>

@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import text
 
+from leisurelog import DATABASE_REVISION, __version__
 from leisurelog.adapters.activitywatch import SourceUnavailable
 from leisurelog.api.schemas import (
     BatchOverrideRequest,
@@ -19,11 +20,11 @@ from leisurelog.services.processing import ProcessingService
 router = APIRouter()
 
 
-def service(request: Request):
+def processing_service(request: Request, write):
     state = request.app.state
     with state.sessions() as db:
         # Serialize writers across processes before reading derived state.
-        if request.method != "GET":
+        if write:
             db.execute(text("BEGIN IMMEDIATE"))
         else:
             # Keep linked events, sessions and idle states in one consistent read snapshot.
@@ -41,9 +42,18 @@ def service(request: Request):
             raise
 
 
+def service(request: Request):
+    yield from processing_service(request, request.method != "GET")
+
+
+def read_service(request: Request):
+    yield from processing_service(request, False)
+
+
 # Commit/rollback before sending a response so an immediately following read sees
 # the saved state, and a failed commit cannot be reported as a successful save.
 Service = Annotated[ProcessingService, Depends(service, scope="function")]
+ReadService = Annotated[ProcessingService, Depends(read_service, scope="function")]
 Limit = Annotated[int, Query(ge=1, le=1000)]
 Offset = Annotated[int, Query(ge=0)]
 
@@ -55,9 +65,9 @@ def health(request: Request):
             revision = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
         except Exception as exc:
             raise HTTPException(503, "Database is not migrated; run alembic upgrade head") from exc
-    if revision != "0012":
+    if revision != DATABASE_REVISION:
         raise HTTPException(503, "Unexpected database revision")
-    return {"status": "ok", "database_revision": revision, "version": "0.2.0"}
+    return {"status": "ok", "database_revision": revision, "version": __version__}
 
 
 @router.get("/api/sync/status")

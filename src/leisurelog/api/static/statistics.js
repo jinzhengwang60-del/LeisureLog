@@ -1,7 +1,7 @@
 import {categoryLabels} from "./correction.js?v=activity2";
 import {renderHours} from "./hours.js?v=activity2";
-import {node, purposeLabels, fillSelect, contextRequest} from "./activity-context.js?v=2";
-import {duration, appName, presetDates, ranking} from "./report-ui.js?v=2";
+import {node, purposeLabels, fillSelect, contextRequest} from "./activity-context.js?v=3";
+import {duration, appName, presetDates, ranking} from "./report-ui.js?v=motion1";
 
 const $ = id => document.getElementById(id);
 let ticket = 0, projects = [];

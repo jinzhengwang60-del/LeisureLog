@@ -1,10 +1,10 @@
 import {createTiming} from "./timing.js?v=timing1";
 import {openBrowserSetup} from "./browser.js";
 import {openGames} from "./games.js";
-import {openStorage} from "./storage.js?v=auto1";
+import {openStorage} from "./storage.js?v=backup2";
 import {openRules} from "./rule-manager.js?v=content1";
-import {purposeLabels, fillSelect, contextBadges, createContextEditor, openContextRules} from "./activity-context.js?v=2";
-import {renderRibbon, titleDay} from "./timeline.js?v=activity2";
+import {purposeLabels, fillSelect, contextBadges, createContextEditor, openContextRules} from "./activity-context.js?v=3";
+import {renderRibbon, titleDay} from "./timeline.js?v=activity3";
 "use strict";
 import { createCorrection, categoryLabels } from "/static/correction.js?v=activity2";
 const $ = id => document.getElementById(id);
@@ -89,6 +89,7 @@ async function load(){
     $("list-note").textContent=`北京时间，最近的在前。${merged}${data.hidden_short?`已收起 ${data.hidden_short} 条不到 1 分钟的零碎记录。`:""}`;
     const today=dayText(new Date());titleDay($("day").value,today);renderRibbon({day:$("day").value,app:$("app").value,category:$("category").value,purpose:$("purpose").value,project_id:$("project").value,query:$("search").value},data.summary,{force:forceRibbon,isToday:$("day").value===today,onPick:showDetail});forceRibbon=false;
     $("empty").hidden=total!==0;$("page-label").textContent=total?`${offset+1}–${Math.min(offset+pageSize,total)} 条 / 共 ${total} 条`:"共 0 条";$("prev-page").disabled=offset===0;$("next-page").disabled=offset+pageSize>=total;
+    window.LeisureMotion?.reveal($("rows"), {key: params.toString(), distance: 3});
     if(linkedSession){const id=linkedSession;linkedSession=null;showDetail({id,app:new URLSearchParams(location.search).get('app')||'活动记录'});}
   }catch(error){if(ticket===version){$("error").textContent=error.message;$("error").hidden=false;}}
   finally{if(ticket===version)$("refresh").disabled=false;}

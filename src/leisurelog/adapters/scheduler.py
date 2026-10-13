@@ -8,10 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 class PeriodicSync:
-    def __init__(self, run, interval_seconds: float, enabled: bool):
+    def __init__(self, run, interval_seconds: float, enabled: bool, *, task="sync"):
         self.run = run
         self.interval = interval_seconds
         self.enabled = enabled
+        self.task = task
         self.stop_event = Event()
         self.lock = Lock()
         self.thread = None
@@ -42,9 +43,13 @@ class PeriodicSync:
                 )
         except Exception:
             # Do not expose source payloads or private window titles in the status API.
-            logger.exception("Automatic ActivityWatch sync failed; will retry next interval")
+            logger.exception("Automatic %s failed; will retry next interval", self.task)
             with self.lock:
-                self.state["last_error"] = "Sync failed; check ActivityWatch and database migration"
+                self.state["last_error"] = (
+                    "Backup check failed; check storage space and permissions"
+                    if self.task == "backup"
+                    else "Sync failed; check ActivityWatch and database migration"
+                )
         finally:
             with self.lock:
                 self.state["running"] = False
@@ -57,7 +62,7 @@ class PeriodicSync:
 
     def start(self):
         if self.enabled:
-            self.thread = Thread(target=self._loop, name="leisurelog-sync", daemon=True)
+            self.thread = Thread(target=self._loop, name=f"leisurelog-{self.task}", daemon=True)
             self.thread.start()
 
     def stop(self):

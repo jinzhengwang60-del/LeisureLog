@@ -12,7 +12,15 @@ logger = logging.getLogger(__name__)
 
 @router.get("")
 def overview(request: Request):
-    return request.app.state.storage.overview()
+    state = request.app.state
+    return {
+        **state.storage.overview(),
+        "automatic_backup": {
+            **state.backup_scheduler.snapshot(),
+            "every_days": state.settings.auto_backup_days,
+            "keep": state.settings.auto_backup_keep,
+        },
+    }
 
 
 @router.post("/backups", status_code=201)

@@ -74,6 +74,7 @@ def test_manual_choices_preserve_source_and_survive_import_reprocess_restart(app
         database_url=app.state.settings.database_url,
         rules_path=app.state.settings.rules_path,
         auto_sync_enabled=False,
+        auto_backup_days=0,
     )
     with TestClient(create_app(settings)) as restarted:
         assert detail(restarted, key)["item"]["game_type"]["primary"] == "card"
@@ -294,12 +295,13 @@ def test_migration_roundtrip_and_backup_restore(app_context, tmp_path):
                 database_url="sqlite:///" + restored.as_posix(),
                 rules_path=app.state.settings.rules_path,
                 auto_sync_enabled=False,
+                auto_backup_days=0,
             )
         )
     ) as recovered:
-        assert recovered.get("/health").json()["database_revision"] == "0012"
+        assert recovered.get("/health").json()["database_revision"] == "0013"
         assert detail(recovered, key)["item"]["game_type"]["tags"] == ["自己的标签"]
     command.downgrade(migration, "0009")
     command.upgrade(migration, "head")
     assert detail(client, key)["item"]["game_type"]["source"] == "automatic"
-    assert client.get("/health").json()["database_revision"] == "0012"
+    assert client.get("/health").json()["database_revision"] == "0013"

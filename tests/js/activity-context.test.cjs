@@ -31,3 +31,17 @@ test("an empty choice or oversized batch cannot silently submit modifications", 
   assert.throws(() => attributionPayload([], "work", "none"), /1–1000/);
   assert.throws(() => attributionPayload(Array.from({length: 1001}, (_, i) => String(i)), "work", "none"), /1–1000/);
 });
+
+test("a stale preview and a conflicting undo provide actionable Chinese messages", async () => {
+  const {contextRequest} = await helpers;
+  const original = global.fetch;
+  try {
+    for (const [detail, message] of [
+      ["Rule preview is outdated; preview again", /重新预览/],
+      ["These decisions changed after this operation; undo newer changes first", /较新的修改/],
+    ]) {
+      global.fetch = async () => ({ok: false, status: 409, json: async () => ({detail})});
+      await assert.rejects(contextRequest("/test"), error => error.status === 409 && message.test(error.message));
+    }
+  } finally { global.fetch = original; }
+});

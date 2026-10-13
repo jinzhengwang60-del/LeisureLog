@@ -5,6 +5,7 @@ def project_report(store, start, end, project_id=None):
     if end < start or (end - start).days >= 3660:
         raise ValueError("Date range must be ordered and at most 3660 days")
     facts = store.project_facts(start, end, project_id)
+    lifetime = store.project_lifetime_seconds()
     projects = store.projects()
     by_id = {item["id"]: item for item in projects}
     if project_id is not None:
@@ -39,6 +40,15 @@ def project_report(store, start, end, project_id=None):
     items.sort(
         key=lambda item: (item["archived"], -item["active_seconds"], item["name"], item["id"])
     )
+    for item in items:
+        actual, goal = lifetime.get(item["id"], 0), item.get("goal_seconds")
+        item["lifetime_active_seconds"] = actual
+        item["goal_progress"] = None if not goal else {
+            "active_seconds": actual,
+            "remaining_seconds": max(0, goal - actual),
+            "ratio": actual / goal,
+            "reached": actual >= goal,
+        }
     return {
         "start": start,
         "end": end,

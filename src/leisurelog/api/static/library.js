@@ -39,6 +39,7 @@ function renderCards(items){
 ${(item.apps||[]).map(appName).join('、')}`;
     wall.append(card);
   }
+  window.LeisureMotion?.reveal(wall, {key: params().toString()});
 }
 // Same-named items recorded from different programs (a game, its launcher, a mod tool…).
 let dupGroups=[];

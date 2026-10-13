@@ -4,16 +4,18 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="/static/appearance-init.js?v=redesign1"></script>
   <script src="/static/sky-clock.js?v=1"></script>
-  <script src="/static/theme.js?v=redesign1" type="module"></script>
+  <script src="/static/motion.js?v=2" type="module"></script>
+  <script src="/static/theme.js?v=motion2" type="module"></script>
   <title>LeisureLog · 每周回顾</title>
   <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
   <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
-  <link rel="stylesheet" href="/static/appearance.css?v=redesign1"><link rel="stylesheet" href="/static/statistics.css?v=system1"><link rel="stylesheet" href="/static/review.css?v=2">
-  <script src="/static/review.js?v=activity2" type="module"></script>
-  <link rel="stylesheet" href="/static/activity-context.css?v=activity2">
+  <link rel="stylesheet" href="/static/appearance.css?v=motion1"><link rel="stylesheet" href="/static/statistics.css?v=system1"><link rel="stylesheet" href="/static/review.css?v=2">
+  <script src="/static/review.js?v=motion1" type="module"></script>
+  <link rel="stylesheet" href="/static/activity-context.css?v=activity3">
+  <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
 </head>
 <body data-page="review">
-  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review" aria-current="page">每周回顾</a><a href="/unclassified">待分类</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review" aria-current="page">每周回顾</a><a href="/unclassified">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
   <main>
     <section class="heading"><div><p class="eyebrow" id="week-label">每周回顾</p><h1 id="week-title">这一周</h1><p class="intro" id="summary">正在整理这一周…</p></div><span class="scope">周一至周日 · 北京时间</span></section>
     <nav class="week-nav" aria-label="切换周"><button type="button" id="previous-week">‹ 上一周</button><button type="button" id="this-week">本周</button><button type="button" id="next-week">下一周 ›</button></nav>

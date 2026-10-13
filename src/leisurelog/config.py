@@ -20,3 +20,4 @@ class Settings(BaseSettings):
     auto_sync_initial_hours: int = Field(default=24, ge=1, le=168)
     auto_backup_days: int = Field(default=7, ge=0, le=365)  # 0 turns automatic backups off
     auto_backup_keep: int = Field(default=4, ge=1, le=100)
+    auto_backup_check_seconds: float = Field(default=3600, ge=60, le=86400)

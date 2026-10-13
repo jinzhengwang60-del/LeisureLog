@@ -1,6 +1,6 @@
 // Day ribbon: a 0–24h planner strip with one coloured block per activity session.
 import {categoryLabels} from "/static/correction.js?v=activity2";
-import {purposeLabels} from "./activity-context.js?v=2";
+import {purposeLabels} from "./activity-context.js?v=3";
 
 const DAY_MS = 86400000;
 const names = {"chrome.exe":"Chrome","msedge.exe":"Microsoft Edge","ChatGPT.exe":"ChatGPT","explorer.exe":"文件管理器","QQ.exe":"QQ","Weixin.exe":"微信","LockApp.exe":"锁屏","WindowsTerminal.exe":"终端"};
@@ -55,8 +55,8 @@ function legend(summary, active) {
     button.onclick = () => document.dispatchEvent(new CustomEvent("leisurelog:category", {detail: category}));
     li.append(button);
     if (category === "unknown") {
-      const link = el("a", "去分类", "legend-link");
-      link.href = "/unclassified";
+      const link = el("a", "确认类型", "legend-link");
+      link.href = "/unclassified?tab=category";
       li.append(link);
     }
     root.append(li);

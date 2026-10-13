@@ -36,11 +36,16 @@ if (button && appearance) {
     <fieldset class="appearance-modes"><legend>明暗模式</legend>
       ${Object.entries(MODES).map(([mode, name]) => `<label><input type="radio" name="appearance-mode" value="${mode}">${name}</label>`).join("")}
     </fieldset>
+    <fieldset class="appearance-modes appearance-motion"><legend>动态效果</legend>
+      <label><input type="checkbox" name="appearance-motion">轻柔动画</label>
+      <small class="motion-hint"></small>
+    </fieldset>
     <p class="appearance-message" id="appearance-message" role="status" aria-live="polite"></p>
     <div class="appearance-footer"><span>只保存界面偏好，活动记录和筛选保持原样。</span>
       <button type="button" class="primary" data-close>完成</button></div>`;
   document.body.append(dialog);
   const message = dialog.querySelector(".appearance-message");
+  const motionToggle = dialog.querySelector("[name=appearance-motion]");
   let queue = Promise.resolve();
   let busy = false;
   function render() {
@@ -55,10 +60,14 @@ if (button && appearance) {
       option.disabled = busy;
     });
     dialog.querySelectorAll("[name=appearance-mode]").forEach(input => {
-      input.checked = input.value === preference.mode;
+      if (!busy) input.checked = input.value === preference.mode;
       input.disabled = busy;
     });
     dialog.setAttribute("aria-busy", String(busy));
+    motionToggle.checked = window.LeisureMotion?.requested ?? true;
+    const hint = dialog.querySelector(".motion-hint");
+    hint.textContent = window.LeisureMotion?.reduced
+      ? "系统已开启减少动态效果，当前显示静态界面。" : "页面、卡片与操作的轻柔过渡。";
   }
   function loadSkin(style) {
     return new Promise((resolve, reject) => {
@@ -77,10 +86,11 @@ if (button && appearance) {
       candidate.onload = () => {
         window.clearTimeout(timeout);
         candidate.onload = candidate.onerror = null;
-        old.remove();
-        candidate.id = "skin-stylesheet";
-        candidate.media = "all";
-        resolve();
+        resolve(() => {
+          old.remove();
+          candidate.id = "skin-stylesheet";
+          candidate.media = "all";
+        });
       };
       candidate.href = appearance.SKINS[style].href;
       old.after(candidate);
@@ -92,8 +102,10 @@ if (button && appearance) {
       render();
       message.textContent = "正在换装…";
       try {
-        if (preference.style !== appearance.current.style) await loadSkin(preference.style);
-        appearance.current = preference;
+        const commit = preference.style !== appearance.current.style ? await loadSkin(preference.style) : null;
+        const apply = () => { commit?.(); appearance.current = preference; };
+        if (window.LeisureMotion) await window.LeisureMotion.transitionAppearance(apply);
+        else apply();
         if (persist) {
           try {
             localStorage.setItem(appearance.KEY, JSON.stringify(appearance.current));
@@ -118,6 +130,12 @@ if (button && appearance) {
   dialog.querySelectorAll("[name=appearance-mode]").forEach(input => input.addEventListener("change", () => {
     change({...appearance.current, mode: input.value});
   }));
+  motionToggle.addEventListener("change", () => {
+    const saved = window.LeisureMotion?.setEnabled(motionToggle.checked);
+    message.textContent = saved === false ? "已应用。本浏览器暂时无法保存动画偏好。" : "已应用动画偏好。";
+    render();
+  });
+  window.addEventListener("leisurelog:motion", render);
   window.addEventListener("storage", event => {
     if (event.key === appearance.KEY || event.key === "leisurelog:theme" || event.key === null) change(appearance.read(), false);
   });

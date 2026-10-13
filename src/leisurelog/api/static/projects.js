@@ -1,5 +1,5 @@
-import {node, contextRequest, purposeLabels, openContextRules} from "./activity-context.js?v=2";
-import {duration, appName, presetDates, ranking} from "./report-ui.js?v=2";
+import {node, contextRequest, purposeLabels, openContextRules} from "./activity-context.js?v=3";
+import {duration, appName, presetDates, ranking} from "./report-ui.js?v=motion1";
 
 const $ = id => document.getElementById(id);
 let ticket = 0, detailTicket = 0, editing = null, items = [];
@@ -7,6 +7,18 @@ const selectedProject = new URLSearchParams(location.search).get("project_id");
 let openedSelection = false;
 const params = () => new URLSearchParams({start: $("start").value, end: $("end").value});
 const projectURL = id => `/statistics?${params()}&project_id=${encodeURIComponent(id)}`;
+
+function goalProgress(project) {
+  const box = node("div", undefined, "project-goal"), progress = project.goal_progress;
+  if (!progress) return box;
+  const percent = Math.round(progress.ratio * 100);
+  box.append(node("p", `累计 ${duration(progress.active_seconds)} / 目标 ${duration(project.goal_seconds)} · ${percent}%`));
+  const bar = node("progress"); bar.max = project.goal_seconds; bar.value = Math.min(progress.active_seconds, project.goal_seconds);
+  bar.setAttribute("aria-label", `项目投入目标：已投入 ${duration(progress.active_seconds)}，目标 ${duration(project.goal_seconds)}`);
+  box.append(bar, node("small", progress.reached ? "已达到投入目标" : `还差 ${duration(progress.remaining_seconds)}`),
+    node("small", "按全部历史计算，表示时间投入，不代表任务完成度。"));
+  return box;
+}
 
 function renderCards() {
   const root = $("projects"); root.replaceChildren();
@@ -20,6 +32,7 @@ function renderCards() {
       node("p", project.description || "可以在活动详情中关联记录"),
       node("strong", duration(project.active_seconds), "project-time"),
       node("p", `${project.days} 天有记录 · ${project.sessions} 个活动片段`));
+    card.append(goalProgress(project));
     const controls = node("div", undefined, "context-actions"), detail = node("button", "查看活动"), edit = node("button", "编辑");
     detail.type = edit.type = "button"; detail.onclick = () => openDetail(project.id); edit.onclick = () => openEditor(project);
     controls.append(detail, edit); card.append(controls); root.append(card);
@@ -29,6 +42,7 @@ function renderCards() {
   $("empty").querySelector("p").textContent = items.length
     ? "试试其他关键词，或勾选显示归档项目。"
     : "先创建一个项目，再打开活动详情，选择这个项目。记住标题或网站规则后，后续匹配的活动会自动归入。";
+  window.LeisureMotion?.reveal(root, {key: `${params()}|${query}|${$("show-archived").checked}`});
 }
 
 async function load() {
@@ -58,6 +72,7 @@ function openEditor(project = null) {
   $("editor-title").textContent = project ? "编辑项目" : "新建项目";
   $("project-name").value = project?.name || ""; $("project-description").value = project?.description || "";
   $("project-color").value = project?.color || "#6366f1"; $("project-archived").checked = project?.archived || false;
+  $("project-goal-hours").value = project?.goal_seconds ? project.goal_seconds / 3600 : "";
   $("editor-message").textContent = ""; $("save-project").disabled = false;
   $("project-editor").showModal(); $("project-name").focus();
 }
@@ -72,6 +87,7 @@ async function openDetail(id) {
     $("project-title").textContent = data.project.name;
     body.replaceChildren(node("p", data.project.description), node("p", `${data.start} — ${data.end}`),
       node("h3", `活动时间 ${duration(data.totals.active_seconds)}`));
+    body.append(goalProgress(data.items[0]));
     const link = node("a", "打开项目统计 →", "context-link"); link.href = projectURL(id); body.append(link);
     body.append(node("h3", "主要应用")); const apps = node("div", undefined, "ranking"); body.append(apps);
     ranking(apps, data.apps, row => appName(row.app), {empty: "还没有关联活动。打开活动记录的详情，选择这个项目。"});
@@ -90,7 +106,8 @@ $("project-form").onsubmit = async event => {
   event.preventDefault(); if ($("save-project").disabled) return;
   $("save-project").disabled = true; $("editor-message").textContent = "正在保存…";
   const body = {name: $("project-name").value.trim(), description: $("project-description").value,
-    color: $("project-color").value, archived: $("project-archived").checked};
+    color: $("project-color").value, archived: $("project-archived").checked,
+    goal_seconds: $("project-goal-hours").value === "" ? null : Number($("project-goal-hours").value) * 3600};
   try {
     await contextRequest(editing ? `/api/projects/${encodeURIComponent(editing.id)}` : "/api/projects", {
       method: editing ? "PUT" : "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body),

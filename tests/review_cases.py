@@ -1,13 +1,9 @@
 """Review reproductions in isolated databases; no production writes."""
 
 from datetime import datetime, timedelta, timezone
-from threading import Event
-
-import pytest
 
 from leisurelog.adapters.playnite import CoverIndex
 from leisurelog.domain.games import Game
-from leisurelog.runtime import AutomaticSync
 
 pytest_plugins = ["tests.test_pipeline"]
 BEIJING = timezone(timedelta(hours=8))
@@ -54,21 +50,6 @@ def test_afk_before_five_is_not_late_night_leisure(app_context):
     data = client.get("/api/review", params={"day": "2026-09-29"}).json()
     assert data["leisure_seconds"] == 3600
     assert data["late_night_seconds"] == 0
-
-
-def test_scheduled_backup_is_checked_while_activitywatch_is_offline(app_context):
-    _, app, _, _, _ = app_context
-    calls = []
-
-    class OfflineSource:
-        def fetch(self, *args):
-            raise ConnectionError("Simulated offline ActivityWatch")
-
-    run = AutomaticSync(app.state.sessions, OfflineSource(), app.state.pipeline,
-                        app.state.settings, backup=lambda: calls.append("checked"))
-    with pytest.raises(ConnectionError):
-        run(Event())
-    assert calls == ["checked"]
 
 
 def test_title_scoped_shared_process_does_not_assign_an_unrelated_cover():

@@ -4,19 +4,38 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="/static/appearance-init.js?v=redesign1"></script>
   <script src="/static/sky-clock.js?v=1"></script>
-  <script src="/static/theme.js?v=redesign1" type="module"></script>
-  <title>LeisureLog · 待分类</title>
+  <script src="/static/motion.js?v=2" type="module"></script>
+  <script src="/static/theme.js?v=motion2" type="module"></script>
+  <title>LeisureLog · 待确认</title>
   <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
   <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
-  <link rel="stylesheet" href="/static/appearance.css?v=redesign1">
+  <link rel="stylesheet" href="/static/appearance.css?v=motion1">
   <link rel="stylesheet" href="/static/unclassified.css?v=sticker1">
+  <link rel="stylesheet" href="/static/statistics.css?v=system1">
+  <link rel="stylesheet" href="/static/confirmation.css?v=1">
   <script src="/static/unclassified.js?v=suggest1" type="module"></script>
-  <link rel="stylesheet" href="/static/activity-context.css?v=activity2">
+  <script src="/static/confirmation.js?v=1" type="module"></script>
+  <link rel="stylesheet" href="/static/activity-context.css?v=activity3">
+  <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
 </head>
 <body data-page="unclassified">
-  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified" aria-current="page">待分类</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified" aria-current="page">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
   <main>
-    <section class="heading"><div><h1>待分类</h1><p class="intro">这些应用的活动还没有分类。给一个应用选好分类后保存，它以前和以后的记录都会按这个分类统计。</p></div></section>
+    <section class="heading"><div><h1>待确认</h1><p class="intro">先确认占用时间最多的活动，逐步让记录知道你在做什么。</p></div><button id="manage-confirmation-rules" type="button">规则与修改记录</button></section>
+    <div class="confirmation-tabs" role="tablist" aria-label="待确认内容"><button id="purpose-tab" type="button" role="tab" aria-selected="true" aria-controls="purpose-panel">用途待确认</button><button id="category-tab" type="button" role="tab" aria-selected="false" aria-controls="category-panel">活动类型</button></div>
+    <section id="purpose-panel" role="tabpanel" aria-labelledby="purpose-tab">
+      <form id="pending-range" class="range-form">
+        <div class="presets" role="group" aria-label="快捷日期范围"><button type="button" data-pending-range="week" aria-pressed="false">本周</button><button type="button" data-pending-range="month" aria-pressed="true">本月</button><button type="button" data-pending-range="year" aria-pressed="false">今年</button></div>
+        <div class="range-inputs"><label>开始日期<input id="pending-start" type="date" required></label><label>结束日期<input id="pending-end" type="date" required></label><label>应用或网站<input id="pending-search" type="search" maxlength="300" placeholder="搜索应用或网站"></label><button id="pending-apply" class="primary" type="submit">查看待确认</button></div>
+      </form>
+      <p id="pending-error" class="error" role="alert" hidden></p><p id="pending-notice" class="notice" role="status" hidden></p><p id="pending-coverage" class="coverage" role="status">正在读取待确认活动…</p>
+      <section class="metrics uncl-metrics" aria-label="用途待确认汇总"><article><span>用途待确认时间</span><strong id="pending-time">—</strong><small>按计时策略计入，排除零活动片段</small></article><article><span>应用与网站分组</span><strong id="pending-count">—</strong><small>浏览器按网站分别确认</small></article><article><span>当前显示</span><strong id="pending-page-count">—</strong><small>优先显示占用时间最多的分组</small></article></section>
+      <div id="pending-groups" class="pending-groups" aria-label="待确认活动分组"></div>
+      <div class="pending-pagination"><button id="pending-prev" type="button" disabled>上一页</button><span id="pending-page" aria-live="polite"></span><button id="pending-next" type="button" disabled>下一页</button></div>
+      <p class="footnote">活动类型描述“用了什么”，用途描述“用来做什么”。视频可以用于学习，代码也可以用于兴趣项目。不关联项目是正常选择；记住规则前会显示全部历史的影响范围。</p>
+    </section>
+    <section id="category-panel" role="tabpanel" aria-labelledby="category-tab" hidden>
+    <p class="intro">这些应用的活动类型还没有分类。选好分类后，保存为可重复使用的应用规则。</p>
     <p id="error" class="error" role="alert" hidden></p>
     <p id="notice" class="notice" role="status" hidden></p>
     <section class="metrics uncl-metrics" aria-label="未分类汇总">
@@ -34,7 +53,8 @@
       <div class="section-head"><div><h2>浏览器</h2><p>浏览器里同时有视频、漫画、工作页面，不能整个应用一起分类。在活动记录里打开具体网页的“查看”，选择“记住：同一应用 + 同一网站域名”。</p></div></div>
       <div class="table-wrap"><table><thead><tr><th>浏览器与常见页面</th><th class="num">未分类时长</th><th class="num">片段</th><th>网页地址</th></tr></thead><tbody id="browsers"></tbody></table></div>
     </section>
-    <p class="footnote">保存后会生成一条“这个应用的所有活动”规则，不会把记录标成人工修改；你之前单独改过的记录保持不变。规则可以在活动记录页的“数据与设置 → 已记住的规则”里删除，删除后这些记录会恢复为未分类。</p>
+    <p class="footnote">保存后会生成一条“这个应用的所有活动”规则，不会把记录标成人工修改；你之前单独改过的记录保持不变。规则可以在活动记录页的“数据与设置 → 内容识别规则”里删除，删除后按配置或其他识别规则重新计算。</p>
+    </section>
   </main>
 </body>
 </html>

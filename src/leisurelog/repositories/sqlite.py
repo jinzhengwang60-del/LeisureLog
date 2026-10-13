@@ -41,6 +41,19 @@ def classification(value: dict) -> Classification:
     return Classification(**{**value, "tags": tuple(value.get("tags", []))})
 
 
+def resolved_value(row):
+    return ResolvedActivity(
+        **{
+            key: classification(row.classification)
+            if key == "classification"
+            else ActivityContext(**(row.context or {}))
+            if key == "context"
+            else getattr(row, key)
+            for key in ResolvedActivity.__dataclass_fields__
+        }
+    )
+
+
 class SQLiteRepository:
     def games(self):
         from leisurelog.repositories.games import SQLiteGameCatalog
@@ -331,21 +344,26 @@ class SQLiteRepository:
         ]
 
     def resolved_events(self, **filters):
-        return [
-            ResolvedActivity(
-                **{
-                    key: (
-                        classification(row.classification)
-                        if key == "classification"
-                        else ActivityContext(**(row.context or {}))
-                        if key == "context"
-                        else getattr(row, key)
-                    )
-                    for key in ResolvedActivity.__dataclass_fields__
-                }
+        return [resolved_value(row) for row in self.db.scalars(query(ResolvedEventRow, **filters))]
+
+    def context_candidates(self, rule):
+        row = ResolvedEventRow
+        conditions = [row.source == rule.source, func.leisurelog_casefold(row.app) == rule.app]
+        if rule.scope == "title":
+            conditions.append(row.title == rule.value)
+        elif rule.scope == "title_contains":
+            conditions.append(
+                func.leisurelog_casefold(row.title).contains(rule.value, autoescape=True)
             )
-            for row in self.db.scalars(query(ResolvedEventRow, **filters))
-        ]
+        elif rule.scope in {"domain", "url"}:
+            value = (
+                func.leisurelog_hostname(row.url)
+                if rule.scope == "domain"
+                else func.leisurelog_url(row.url)
+            )
+            conditions.append(value == rule.value)
+        statement = select(row).where(*conditions).order_by(row.id).execution_options(yield_per=256)
+        return (resolved_value(value) for value in self.db.scalars(statement))
 
     def save_resolved(self, events):
         for event in events:

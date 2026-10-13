@@ -58,7 +58,10 @@ def app_context(tmp_path, monkeypatch):
     with httpx.Client(base_url="http://aw", transport=httpx.MockTransport(respond)) as upstream:
         app = create_app(
             Settings(
-                database_url=url, rules_path=ROOT / "config/rules.yaml", auto_sync_enabled=False
+                database_url=url,
+                rules_path=ROOT / "config/rules.yaml",
+                auto_sync_enabled=False,
+                auto_backup_days=0,
             ),
             source=ActivityWatchAdapter(upstream),
         )

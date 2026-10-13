@@ -387,13 +387,14 @@ def test_migration_backup_restore_with_projects_and_original_corrections(app_con
     assert backup["counts"]["context_rules"] == 1
     restored = tmp_path / "restored.db"
     restored.write_bytes(client.get(backup["download_url"]).content)
-    assert verify_restore(restored)["database_revision"] == "0012"
+    assert verify_restore(restored)["database_revision"] == "0013"
     with TestClient(
         create_app(
             Settings(
                 database_url="sqlite:///" + restored.as_posix(),
                 rules_path=ROOT / "config/rules.yaml",
                 auto_sync_enabled=False,
+                auto_backup_days=0,
             )
         )
     ) as recovered:

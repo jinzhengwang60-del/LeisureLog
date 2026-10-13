@@ -1,4 +1,4 @@
-import {node} from "./activity-context.js?v=2";
+import {node} from "./activity-context.js?v=3";
 
 export const today = () => new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit",
@@ -45,4 +45,5 @@ export function ranking(root, rows, label, {denominator, empty = "这个范围�
     if (color) fill.style.backgroundColor = color(row);
     track.append(fill); item.append(heading, track); root.append(item);
   }
+  window.LeisureMotion?.reveal(root, {selector: ".rank-fill", kind: "bar"});
 }

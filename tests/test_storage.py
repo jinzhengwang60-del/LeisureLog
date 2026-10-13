@@ -69,6 +69,7 @@ def test_snapshot_download_and_restored_app_preserve_data(app_context, tmp_path)
                 database_url="sqlite:///" + restored.as_posix(),
                 rules_path=app.state.settings.rules_path,
                 auto_sync_enabled=False,
+                auto_backup_days=0,
             )
         )
     ) as recovered:

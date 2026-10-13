@@ -63,8 +63,12 @@ export async function openStorage() {
       node("p", `活动 ${data.counts.activity_events} 条 · 活动片段 ${data.counts.sessions} 个 · 原始快照 ${data.counts.raw_events} 份 · 离开状态 ${data.counts.idle_events} 条`),
       node("p", `人工分类 ${data.counts.manual_overrides} 条 · 已记住规则 ${data.counts.learned_rules} 条`),
       node("p", `主数据库 ${bytes(data.database_bytes)} · 写入日志 ${bytes(data.wal_bytes)} · 共享辅助文件 ${bytes(data.shm_bytes)}。文件大小会随写入与日志回收变化。`));
-    history.replaceChildren(node("h3", "已有备份"),
-      node("p", "每 7 天自动备份一次，自动备份只保留最近 4 份；手动创建的备份不会被自动删除。"));
+    const automatic = data.automatic_backup;
+    history.replaceChildren(node("h3", "自动备份与已有备份"),
+      node("p", automatic.enabled ? `每 ${automatic.every_days} 天自动备份一次，保留最近 ${automatic.keep} 份自动备份；手动备份继续保留。备份独立于活动同步，关闭同步或 ActivityWatch 暂时离线时也会检查。`
+        : "自动备份已关闭，仍然可以手动创建完整备份。"));
+    if (automatic.enabled) history.append(node("p", `最近检查：${time(automatic.last_attempt_at)} · ${automatic.running ? "正在检查" : automatic.last_error ? "检查失败，将在下次重试" : "等待下一次检查"}`));
+    if (automatic.last_error) history.append(node("p", "自动备份检查失败。请检查磁盘空间及目录权限；也可以尝试手动备份。", "error"));
     if (!data.backups.length) history.append(node("p", "还没有备份，点击上方按钮创建第一份。"));
     for (const item of data.backups) {
       const row = node("article", undefined, "correction");

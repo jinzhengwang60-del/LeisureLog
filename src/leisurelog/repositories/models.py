@@ -257,6 +257,7 @@ class ActivityProjectRow(Base):
     archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(UTCDateTime)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime)
+    goal_seconds: Mapped[float | None] = mapped_column(Float)
 
 
 class ContextOverrideRow(Base):
@@ -275,6 +276,17 @@ class ContextRuleRow(Base):
     value: Mapped[str]
     assignments: Mapped[dict] = mapped_column(JSON)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime)
+
+
+class ContextChangeRow(Base):
+    __tablename__ = "context_changes"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    action: Mapped[str]
+    event_count: Mapped[int]
+    before: Mapped[dict] = mapped_column(JSON)
+    after: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, index=True)
+    undone_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
 
 
 class TimingOverrideRow(Base):

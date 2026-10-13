@@ -24,7 +24,7 @@ function setup({stored = {}, blocked = false, blockedWrite = false, dark = false
   const store = new Map(Object.entries(stored));
   const root = new Element();
   const button = new Element(); button.span = new Element();
-  const message = new Element();
+  const message = new Element(), motionToggle = new Element(), motionHint = new Element();
   const options = ['sticker', 'minimal', 'terminal', 'sunny', 'editorial', 'arcade'].map(style => {
     const node = new Element({skin: style}); node.span = new Element(); return node;
   });
@@ -35,7 +35,8 @@ function setup({stored = {}, blocked = false, blockedWrite = false, dark = false
   const dialog = new Element();
   dialog.showModal = () => { dialog.open = true; };
   dialog.close = () => { dialog.open = false; dialog.fire('close'); };
-  dialog.querySelector = () => message;
+  dialog.querySelector = selector => selector === '[name=appearance-motion]' ? motionToggle
+    : selector === '.motion-hint' ? motionHint : message;
   dialog.querySelectorAll = selector => selector === '[data-skin]' ? options
     : selector === '[name=appearance-mode]' ? radios : closes;
   const links = [new Element()]; links[0].id = 'skin-stylesheet';
@@ -65,7 +66,7 @@ function setup({stored = {}, blocked = false, blockedWrite = false, dark = false
   vm.runInContext(bootstrap, context);
   window.LeisureAppearance.initializeSkin(links[0]);
   if (ui) vm.runInContext(controller, context);
-  return {window, appearance: window.LeisureAppearance, root, links, nodes, store, options, radios, button, dialog, message, system};
+  return {window, appearance: window.LeisureAppearance, root, links, nodes, store, options, radios, button, dialog, message, system, motionToggle};
 }
 const plain = value => JSON.parse(JSON.stringify(value));
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -138,6 +139,41 @@ test('failed runtime loading preserves current CSS, selection and storage; retry
   env.options[1].fire('click'); await flush();
   env.nodes[1].onload(); await flush();
   assert.equal(env.appearance.current.style, 'minimal');
+});
+
+test('appearance stays busy throughout the animation so a following click is not lost', async () => {
+  const env = setup({ui: true});
+  let complete;
+  env.window.LeisureMotion = {
+    transitionAppearance: update => { update(); return new Promise(resolve => { complete = resolve; }); },
+  };
+  env.options[1].fire('click'); await flush();
+  env.nodes[0].onload(); await flush();
+  assert.equal(env.appearance.current.style, 'minimal');
+  assert.equal(env.options.every(option => option.disabled), true);
+  assert.equal(env.dialog.getAttribute('aria-busy'), 'true');
+  assert.equal(env.store.has(KEY), false);
+  complete(); await flush();
+  assert.equal(env.options.every(option => !option.disabled), true);
+  assert.equal(env.dialog.getAttribute('aria-busy'), 'false');
+  assert.equal(JSON.parse(env.store.get(KEY)).style, 'minimal');
+});
+
+test('a brightness choice remains checked while the transition prepares its update', async () => {
+  const env = setup({ui: true});
+  let commit;
+  env.window.LeisureMotion = {
+    transitionAppearance: update => new Promise(resolve => { commit = () => { update(); resolve(); }; }),
+  };
+  env.radios.forEach(input => { input.checked = input.value === 'dark'; });
+  env.radios[2].fire('change'); await flush();
+  assert.equal(env.radios[2].checked, true);
+  assert.equal(env.radios[2].disabled, true);
+  assert.equal(env.root.dataset.theme, 'light');
+  commit(); await flush();
+  assert.equal(env.radios[2].checked, true);
+  assert.equal(env.radios[2].disabled, false);
+  assert.equal(env.root.dataset.theme, 'dark');
 });
 test('write failure keeps the new skin and explains that persistence is unavailable', async () => {
   const env = setup({ui:true, blockedWrite:true});

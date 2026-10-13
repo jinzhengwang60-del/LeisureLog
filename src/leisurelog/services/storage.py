@@ -40,3 +40,16 @@ class StorageService:
 
     def compact(self) -> dict:
         return self.store.compact()
+
+
+class AutomaticBackup:
+    """An independent scheduled check: no dependency on activity collection or sync."""
+
+    def __init__(self, storage, every_days, keep):
+        self.storage, self.every_days, self.keep = storage, every_days, keep
+
+    def __call__(self, stop_event):
+        if stop_event.is_set():
+            return {"created": False, "stopped": True}
+        backup = self.storage.backup_if_due(self.every_days, self.keep)
+        return {"created": backup is not None, "backup_name": backup["name"] if backup else None}

@@ -1,5 +1,5 @@
-import {node, purposeLabels, contextBadges, contextRequest} from "./activity-context.js?v=2";
-import {appName, ranking} from "./report-ui.js?v=2";
+import {node, purposeLabels, contextBadges, contextRequest} from "./activity-context.js?v=3";
+import {appName, ranking} from "./report-ui.js?v=motion1";
 
 const $ = id => document.getElementById(id);
 const WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
