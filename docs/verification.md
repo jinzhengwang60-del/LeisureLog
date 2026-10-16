@@ -1,5 +1,19 @@
 # 验证记录
 
+## 2026-10-16：核心与官方插件公开源码
+
+本次同步源码与文档，不构建或发布 Windows 安装包。
+
+- 在独立的公开源码副本、Windows / Python 3.13.9 下重新完整执行：**491 passed / 1 warning / 124.422 秒**；Node **49 passed / 0 failed**；Ruff、架构边界和空白检查通过。
+- 运行器支持显式注册、实际授权、启停、撤权、超时与故障撤下，Playnite 资料/识别和游戏分析/页面已迁入两个官方模块；人工选择保持优先。
+- 对公开源码实际构建并导入独立 Python wheel：3 个页面、管理计划、7 个迁移资源、4 个管理资源和插件选择备份通过。Python 3.11 语法检查 158 个文件；此项不代替 Python 3.11 完整运行。GitHub 工作流将执行 3.11 / 3.13 与前端检查。
+- 数据库结构仍为 0013，无新增迁移。本轮复测全部使用合成输入和隔离临时数据库，不读取个人活动资料。
+- 三项历史诊断实际单独执行为 **1 passed / 2 failed**：封面标题条件修复通过，深夜 AFK 和跨午夜最长 Session 两个周回顾问题仍按下方记录。
+- 公开源码保留通用空进程绑定；不包含个人数据库、导出、环境、日志、备份、截图和私人 Git 历史。当前可用能力与未来安装边界见 [核心与官方功能验收](core-integrity.md)。
+
+升级与恢复见 [源码运行与升级](local-deployment.md) 和 [回退说明](plugin-rollback.md)。本轮没有增加真实浏览器交互验收，之前的合成页面验证与本轮接口/包测试分别记录。
+
+
 [返回项目首页](../README.md)
 
 ## 2026-10-14：v0.4.0b1 公开源码复核
@@ -64,13 +78,12 @@
 
 ## 已知问题
 
-当前仍保留三项独立问题复现：
+当前仍保留两项独立问题复现（封面标题条件已在本次修复）：
 
 1. 深夜时长按 Session 有效时间比例估算，可能将深夜离开时间计入。
 2. 每周回顾的最长 Session 按每日裁剪片段取最大值，跨午夜时会低估。
-3. Playnite 封面进程匹配忽略标题条件，共用进程可能关联到其他游戏。
 
-详细复现方式见 [开发与验证](development.md)。`tests/review_cases.py` 不被默认测试收集；单独运行时，修复前预期有三项失败。已修复的独立备份调度纳入默认回归测试。
+详细复现方式见 [开发与验证](development.md)。`tests/review_cases.py` 不被默认测试收集；单独运行时，当前预期有两项失败、封面项通过。已修复的独立备份调度纳入默认回归测试。
 
 ## 复现检查
 
@@ -80,7 +93,7 @@
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\ruff.exe check src tests migrations scripts integrations
 .\.venv\Scripts\python.exe -m pip check
-node --test tests/js/appearance.test.cjs tests/js/sky-clock.test.cjs tests/js/activity-context.test.cjs tests/js/motion.test.cjs
+node --test tests/js/*.test.cjs
 ```
 
 Node 用于独立界面行为测试；日常运行 LeisureLog 无需安装 Node。

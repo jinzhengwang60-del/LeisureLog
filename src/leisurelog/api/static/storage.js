@@ -37,7 +37,7 @@ export async function openStorage() {
     node("p", "执行前自动创建并验证完整备份，再整理并尝试回收数据库空间。备份会额外占用空间，这次操作不保证硬盘总占用立即减少。"), cleanup);
   actions.append(backup, refresh);
   dialog.append(header, status, overview, actions,
-    node("p", "每次备份保存完整数据库，并在独立临时数据库中恢复、核对全部表的数据及完整性。备份另存分类配置文件，不会替换当前数据库。"),
+    node("p", "每次备份保存完整数据库，并在独立临时数据库中恢复、核对全部表的数据及完整性。完整包另存分类配置与插件启停、授权选择，不会替换当前数据库。"),
     node("p", "全部历史继续保留，仅按需整理旧快照，不按日期删除活动。备份也会占用空间；同一硬盘上的备份用于恢复误操作，长期保存请再复制到其他磁盘。"), cleanupBox, history);
   document.body.append(dialog);
   dialog.addEventListener("close", () => dialog.remove());
@@ -75,7 +75,7 @@ export async function openStorage() {
       row.append(node("p", `${item.automatic ? "自动备份" : "手动备份"} · ${time(item.created_at)} · ${bytes(item.bytes)} · ${item.verified ? "恢复核对通过" : "未验证"}`),
         node("p", item.name, "detail-title"),
         node("p", `活动 ${item.counts.activity_events} 条 · 人工分类 ${item.counts.manual_overrides} 条 · 识别规则 ${item.counts.learned_rules} 条`));
-      const download = node("a", "下载完整备份（含分类配置）");
+      const download = node("a", "下载完整备份（含规则与插件选择）");
       download.href = item.archive_url;
       download.download = item.name.replace(/\.db$/, ".zip");
       row.append(download);

@@ -7,16 +7,18 @@
 ```text
 LeisureLog/
 ├── config/rules.yaml          # 有序分类规则
-├── migrations/               # Alembic 迁移，当前版本 0012
+├── migrations/               # Alembic 迁移，当前版本 0013
 ├── src/leisurelog/
 │   ├── domain/               # 纯 Python 实体、接口、分类优先级、Session 策略
-│   ├── adapters/             # ActivityWatch HTTP、YAML 规则分类器、Playnite 本地导出
+│   ├── adapters/             # ActivityWatch HTTP、YAML 规则、固定目录文件读取与工作线程
 │   ├── services/             # 同步、重处理、人工覆盖用例
 │   ├── repositories/         # SQLAlchemy 模型、SQLite 实现、事务基础设施
 │   ├── analytics/            # 只读汇总计算
 │   ├── api/                  # 请求验证、路由、事务依赖
 │   ├── config.py             # 环境配置
+│   ├── game_integration.py   # 固定官方游戏组装、事务与兼容入口
 │   └── main.py               # 组装具体实现与应用生命周期
+├── src/leisurelog_plugins/   # 通过公共 SDK 的官方 Playnite 与诊断实现
 ├── tests/                    # 隔离临时数据库 + 模拟上游 HTTP
 ├── pyproject.toml
 └── alembic.ini
@@ -33,6 +35,13 @@ API → services → domain 接口 ← repositories 的 SQLite 实现
 ```
 
 约束：domain 不导入 FastAPI、SQLAlchemy、httpx；services 依赖 domain 中的 Repository / ActivitySource / Classifier / LibraryStore 协议；analytics 定义只读查询并通过协议获取数据库汇总；具体实现由 main 和 API 事务依赖组装，API 负责提交和回滚。新增来源实现 ActivitySource，新增分类器实现 Classifier，然后在组装入口注册。不要让业务层识别具体 watcher 的 JSON。
+
+插件分支的 Playnite 目录与匹配已通过独立资料协议迁入官方模块，核心处理不查询游戏目录。
+普通游戏页面与偏好分析继续保留；当前模块边界、默认选择、匹配身份和回退说明见 [游戏接入迁移](game-plugin-migration.md)。
+
+插件实验分支通过 [可执行的边界检查](plugin-boundaries.md) 约束上述依赖，插件公共入口为 `leisurelog.plugin_api`。现有完整 Repository 仍供内部业务使用；插件只获得按能力授予的窄接口，不直接复用这个大接口。已登记的游戏耦合等待分批移出，没有因为新增协议而自动解耦。
+
+开发分支的 [运行管理器](plugin-runtime.md) 已通过 main 注入分类链及生命周期，services 管理授权/状态，adapters 执行有预算的合作任务，repositories 提供汇总与原子配置存储。宿主控制接口只操作已登记定义，不从请求导入代码。游戏目录、页面和主题贡献仍待独立迁入。
 
 数据库依赖使用 `Depends(service, scope="function")`：写请求在路由执行前获取 SQLite 写锁，提交成功后才发送成功响应；失败时回滚。这样保存项目后立即读取列表不会读到旧状态。API 响应同时设置 `Cache-Control: no-store`。最低 FastAPI 版本为 0.121，依赖退出时机见 [官方说明](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/#early-exit-and-scope)。
 

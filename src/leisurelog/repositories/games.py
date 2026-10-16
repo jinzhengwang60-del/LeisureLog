@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import delete, select
 
+from leisurelog.domain.game_catalog import GameCatalogSnapshot
 from leisurelog.domain.games import Game
 from leisurelog.repositories.models import GameCatalogRow, GameSnapshotRow
 
@@ -19,6 +20,12 @@ class SQLiteGameCatalog:
                  tuple(tuple(m) for m in row.matches))
             for row in self.db.scalars(select(GameCatalogRow).order_by(GameCatalogRow.name))
         ]
+
+    def snapshot(self):
+        latest = self.db.scalar(select(GameSnapshotRow).order_by(GameSnapshotRow.id.desc()))
+        return GameCatalogSnapshot(
+            latest.digest if latest else "empty", tuple(self.games()), namespace="playnite"
+        )
 
     def replace(self, payload, games):
         normalized = {

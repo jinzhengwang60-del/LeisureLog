@@ -55,11 +55,6 @@ def resolved_value(row):
 
 
 class SQLiteRepository:
-    def games(self):
-        from leisurelog.repositories.games import SQLiteGameCatalog
-
-        return SQLiteGameCatalog(self.db).games()
-
     def __init__(self, db: DBSession):
         self.db = db
         self._changes = []

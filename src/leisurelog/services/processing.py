@@ -9,7 +9,6 @@ from leisurelog.domain.activity_context import (
 from leisurelog.domain.browser import resolve_browser
 from leisurelog.domain.classification import ClassificationPipeline
 from leisurelog.domain.daily import daily_activity
-from leisurelog.domain.games import GameClassifier
 from leisurelog.domain.idle import apply_idle
 from leisurelog.domain.learned_rules import LearnedRuleClassifier, is_browser, remember
 from leisurelog.domain.library import identities
@@ -38,8 +37,7 @@ class ProcessingService:
         pipeline = ClassificationPipeline(
             [
                 LearnedRuleClassifier(self.repo.learned_rules()),
-                *self.pipeline.classifiers,
-                GameClassifier(self.repo.games()),
+                *self.pipeline.for_processing().classifiers,
             ]
         )
         windows = self.repo.events(scope=scope)

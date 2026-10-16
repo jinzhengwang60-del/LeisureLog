@@ -77,11 +77,34 @@ def verify_restore(snapshot: Path) -> dict:
 
 
 class SQLiteStorage:
-    def __init__(self, database: Path, rules_path: Path, backup_dir: Path | None = None):
+    def __init__(
+        self,
+        database: Path,
+        rules_path: Path,
+        backup_dir: Path | None = None,
+        *,
+        supplemental_files=None,
+    ):
         self.database = database.resolve()
         self.rules_path = rules_path.resolve()
         self.directory = (backup_dir or self.database.parent / "backups").resolve()
         self.lock = Lock()
+        self._supplemental_files = supplemental_files
+
+    def _supplements(self):
+        files = self._supplemental_files() if self._supplemental_files else {}
+        if type(files) is not dict or len(files) > 16:
+            raise ValueError("Invalid supplemental backup files")
+        for name, content in files.items():
+            if (
+                type(name) is not str
+                or not re.fullmatch(r"config/[a-z][a-z0-9.-]{0,127}", name)
+                or name == "config/rules.yaml"
+                or type(content) is not bytes
+                or len(content) > 1024 * 1024
+            ):
+                raise ValueError("Invalid supplemental backup file")
+        return files
 
     def info(self) -> dict:
         with connect_readonly(self.database) as db:
@@ -212,10 +235,15 @@ class SQLiteStorage:
             verification = verify_restore(temporary)
             # Keep the YAML classifier config beside the DB. User rules are already in DB.
             shutil.copyfile(self.rules_path, path.with_suffix(".rules.yaml"))
+            supplements = self._supplements()
             manifest = {
                 "created_at": now.isoformat(),
                 "automatic": automatic,
                 "verification": verification,
+                "supplemental_files": {
+                    name: {"bytes": len(value), "sha256": hashlib.sha256(value).hexdigest()}
+                    for name, value in supplements.items()
+                },
             }
             path.with_suffix(".json").write_text(
                 json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -225,6 +253,8 @@ class SQLiteStorage:
                 bundle.write(temporary, "leisurelog.db")
                 bundle.write(path.with_suffix(".rules.yaml"), "config/rules.yaml")
                 bundle.write(path.with_suffix(".json"), "verification.json")
+                for relative_name, content in supplements.items():
+                    bundle.writestr(relative_name, content)
             archive.replace(path.with_suffix(".zip"))
             temporary.replace(path)
         except Exception:

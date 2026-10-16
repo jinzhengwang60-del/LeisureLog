@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "plugin_id": "leisurelog.game-analysis",
+  "name": "游戏偏好分析",
+  "version": "0.1.0",
+  "requires_app": ">=0.5.0a1,<0.6",
+  "api_version": 1,
+  "capabilities": ["analytics", "page"],
+  "permissions": ["activity.summary.read"],
+  "dependencies": [{"plugin_id": "leisurelog.game-library", "version_spec": ">=0.1,<0.2"}]
+}

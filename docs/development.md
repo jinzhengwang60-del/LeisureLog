@@ -5,6 +5,7 @@
 ## 验证与当前工程边界
 
 ```powershell
+python scripts/check_architecture.py
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\ruff.exe check .
 .\.venv\Scripts\alembic.exe check
@@ -12,19 +13,23 @@
 
 测试使用临时数据库和模拟 HTTP，不连接真实 ActivityWatch。覆盖幂等、原始版本留存、人工覆盖持久性、规则恢复、Session 间隙与重叠、活动切换、多设备隔离、时间验证、失败回滚、上游离线、迁移升降级以及 ORM/schema 一致性。真实联调状态见 [验证记录](verification.md)。
 
+插件分支新增的可执行分层、相对导入与循环依赖检查，以及受限插件接口见 [模块边界与最小接口](plugin-boundaries.md)。自动检查配置位于 `.github/workflows/checks.yml`；本地检查通过后，仍需核对公开副本首次远端执行，分支保护尚未设置。
+
+运行管理器已接入开发副本，默认以官方模块保留 Playnite 接入，保存的停用选择优先；显式 `plugins=()` 提供空集合实例。测试与接入见 [运行管理](plugin-runtime.md) 和 [游戏迁移对照](game-plugin-migration.md)。不得用默认用户数据目录试运行开发版。
+
 普通同步和本次记录纠错已按受影响 source/device/stream 的连续时间范围重建，未变化的数据跳过派生重写。明细列表在 SQL 中分页，日视图只加载重叠当天的记录。完整重处理、全局识别规则变更和游戏目录变更仍使用完整重建，极度碎片化导入也会回退完整重建；详见下方增量处理说明。自动同步先读取上游，再获取数据库写锁；手动同步仍在持有写锁时等待上游响应，大批量写入会阻塞其他写入。数据会包含窗口标题和源提供的 URL，请把 `data/` 当作个人数据保管，默认已加入忽略列表。
 
 ActivityWatch 接口依据：[官方 REST 文档](https://docs.activitywatch.net/en/latest/api/rest.html) 与 [官方服务端实现](https://github.com/ActivityWatch/aw-server/blob/master/aw_server/api.py)。这里通过 Adapter 封装 HTTP，后续可以替换成官方客户端实现，不影响 domain / services。
 
 ## 已知待修复问题（2026-10-10 检查）
 
-以下三项问题已用独立测试数据复现，仍待修复；旧版周回顾指标接口保留相应边界：
+以下问题已用独立测试数据复现；其中封面问题在 2026-10-16 的开发分支修复，其余两项仍待修复：
 
 1. 深夜娱乐按整个 Session 的有效时间比例估算，可能将 0–5 点内的离开时间误计入。
 2. 每周回顾的“最长的一次”按每日裁剪后的片段取最大值，跨午夜的连续 Session 会被低估。
-3. Playnite 封面按进程匹配时忽略标题条件，共用进程可能关联到其他游戏的封面。
+3. 已修复（当前源码）：Playnite 封面按进程匹配忽略标题条件。现在缺少标题证据时不使用条件进程关联封面；精确名称与无条件程序匹配保留。新增默认收集的 tests/test_official_covers.py。
 
-v0.3 已修复自动备份依赖同步成功的问题，验证纳入默认收集的 `tests/test_backup_worker.py`。其余复现保存在 `tests/review_cases.py`，该名称不会被默认自动测试收集。修复前单独运行它，预期仍有 3 项失败：
+v0.3 已修复自动备份依赖同步成功的问题，验证纳入默认收集的 `tests/test_backup_worker.py`。其余复现保存在 `tests/review_cases.py`，该名称不会被默认自动测试收集。当前单独运行仍预期有 2 项周回顾失败，封面项已通过：
 
 ```powershell
 New-Item -ItemType Directory -Force .tmp | Out-Null

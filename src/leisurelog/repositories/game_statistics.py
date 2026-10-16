@@ -4,7 +4,6 @@ import json
 
 from sqlalchemy import case, func, select
 
-from leisurelog.domain.game_types import resolve_game_type
 from leisurelog.repositories.library import METRICS
 from leisurelog.repositories.models import DailyActivityRow as Daily
 from leisurelog.repositories.models import GameCatalogRow as Game
@@ -50,7 +49,7 @@ class SQLiteGameStatistics:
             .cte("game_facts")
         )
 
-    def _entries(self):
+    def entries(self):
         entries = {}
         for game in self.db.scalars(select(Game)):
             key = "playnite:" + game.id
@@ -103,37 +102,12 @@ class SQLiteGameStatistics:
             # Current source catalog is authoritative for automatic suggestions.
             # Historical classification tags are a fallback when it has no tags.
             source_tags = item["tags"] or observed_tags.get(key, [])
-            item["game_type"] = resolve_game_type(source_tags, overrides.get(key))
+            item["source_tags"] = list(source_tags)
+            item["type_override"] = overrides.get(key)
         return entries
 
-    def listing(self, query="", scope="tracked", sort="time", limit=50, offset=0):
-        items = [
-            item for item in self._entries().values() if query.casefold() in item["name"].casefold()
-        ]
-        if scope == "tracked":
-            items = [i for i in items if i["sessions"] or (i["installed"] and i["matches"])]
-        elif scope == "recorded":
-            items = [i for i in items if i["sessions"]]
-        items.sort(key=lambda i: (i["name"].casefold(), i["key"]))
-        items.sort(
-            key=lambda i: (
-                (i["last_seen"].isoformat() if i["last_seen"] else "")
-                if sort == "recent"
-                else i["active_seconds"]
-            ),
-            reverse=True,
-        )
-        return {
-            "items": items[offset : offset + limit],
-            "total": len(items),
-            "recorded_games": sum(bool(i["sessions"]) for i in items),
-            "active_seconds": sum(i["active_seconds"] for i in items),
-            "limit": limit,
-            "offset": offset,
-        }
-
     def detail(self, key, limit=30, offset=0):
-        item = self._entries().get(key)
+        item = self.entries().get(key)
         if item is None:
             raise KeyError(key)
         facts = self._facts()

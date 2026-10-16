@@ -17,9 +17,10 @@
   <script src="/static/confirmation.js?v=1" type="module"></script>
   <link rel="stylesheet" href="/static/activity-context.css?v=activity3">
   <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
+<script type="module" src="/static/plugin-navigation.js?v=1"></script>
 </head>
 <body data-page="unclassified">
-  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified" aria-current="page">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><a href="/games">游戏</a><a href="/game-preferences">类型与偏好</a><a href="/library">玩过看过</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified" aria-current="page">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><span data-plugin-navigation></span><a href="/library">玩过看过</a><a href="/plugins">插件管理</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
   <main>
     <section class="heading"><div><h1>待确认</h1><p class="intro">先确认占用时间最多的活动，逐步让记录知道你在做什么。</p></div><button id="manage-confirmation-rules" type="button">规则与修改记录</button></section>
     <div class="confirmation-tabs" role="tablist" aria-label="待确认内容"><button id="purpose-tab" type="button" role="tab" aria-selected="true" aria-controls="purpose-panel">用途待确认</button><button id="category-tab" type="button" role="tab" aria-selected="false" aria-controls="category-panel">活动类型</button></div>

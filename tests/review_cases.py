@@ -2,8 +2,8 @@
 
 from datetime import datetime, timedelta, timezone
 
-from leisurelog.adapters.playnite import CoverIndex
 from leisurelog.domain.games import Game
+from leisurelog_plugins.playnite import CoverIndex
 
 pytest_plugins = ["tests.test_pipeline"]
 BEIJING = timezone(timedelta(hours=8))

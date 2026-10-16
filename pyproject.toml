@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.121,<1", "uvicorn>=0.30,<1", "sqlalchemy>=2.0,<3",
   "alembic>=1.13,<2", "httpx>=0.27,<1", "pydantic-settings>=2.5,<3",
-  "PyYAML>=6,<7",
+  "PyYAML>=6,<7", "packaging>=25,<27",
 ]
 
 [project.optional-dependencies]
@@ -26,6 +26,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 leisurelog = ["api/static/*", "api/static/fonts/*", "api/static/skins/*"]
+leisurelog_plugins = ["game_analysis/static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

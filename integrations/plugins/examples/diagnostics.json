@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "plugin_id": "leisurelog.diagnostics",
+  "name": "汇总接口诊断",
+  "version": "0.1.0",
+  "requires_app": ">=0.4.0b1,<0.6",
+  "api_version": 1,
+  "capabilities": ["analytics", "task"],
+  "permissions": ["activity.summary.read"],
+  "dependencies": []
+}

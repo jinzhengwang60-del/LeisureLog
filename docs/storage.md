@@ -8,11 +8,14 @@
 
 点击“创建本地备份”使用 SQLite online backup 生成一致快照，无须停止自动同步。随后将快照恢复到独立临时数据库，检查 integrity_check、foreign_key_check、schema、数据库迁移版本和全部业务表的行数与内容哈希。只有验证成功才发布备份文件。失败不会替换或修改运行数据库，未完成输出会清理；同一应用进程内重复备份返回 409。当前仍使用单个 worker。
 
-默认备份位置为数据库旁的 `backups/`。可用 `LEISURELOG_BACKUP_DIR` 指定其他位置。每份保存 `.db` 快照、`.rules.yaml` 配置副本、`.json` 验证报告和包含三者的 `.zip`；不保存账号凭据或整个环境配置。页面下载完整 ZIP，包含：
+默认备份位置为数据库旁的 `backups/`。可用 `LEISURELOG_BACKUP_DIR` 指定其他位置。每份保存 `.db` 快照、`.rules.yaml` 配置副本、`.json` 验证报告和包含配套插件选择的 `.zip`；不保存账号凭据或整个环境配置。页面下载完整 ZIP，包含：
 
 - `leisurelog.db`：原始快照、ActivityEvent/IdleEvent/Session、人工分类、用户识别规则、同步进度和迁移版本。
 - `config/rules.yaml`：配置分类器规则。用户通过页面保存的规则已经在数据库内。
+- `config/plugin-state.json`：插件启停与授权选择。没有文件时记录本版本的默认集合，不在运行目录创建文件；已有文件按原字节保存。
 - `verification.json`：恢复验证记录和表数据摘要。
+
+验证报告另记录补充配置的字节数与 SHA256。插件配置上限为 1 MiB，损坏但未超限的配置保留原文用于排查；不会静默重置选择。数据库是 SQLite 一致快照，配置为独立文件快照，不承诺跨文件同一时刻的事务。单独下载数据库不会包含这些配置。
 
 备份覆盖 LeisureLog 已导入的数据，不包含 ActivityWatch 自己的数据库或 LeisureLog 项目程序。备份增加硬盘占用；自动备份按配置轮换，手动备份不会被自动删除。默认同盘副本不能应对整块硬盘损坏，可将 ZIP 复制到其他磁盘。界面不会覆盖当前数据库，暂未提供一键原地恢复。
 
@@ -20,6 +23,7 @@
 
 1. 将完整 ZIP 解压到一个新的目录，例如 `D:/LeisureLogRestore/2026-09-30/`，避免覆盖现有数据。
 2. 使用当前版本的 LeisureLog，在项目目录设置 `LEISURELOG_DATABASE_URL=sqlite:///D:/LeisureLogRestore/2026-09-30/leisurelog.db`，`LEISURELOG_RULES_PATH=D:/LeisureLogRestore/2026-09-30/config/rules.yaml`，先设置 `LEISURELOG_AUTO_SYNC_ENABLED=false`。
+   开发版完整包还需设置 `LEISURELOG_PLUGIN_STATE_PATH=D:/LeisureLogRestore/2026-09-30/config/plugin-state.json`；旧包没有此文件时需另外核对目标版本的插件选择，不能覆盖正在运行的配置。
 3. 在该配置下执行 `alembic upgrade head`，再用空闲端口启动服务。确认健康检查、活动记录、人工分类和识别规则；使用不同数据库路径，不复制到正在运行的主库旁，也不带入旧库 WAL/SHM 文件。
 4. 恢复核对成功后再决定切换主服务和开启同步；恢复后的同步进度以备份时刻为准，之后会补取 ActivityWatch 仍保留的活动。
 

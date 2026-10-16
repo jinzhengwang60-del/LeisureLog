@@ -199,7 +199,7 @@ Playnite 运行时锁定其 LiteDB 库，采用官方 SDK 连接扩展导出本�
 
 游戏库分类器的活动以 `playnite:<game-id>` 汇集，目录改名/暂时移除后仍可追溯已识别历史。配置或人工命名的游戏，仅在名称与当前目录精确且唯一匹配时关联；有歧义或无匹配时按应用与名称独立统计，避免同名不同游戏自动混合。修改名称前形成且没有游戏 ID 的活动不会自动推断成改名后的游戏。此处使用识别名称与游戏 ID，不使用玩过看过的展示名称和人工合并关系。
 
-模块边界：`domain/ports.py` 定义 GameStatisticsStore 协议，`repositories/game_statistics.py` 从每日事实执行 SQL 汇总，`analytics/games.py` 调度查询，`api/games.py` 校验参数并使用一致读事务，静态页面仅展示结果。仅加载当前游戏目录和汇总，不读取全部原始事件或 Session 对象；详情日期与最近片段在 SQL 中分页。游戏时长统计最初没有新增持久表；随后类型管理增加独立覆盖表，当前数据库版本为 0012。
+开发分支的模块边界已在插件批次 05 调整：`repositories/game_statistics.py` 提取每日事实，`repositories/game_views.py` 生成有界的只读投影，`leisurelog_plugins/game_analysis` 计算列表与偏好并拥有页面资源；通用 `api/plugin_features.py` 提供宿主已登记的端点，`analysis_integration.py` 负责一致读与人工类型事务。不会读取全部原始活动对象；详情日期和最近片段仍在 SQL 中分页。复用已有覆盖表与 0013 结构；稳定 main 的旧实现没有被替换。完整边界见 [分析与页面迁移](game-analysis-plugin.md)。
 
 接口：`GET /api/game-statistics`（query、scope=tracked/recorded/all、sort=time/recent、limit、offset）；`GET /api/game-statistics/{key}`（日期 limit、offset）。每页最多 100 项，未知游戏键返回 404；详情返回 item、days、months、recent_sessions 与 day_total。键必须 URL 编码，避免名称中的空格、斜杠或中文改变请求路径。
 
@@ -213,7 +213,7 @@ Playnite 运行时锁定其 LiteDB 库，采用官方 SDK 连接扩展导出本�
 
 人工主类型和补充标签保存于 game_type_overrides，以稳定统计键关联，没有依赖可替换目录的外键。保存只更新该表，不修改源标签、分类、计时或原始活动，也无需重建全部 Session。重新导入、目录改名/移除、正常同步、重处理与重启均保留该选择；恢复自动只撤销此处的类型元数据。类型变化使用当前选择回看历史，因此过去月份的类型分布也会改变，不是按当时类型冻结的快照。旧名称没有稳定游戏 ID、或精确名称出现歧义时，沿用游戏统计的独立身份规则，不强行迁移覆盖到不同游戏。
 
-模块边界：domain/game_types.py 定义词表、归一与优先级；services/game_types.py 管理保存/恢复用例并依赖 GamePreferencesStore；repositories/game_preferences.py 复用稳定游戏身份，从 daily_activity 按游戏和月份 SQL 汇总；analytics/game_preferences.py 计算占比、总量和缺失月份；api/game_preferences.py 管理输入验证与事务；静态页只展示和提交选择。不会载入全历史事件或 Session 对象。人工写入、存在性检查和响应查询在 BEGIN IMMEDIATE 事务中完成，错误整体回滚；报表在一致读事务内查询。
+开发分支的类型词表、归一和历史兼容校验仍在 `domain/game_types.py`；SQL 汇总由仓库完成，分析与占比算法迁入官方分析插件。插件提出人工类型建议，宿主再次验证类型、标签、条目和权限，在 BEGIN IMMEDIATE 事务中保存并构造响应；提交前复核激活代数，异常或在途撤权会整体回滚。旧的专用 API、分析调度和保存服务已删除，不保留重复入口。报表使用一致读快照，统计时长与原有行为一致。
 
 接口：`GET /api/game-types` 返回主类型选项；`PUT /api/game-types/{key}` 保存 `{primary, tags}`，标签最多 50 项，每项 1–80 字符；`DELETE /api/game-types/{key}` 恢复自动。游戏键必须 URL 编码。`GET /api/game-preferences?start=2026-01-01&end=2026-12-31` 返回 totals、coverage、types、games、trend、未命名/未知类型时长及口径说明；未知游戏返回 404，无效类型/日期/标签返回 422。游戏统计返回的 game_type 明确区分 source=manual/automatic，并保留原来源标签及自动建议。
 

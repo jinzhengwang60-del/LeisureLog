@@ -55,6 +55,7 @@ def app_context(tmp_path, monkeypatch):
             )
         return httpx.Response(200, json=idle_payloads if "/afk/" in request.url.path else payloads)
 
+    (tmp_path / "bindings.yaml").write_text("bindings: []\n", encoding="utf-8")
     with httpx.Client(base_url="http://aw", transport=httpx.MockTransport(respond)) as upstream:
         app = create_app(
             Settings(
@@ -62,6 +63,8 @@ def app_context(tmp_path, monkeypatch):
                 rules_path=ROOT / "config/rules.yaml",
                 auto_sync_enabled=False,
                 auto_backup_days=0,
+                playnite_export_path=tmp_path / "games.json",
+                playnite_bindings_path=tmp_path / "bindings.yaml",
             ),
             source=ActivityWatchAdapter(upstream),
         )

@@ -10,7 +10,7 @@ from leisurelog.repositories.models import GameTypeOverrideRow
 
 class SQLiteGamePreferences(SQLiteGameStatistics):
     def exists(self, key):
-        return key in self._entries()
+        return key in self.entries()
 
     def save_type(self, key, primary, tags):
         self.db.merge(
@@ -28,7 +28,7 @@ class SQLiteGamePreferences(SQLiteGameStatistics):
         self.db.flush()
 
     def preference_facts(self, start, end):
-        entries = self._entries()
+        entries = self.entries()
         facts = self._facts()
         month = func.strftime("%Y-%m", facts.c.day)
         rows = [

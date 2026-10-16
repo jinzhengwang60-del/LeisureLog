@@ -53,6 +53,7 @@ def test_snapshot_download_and_restored_app_preserve_data(app_context, tmp_path)
         assert set(archive.namelist()) == {
             "leisurelog.db",
             "config/rules.yaml",
+            "config/plugin-state.json",
             "verification.json",
         }
         assert archive.read("leisurelog.db") == response.content

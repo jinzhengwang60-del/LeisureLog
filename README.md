@@ -10,6 +10,18 @@
 
 当前源码版本 **0.4.0b1**，数据库迁移仍为 **0013**；原有 v0.3 活动功能继续保留。
 
+## 核心与官方可选功能（2026-10-16）
+
+当前公开源码已接入“核心 + 插件”架构。核心负责 ActivityWatch 记录、统一事件与 Session、计时、用途与项目、人工修正、事务和备份；Playnite 资料与识别、游戏统计与偏好分别由两个随应用提供的官方模块运行。
+
+新增常驻的 [插件管理页面](docs/plugin-management.md)，运行后访问 `/plugins`，可以查看真实运行状态、选择权限、预览依赖影响、启停和撤销权限。已有保存的选择优先；首次没有配置时沿用原游戏功能。游戏页面根据实际授权提供汇总、明细只读和可编辑三种模式。完整 ZIP 备份包括活动库、规则、插件选择与校验值。
+
+本次源码更新保持数据库结构 **0013**，不需要全量重算。已有数据的升级、备份与回退见 [源码运行与升级](docs/local-deployment.md) 和 [回退方案](docs/plugin-rollback.md)。同进程运行边界适用于经过审查的官方代码；独立插件包安装器、在线市场、第三方强隔离、AI 分类和手机端尚未实现。
+
+架构与接口说明：[核心与可选插件](docs/plugin-architecture.md)、[模块边界](docs/plugin-boundaries.md)、[运行管理器](docs/plugin-runtime.md)、[官方功能验收](docs/core-integrity.md)。官方模块代码位于 `src/leisurelog_plugins/`，公共接口位于 `src/leisurelog/plugin_api.py`。
+
+本次只同步源码、文档和自动检查，不发布新的 Windows 安装包；构建配置继续保留。
+
 ## Windows 安装版（0.4.0b1，小范围试用）
 
 新增独立桌面入口、系统托盘与首次使用引导。安装版自带 Python 运行环境，默认把程序与个人数据分开放置；首次打开先说明读取范围，确认后才开启 ActivityWatch 同步。独立入口自动建库，旧结构数据库迁移前建立验证备份；失败时恢复升级前数据库。正常升级、重新安装与卸载保留独立的个人数据目录。
@@ -34,7 +46,7 @@
 
 活动数据库和游戏库导出保存在本机 `data/`，备份在 `data/backups/`。个人活动数据、本机历史截图和私人联调记录不包含在公开仓库中。
 
-已有安装升级到 v0.3 时，先创建并验证完整备份、停止旧服务，执行 `alembic upgrade head`，再启动新版。健康检查应显示 **0.3.0 / 0013**。从 v0.2 升级不需要全量重算，详细步骤见 [待确认与项目目标](docs/confirmation.md)；从更早版本升级时，还请按 [活动用途与项目](docs/activity-projects.md) 回填历史用途。
+已有安装升级到 v0.3 时，先创建并验证完整备份、停止旧服务，执行 `alembic upgrade head`，再启动新版。健康检查应显示 **0.4.0b1 / 0013**。从 v0.2 升级不需要全量重算，详细步骤见 [待确认与项目目标](docs/confirmation.md)；从更早版本升级时，还请按 [活动用途与项目](docs/activity-projects.md) 回填历史用途。
 
 ## 快速运行（Windows PowerShell，Python 3.11+）
 
@@ -118,6 +130,9 @@ LeisureLog/
 | [活动用途与项目](docs/activity-projects.md) | v0.2 的用途、项目、批量关联、自动规则与迁移说明 |
 | [待确认、规则预览与项目目标](docs/confirmation.md) | v0.3 的用途整理、来源解释、可撤销修改、投入目标与独立备份 |
 | [架构与数据模型](docs/architecture.md) | 模块职责、依赖方向、原始与派生数据、分类优先级、Session 与增量处理 |
+| [核心与插件](docs/plugin-architecture.md) | 官方模块、公共接口、运行与后续安装边界 |
+| [插件管理](docs/plugin-management.md) | 权限、计划、启停、撤权与故障反馈 |
+| [源码运行与升级](docs/local-deployment.md) | 保留已有记录的源码更新与回退 |
 | [基础接口索引](docs/api.md) | 主要 API 与本机交互接口文档入口 |
 | [存储、备份与恢复](docs/storage.md) | 自动与手动备份、长期保存、快照整理、独立恢复 |
 | [开发与验证](docs/development.md) | 测试方法、工程边界及待修复问题 |

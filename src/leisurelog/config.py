@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LEISURELOG_", env_file=".env", extra="ignore")
     database_url: str = "sqlite:///./data/leisurelog.db"
     backup_dir: Path | None = None
+    plugin_state_path: Path | None = None
     activitywatch_url: str = "http://127.0.0.1:5600"
     browser_device_bindings: dict[str, str] = Field(default_factory=dict)
     rules_path: Path = Path("config/rules.yaml")

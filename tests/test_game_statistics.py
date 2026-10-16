@@ -4,11 +4,11 @@ from urllib.parse import quote
 
 from sqlalchemy import select
 
-from leisurelog.adapters.playnite import parse_export
 from leisurelog.domain.models import ActivityEvent, SourceRecord
 from leisurelog.repositories.games import SQLiteGameCatalog
 from leisurelog.repositories.models import GameCatalogRow
 from leisurelog.repositories.sqlite import SQLiteRepository
+from leisurelog_plugins.playnite import parse_export
 from tests.test_games import catalog, game
 from tests.test_pipeline import WINDOW
 

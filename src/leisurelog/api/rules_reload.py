@@ -19,7 +19,7 @@ def reload_rules(request: Request):
     except Exception as exc:  # YAML, validation, regex or file errors: keep the old rules.
         detail = f"Rules file is invalid; previous rules stay active: {exc}"
         raise HTTPException(422, detail) from exc
-    pipeline = ClassificationPipeline([rules], rules.timing_rules, [rules])
+    pipeline = ClassificationPipeline([rules, state.plugins], rules.timing_rules, [rules])
     job = getattr(getattr(state, "scheduler", None), "run", None)
     previous = state.pipeline
     with state.sessions() as db:

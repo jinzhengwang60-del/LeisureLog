@@ -7,7 +7,14 @@ from uuid import UUID
 
 import yaml
 
-from leisurelog.domain.games import Game
+from leisurelog.plugin_api import (
+    Classification,
+    Game,
+    GameCatalogImport,
+    GameCatalogUnavailable,
+    GameMatch,
+    PluginContributions,
+)
 
 # Shared clients and utilities cannot establish which game is in the foreground.
 SHARED = {
@@ -21,6 +28,63 @@ SHARED = {
 
 class PlayniteUnavailable(ValueError):
     pass
+
+
+class CatalogSource:
+    def __init__(self, reader):
+        self._reader = reader
+
+    def fetch(self):
+        files = self._reader.read()
+        try:
+            payload = json.loads(files.export_json)
+            bindings = yaml.safe_load(files.bindings_yaml) or {}
+            if not isinstance(bindings, dict):
+                raise ValueError("Invalid process bindings")
+            games = parse_export(payload, bindings.get("bindings", []))
+            return GameCatalogImport(files.export_json, tuple(games))
+        except (
+            ValueError, TypeError, KeyError, AttributeError, RecursionError, yaml.YAMLError
+        ) as error:
+            raise GameCatalogUnavailable("Playnite 导出或进程绑定无效") from error
+
+
+class GameClassifier:
+    def __init__(self, games):
+        self.matches = {}
+        for game in games:
+            if game.installed:
+                for app, title in game.matches:
+                    self.matches.setdefault(app.casefold(), []).append((game, title))
+
+    def classify(self, event):
+        candidates = {
+            game.id: game
+            for game, title in self.matches.get(event.app.casefold(), [])
+            if not title or title.casefold() in event.title.casefold()
+        }
+        if len(candidates) != 1:
+            return None
+        game = next(iter(candidates.values()))
+        return Classification("game", game.name, game.tags, f"playnite:{game.id}")
+
+
+class CatalogClassifier:
+    def __init__(self):
+        self._revision, self._matcher = None, None
+
+    def classify(self, event, catalog):
+        if catalog.revision != self._revision:
+            self._matcher = GameClassifier(catalog.games)
+            self._revision = catalog.revision
+        result = self._matcher.classify(event)
+        return GameMatch(result.origin.removeprefix("playnite:")) if result else None
+
+
+def create(context):
+    return PluginContributions(
+        game_catalog=CatalogSource(context.game_files), game_classifier=CatalogClassifier()
+    )
 
 
 COVER_TYPES = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}
@@ -67,7 +131,9 @@ class CoverIndex:
             return game.name.strip().casefold() == wanted
 
         def same_program(game):
-            return bool(programs & {app.casefold() for app, _ in game.matches})
+            # Library entries have no window title. A conditional process match
+            # cannot identify a cover without that condition being verified.
+            return bool(programs & {app.casefold() for app, title in game.matches if not title})
 
         def prefix(game):
             other = game.name.strip().casefold()
@@ -122,7 +188,10 @@ class PlayniteAdapter:
 
 
 def parse_export(payload: dict, bindings=()) -> list[Game]:
-    if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+    if (
+        not isinstance(payload, dict)
+        or type(payload.get("schema_version")) is not int or payload["schema_version"] != 1
+    ):
         raise ValueError("Unsupported Playnite export format")
     rows = payload.get("games")
     if not isinstance(rows, list) or len(rows) > 10000:

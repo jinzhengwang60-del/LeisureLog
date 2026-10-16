@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "plugin_id": "leisurelog.theme-pack",
+  "name": "界面风格包示例",
+  "version": "0.1.0",
+  "requires_app": ">=0.5.0a1,<0.6",
+  "api_version": 1,
+  "capabilities": ["theme"],
+  "permissions": [],
+  "dependencies": []
+}

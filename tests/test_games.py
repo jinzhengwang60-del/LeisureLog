@@ -6,11 +6,15 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import func, select
 
-from leisurelog.adapters.playnite import PlayniteAdapter, PlayniteUnavailable, parse_export
-from leisurelog.domain.games import GameClassifier
 from leisurelog.repositories.games import SQLiteGameCatalog
 from leisurelog.repositories.models import GameSnapshotRow, RawEventRow
 from leisurelog.runtime import AutomaticSync
+from leisurelog_plugins.playnite import (
+    GameClassifier,
+    PlayniteAdapter,
+    PlayniteUnavailable,
+    parse_export,
+)
 from tests.test_pipeline import WINDOW, event
 
 pytest_plugins = ["tests.test_pipeline"]
@@ -98,12 +102,12 @@ def test_import_rebuild_idempotence_failure_and_manual_priority(app_context, tmp
     payloads[:] = [{**payloads[0], "data": {"app": "YuanShen.exe", "title": "原神"}}]
     client.post("/api/sync/activitywatch", json=WINDOW).raise_for_status()
     assert client.get("/api/events").json()[0]["classification"]["category"] == "unknown"
-    path, bindings = tmp_path / "games.json", tmp_path / "bindings.yaml"
+    path = app.state.settings.playnite_export_path
+    bindings = app.state.settings.playnite_bindings_path
     row = game()
     payload = catalog(row)
     path.write_text(json.dumps(payload), encoding="utf-8")
     bindings.write_text("bindings: []", encoding="utf-8")
-    app.state.playnite = PlayniteAdapter(path, bindings)
     result = client.post("/api/games/playnite/import")
     assert result.status_code == 200, result.text
     assert result.json()["recognizable"] == 1
@@ -134,14 +138,15 @@ def test_import_rebuild_idempotence_failure_and_manual_priority(app_context, tmp
 
 def test_scheduled_import_no_phantom_activity_and_missing_export(app_context, tmp_path):
     client, app, _, _, _ = app_context
-    path, bindings = tmp_path / "games.json", tmp_path / "bindings.yaml"
+    path = app.state.settings.playnite_export_path
+    bindings = app.state.settings.playnite_bindings_path
     path.write_text(json.dumps(catalog(game())), encoding="utf-8")
     bindings.write_text("bindings: []", encoding="utf-8")
     class EmptySource:
         def fetch(self, *args):
             return []
     sync = AutomaticSync(app.state.sessions, EmptySource(), app.state.pipeline,
-                         app.state.settings, PlayniteAdapter(path, bindings))
+                         app.state.settings, app.state.game_catalog.refresh)
     sync(Event())
     assert client.get("/api/games/playnite").json()["total"] == 1
     assert client.get("/api/events").json() == []

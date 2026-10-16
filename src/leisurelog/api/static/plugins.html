@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LeisureLog · 插件管理</title>
+  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/sky-clock.js?v=1"></script>
+  <script src="/static/motion.js?v=2" type="module"></script>
+  <script src="/static/theme.js?v=motion2" type="module"></script>
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
+  <link rel="stylesheet" href="/static/appearance.css?v=motion1">
+  <link rel="stylesheet" href="/static/plugins.css?v=1">
+  <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
+  <script type="module" src="/static/plugin-navigation.js?v=1"></script>
+  <script type="module" src="/static/plugins.js?v=1"></script>
+</head>
+<body data-page="plugins">
+  <header class="top"><a class="brand" href="/"><svg class="logo" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5"/><path d="M11 11V3.5A7.5 7.5 0 0 1 18.1 13.4Z"/></svg>LeisureLog</a><nav class="site-nav" aria-label="页面"><a href="/">活动记录</a><a href="/review">每周回顾</a><a href="/unclassified">待确认</a><a href="/statistics">统计与趋势</a><a href="/projects">项目</a><span data-plugin-navigation></span><a href="/library">玩过看过</a><a href="/plugins" aria-current="page">插件管理</a></nav><button class="theme-toggle" id="theme-toggle" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4Z"/></svg><span>跟随系统</span></button></header>
+  <main>
+    <section class="heading"><div><p class="eyebrow">按需选择你的功能</p><h1>插件管理</h1><p class="intro">管理本机已有的功能，查看授权和运行情况。</p></div><button id="refresh-plugins" type="button">刷新状态</button></section>
+    <p class="plugin-core-note">基础活动记录独立保留。停用插件会保留已保存的原始记录和人工修正。</p>
+    <section class="metrics plugin-metrics" aria-label="插件概览"><article><span>本机功能</span><strong id="plugin-total">—</strong><small>已登记或保存过选择</small></article><article><span>正在运行</span><strong id="plugin-running">—</strong><small>本次已正常启用</small></article><article><span>需要处理</span><strong id="plugin-attention">—</strong><small>运行或接入存在问题</small></article></section>
+    <p id="management-notice" class="plugin-notice" role="status" hidden></p>
+    <p id="management-error" class="error" role="alert" hidden></p>
+    <p id="management-message" class="plugin-message" role="status" hidden></p>
+    <div class="section-head plugin-section-head"><h2>功能与授权</h2><p id="plugin-updated" aria-live="polite">正在读取插件状态…</p></div>
+    <section id="plugin-list" class="plugin-grid" aria-label="本机插件"></section>
+    <section id="plugin-empty" class="plugin-empty" hidden><h2>目前没有登记可选功能</h2><p>基础活动记录仍然可用。功能包的安装入口将在后续版本提供。</p><a href="/">返回活动记录 →</a></section>
+    <p class="footnote">当前页面管理已内置或已登记的功能。更多功能包的安装与卸载将在后续版本开放。</p>
+  </main>
+  <dialog id="plugin-action" aria-labelledby="action-title" aria-describedby="action-description">
+    <div class="dialog-head"><h2 id="action-title">核对操作</h2><button id="close-action" type="button" aria-label="关闭操作确认">✕</button></div>
+    <p id="action-description"></p>
+    <div id="action-targets"></div>
+    <p id="action-error" class="error" role="alert" hidden></p>
+    <p id="action-progress" role="status" hidden>正在应用设置，请稍候…</p>
+    <div class="plugin-dialog-actions"><button id="cancel-action" type="button">取消</button><button id="apply-action" class="primary" type="button">确认</button></div>
+  </dialog>
+</body>
+</html>

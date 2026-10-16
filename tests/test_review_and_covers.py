@@ -4,9 +4,9 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
-from leisurelog.adapters.playnite import CoverIndex, PlayniteAdapter, cover_paths
 from leisurelog.analytics.review import week_of
 from leisurelog.domain.games import Game
+from leisurelog_plugins.playnite import CoverIndex, cover_paths
 from tests.test_pipeline import START, WINDOW
 from tests.test_unclassified import add
 
@@ -99,10 +99,14 @@ def test_cover_endpoint_serves_the_file_and_listing_links_it(app_context, tmp_pa
     image.write_bytes(b"\xff\xd8\xff\xe0fake-jpeg")
     bindings = tmp_path / "bindings.yaml"
     bindings.write_text("bindings: []\n", encoding="utf-8")
-    app.state.playnite = PlayniteAdapter(write_export(tmp_path, str(image)), bindings)
+    app.state.settings.playnite_export_path.write_bytes(
+        write_export(tmp_path, str(image)).read_bytes()
+    )
     response = client.get("/api/library/cover", params={"game": GAME_ID})
     assert response.status_code == 200
     assert response.content == image.read_bytes()
+    app.state.plugins.disable("leisurelog.playnite")
+    assert client.get("/api/library/cover", params={"game": GAME_ID}).status_code == 404
     assert client.get("/api/library/cover", params={"game": "nope"}).status_code == 404
     image.unlink()
     assert client.get("/api/library/cover", params={"game": GAME_ID}).status_code == 404

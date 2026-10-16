@@ -5,18 +5,16 @@ from time import perf_counter
 
 from sqlalchemy import text
 
-from leisurelog.adapters.playnite import PlayniteUnavailable
-from leisurelog.repositories.games import SQLiteGameCatalog
 from leisurelog.repositories.models import SyncCheckpointRow
 from leisurelog.repositories.sqlite import SQLiteRepository
 from leisurelog.services.processing import ProcessingService
 
 
 class AutomaticSync:
-    def __init__(self, sessions, source, pipeline, settings, playnite=None):
+    def __init__(self, sessions, source, pipeline, settings, before_sync=None):
         self.sessions, self.source = sessions, source
         self.pipeline, self.settings = pipeline, settings
-        self.playnite = playnite
+        self.before_sync = before_sync
 
     def __call__(self, stop_event):
         began = perf_counter()
@@ -27,22 +25,18 @@ class AutomaticSync:
             work["processed_windows"] += svc.last_work["processed_windows"]
             work[svc.last_work["mode"] + "_runs"] += 1
 
-        # A missing or incomplete export must not interrupt ActivityWatch recording.
-        if self.playnite is not None and not stop_event.is_set():
+        # Optional metadata must never prevent the next core activity window.
+        catalog_result = None
+        if self.before_sync is not None and not stop_event.is_set():
             try:
-                payload, games = self.playnite.fetch()
-            except PlayniteUnavailable:
-                pass
-            else:
-                with self.sessions() as db:
-                    db.execute(text("BEGIN IMMEDIATE"))
-                    if SQLiteGameCatalog(db).replace(payload, games):
-                        svc = ProcessingService(
-                            SQLiteRepository(db), self.pipeline, self.settings.session_gap_seconds
-                        )
-                        svc.rebuild()
-                        track(svc)
-                    db.commit()
+                metadata = self.before_sync()
+                catalog_result = {"status": "ok", "changed": bool(metadata.get("changed"))}
+                if metadata.get("processing"):
+                    work["processed_windows"] += metadata["processing"]["processed_windows"]
+                    work[metadata["processing"]["mode"] + "_runs"] += 1
+            except Exception:
+                # Failure details belong to the plugin status, never private exception text.
+                catalog_result = {"status": "unavailable"}
         end = datetime.now(timezone.utc)
         with self.sessions() as db:
             cursor = db.get(SyncCheckpointRow, "activitywatch")
@@ -77,4 +71,8 @@ class AutomaticSync:
             totals["changed"] += changed
             totals["windows"] += 1
             start = window_end
-        return {**totals, "processing": work, "duration_seconds": round(perf_counter() - began, 4)}
+        return {
+            **totals, "processing": work,
+            "duration_seconds": round(perf_counter() - began, 4),
+            **({"catalog": catalog_result} if catalog_result is not None else {}),
+        }
