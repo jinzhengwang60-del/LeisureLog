@@ -8,6 +8,10 @@ name: Architecture and regression checks
 permissions:
   contents: read
 
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: utf-8
+
 jobs:
   python:
     runs-on: windows-latest
