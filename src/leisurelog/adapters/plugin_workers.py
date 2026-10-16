@@ -152,7 +152,8 @@ class ThreadPluginWorkers:
         timeout = _timeout(timeout)
         if channel not in {"call", "metadata", "analysis"}:
             raise ValueError("宿主仅提供分类/启动、资料与分析调用通道")
-        job = _Work(owner, generation, channel, "call", deadline=monotonic() + timeout)
+        deadline = monotonic() + timeout
+        job = _Work(owner, generation, channel, "call", deadline=deadline)
 
         def invoke():
             try:
@@ -168,9 +169,15 @@ class ThreadPluginWorkers:
                 self._retire(job)
 
         self._spawn(job, invoke)
-        job.thread.join(timeout)
-        if job.thread.is_alive():
-            self._fail(job, "call_timeout")
+        # A timed join can wake before our clock reaches the deadline, notably
+        # with Windows' coarse monotonic clock on Python 3.11. Never return an
+        # unfinished call's empty result; wait for completion or a real timeout.
+        while job.thread.is_alive():
+            remaining = deadline - monotonic()
+            if remaining <= 0:
+                self._fail(job, "call_timeout")
+                break
+            job.thread.join(remaining)
         if job.error:
             raise PluginExecutionError(job.error)
         return job.result

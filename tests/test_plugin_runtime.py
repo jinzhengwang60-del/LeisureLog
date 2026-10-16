@@ -16,6 +16,7 @@ from leisurelog.domain.plugin_runtime import (
     PluginConfiguration,
     PluginContributions,
     PluginDefinition,
+    PluginExecutionError,
     ScheduledTask,
 )
 from leisurelog.domain.plugins import PluginCapability as Capability
@@ -599,3 +600,41 @@ def test_classifier_chain_shares_one_budget_instead_of_waiting_for_every_plugin(
         runtime.enable(name, {name: permissions})
     assert runtime.classify(activity()) is None
     assert "example.third" not in calls
+
+
+@pytest.mark.parametrize("outcome", ["completed", "timeout"])
+def test_call_waits_after_join_wakes_before_its_clock_deadline(monkeypatch, outcome):
+    from leisurelog.adapters import plugin_workers
+
+    clock, joins, failures = [0.0], [], []
+    workers = ThreadPluginWorkers()
+    workers.set_failure_handler(lambda owner, generation, code: failures.append(code))
+    monkeypatch.setattr(plugin_workers, "monotonic", lambda: clock[0])
+
+    def spawn(job, invoke):
+        class EarlyJoin:
+            def is_alive(self):
+                return not job.finished
+
+            def join(self, timeout):
+                joins.append(timeout)
+                clock[0] += 0.6 if outcome == "timeout" else 0.25
+                if outcome == "completed" and len(joins) == 2:
+                    invoke()
+
+        job.thread = EarlyJoin()
+
+    monkeypatch.setattr(workers, "_spawn", spawn)
+    try:
+        if outcome == "completed":
+            assert workers.call("example.test", 1, lambda: "actual-result", 1) == "actual-result"
+            assert failures == []
+        else:
+            with pytest.raises(PluginExecutionError) as error:
+                workers.call("example.test", 1, lambda: "late-result", 1)
+            assert error.value.code == "call_timeout"
+            assert failures == ["call_timeout"]
+        assert len(joins) == 2
+        assert joins[1] < joins[0]
+    finally:
+        workers.close(0)
