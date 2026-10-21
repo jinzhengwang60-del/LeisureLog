@@ -90,7 +90,10 @@ class ProcessingService:
     def sync(
         self, source: ActivitySource, start: datetime, end: datetime, buckets: list[str] | None
     ):
-        records = source.fetch(start, end, buckets)
+        return self.ingest(source.fetch(start, end, buckets))
+
+    def ingest(self, records):
+        """Persist a fully fetched batch within the host's transaction."""
         changed = sum(self.repo.ingest(record) for record in records)
         return {"fetched": len(records), "changed": changed, **self.rebuild_changed()}
 

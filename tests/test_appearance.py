@@ -19,7 +19,7 @@ def test_all_pages_and_independent_skin_assets_are_served(app_context):
         assert 'id="motion-stylesheet"' in response.text
     for asset in [
         "appearance-init.js", "sky-clock.js", "theme.js", "appearance.css", "skin-base.css",
-        "motion.js", "motion.css",
+        "motion.js", "motion.css", "category-labels.js",
         "style.css",
         "skins/minimal.css", "skins/terminal.css", "retro-disk.svg",
         "skins/sunny.css", "skins/editorial.css", "skins/arcade.css",

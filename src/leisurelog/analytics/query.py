@@ -11,12 +11,11 @@ from leisurelog.domain.idle import apply_idle
 BEIJING = timezone(timedelta(hours=8))
 
 
-def day_sessions(repo, day: date):
-    start = datetime.combine(day, time.min, BEIJING)
-    end = start + timedelta(days=1)
+def clip_sessions(sessions, events, idle, start: datetime, end: datetime):
+    """Recalculate a half-open range from evidence, preserving manual timing policies."""
     events = [
         replace(e, start_time=max(e.start_time, start), end_time=min(e.end_time, end))
-        for e in repo.resolved_events(start=start, end=end)
+        for e in events
         if e.start_time < end and e.end_time > start
     ]
     ids = {e.id for e in events}
@@ -27,13 +26,24 @@ def day_sessions(repo, day: date):
             end_time=min(s.end_time, end),
             event_ids=[key for key in s.event_ids if key in ids],
         )
-        for s in repo.sessions(start=start, end=end)
+        for s in sessions
         if s.start_time < end and s.end_time > start
     ]
     sessions = [s for s in sessions if s.event_ids]
-    idle = repo.idle_events(start=start, end=end)
     apply_idle(sessions, events, idle)
     return sessions, events, idle
+
+
+def day_sessions(repo, day: date):
+    start = datetime.combine(day, time.min, BEIJING)
+    end = start + timedelta(days=1)
+    return clip_sessions(
+        repo.sessions(start=start, end=end),
+        repo.resolved_events(start=start, end=end),
+        repo.idle_events(start=start, end=end),
+        start,
+        end,
+    )
 
 
 def _matches(s, app: str, category: str, query: str, purpose="", project_id="") -> bool:

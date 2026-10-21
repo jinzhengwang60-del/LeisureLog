@@ -15,17 +15,17 @@
 - `config/plugin-state.json`：插件启停与授权选择。没有文件时记录本版本的默认集合，不在运行目录创建文件；已有文件按原字节保存。
 - `verification.json`：恢复验证记录和表数据摘要。
 
-验证报告另记录补充配置的字节数与 SHA256。插件配置上限为 1 MiB，损坏但未超限的配置保留原文用于排查；不会静默重置选择。数据库是 SQLite 一致快照，配置为独立文件快照，不承诺跨文件同一时刻的事务。单独下载数据库不会包含这些配置。
+验证报告另记录补充配置的字节数与 SHA256，新版还记录数据库和规则文件的 SHA256。插件配置上限为 1 MiB，损坏但未超限的配置保留原文用于排查；不会静默重置选择。数据库是 SQLite 一致快照，配置为独立文件快照，不承诺跨文件同一时刻的事务。单独下载数据库不包含这些配置。
 
 备份覆盖 LeisureLog 已导入的数据，不包含 ActivityWatch 自己的数据库或 LeisureLog 项目程序。备份增加硬盘占用；自动备份按配置轮换，手动备份不会被自动删除。默认同盘副本不能应对整块硬盘损坏，可将 ZIP 复制到其他磁盘。界面不会覆盖当前数据库，暂未提供一键原地恢复。
 
 ### 恢复到独立位置
 
-1. 将完整 ZIP 解压到一个新的目录，例如 `D:/LeisureLogRestore/2026-09-30/`，避免覆盖现有数据。
-2. 使用当前版本的 LeisureLog，在项目目录设置 `LEISURELOG_DATABASE_URL=sqlite:///D:/LeisureLogRestore/2026-09-30/leisurelog.db`，`LEISURELOG_RULES_PATH=D:/LeisureLogRestore/2026-09-30/config/rules.yaml`，先设置 `LEISURELOG_AUTO_SYNC_ENABLED=false`。
-   开发版完整包还需设置 `LEISURELOG_PLUGIN_STATE_PATH=D:/LeisureLogRestore/2026-09-30/config/plugin-state.json`；旧包没有此文件时需另外核对目标版本的插件选择，不能覆盖正在运行的配置。
-3. 在该配置下执行 `alembic upgrade head`，再用空闲端口启动服务。确认健康检查、活动记录、人工分类和识别规则；使用不同数据库路径，不复制到正在运行的主库旁，也不带入旧库 WAL/SHM 文件。
-4. 恢复核对成功后再决定切换主服务和开启同步；恢复后的同步进度以备份时刻为准，之后会补取 ActivityWatch 仍保留的活动。
+使用 `python -m leisurelog.recovery <完整ZIP> --destination <尚不存在的目录>`。
+工具拒绝异常路径、重复/缺少文件、校验不一致和非当前数据库结构；校验成功后才发布新目录。
+数据库放在 `data/leisurelog.db`，插件选择放在 `data/plugin-state.json`。旧的当前结构完整包也可恢复，缺少的插件选择需另行核对。
+先关闭同步，用另一个端口检查恢复实例，再决定是否停止原服务并切换配置。具体命令、切换步骤和不包含的文件见 [日常维护](maintenance.md)。
+工具不提供覆盖运行库的入口，也不承诺恢复备份之后来源已删除的数据。
 
 新增 API：`GET /api/storage` 查看占用与备份列表，`POST /api/storage/backups` 创建并验证，`GET /api/storage/backups/{name}/archive` 下载完整 ZIP，`GET /api/storage/backups/{name}/download` 下载单独数据库。下载名严格限定为服务生成的文件名。
 
@@ -49,3 +49,5 @@
 最新的手动或自动备份达到配置间隔后才会创建新自动备份，因此新手动备份也会推迟下一次自动备份。
 
 v0.3 使用独立的备份任务，启动时检查一次，此后默认每小时检查；关闭同步或 ActivityWatch 离线不影响备份检查。LeisureLog 未运行时不会执行任务，下次启动时检查是否到期。页面展示实际配置、最近检查时间和备份任务错误。备份失败独立重试，不阻断活动同步，也不删除正式历史记录。
+
+单份备份说明缺失、损坏、格式或时区不合法时，列表和自动任务会跳过并在页面提示；原文件保留，不进入轮换删除。异常备份不推迟下一份备份。目录整体权限或磁盘故障仍会显示错误，需要恢复环境后重试。

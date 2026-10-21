@@ -1,6 +1,6 @@
 /* 手帐: a cream dot-grid notebook. Handwritten display type, washi tape on the cards, sticky notes
    for the day's figures and a highlighter under the date. Built on the shared skin base. */
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 @font-face{font-family:"ZCOOL KuaiLe";src:url("/static/fonts/zcool-kuaile.woff2") format("woff2");font-display:swap}
 :root[data-style=sticker]{
  --display:"ZCOOL KuaiLe","Microsoft YaHei UI","Microsoft YaHei",sans-serif;--text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;--num:var(--display);--radius:12px;
@@ -139,3 +139,17 @@
 :root[data-style=sticker] .cover-card:hover .cover-art{transform:rotate(0) translateY(-3px)}
 :root[data-style=sticker] .cover-name{font-family:var(--display);font-weight:normal;font-size:15px}
 :root[data-style=sticker] .cover-glyph{font-weight:normal}
+:root[data-style=sticker] .today-week{gap:8px}
+:root[data-style=sticker] .week-day i{background:color-mix(in srgb,var(--ink) 18%,transparent);border-radius:6px 6px 3px 3px;transform:rotate(-1.5deg)}
+:root[data-style=sticker] .week-day:nth-child(even) i{transform:rotate(1.5deg)}
+:root[data-style=sticker] .week-day.current i{background:var(--accent);box-shadow:0 0 0 2px var(--sheet),0 3px 6px -2px var(--shadow)}
+:root[data-style=sticker] .week-day small{font-family:var(--display);font-size:12px!important}
+:root[data-style=sticker] .week-average{border-top:2px dotted color-mix(in srgb,var(--ink) 40%,transparent)}
+@media(min-width:1101px){:root[data-style=sticker] .site-nav{gap:2px}:root[data-style=sticker] .site-nav a{font-size:15px;padding:6px 11px}}
+/* Project and plugin cards become pinned index cards with a strip of tape. */
+:root[data-style=sticker] :is(.project-card,.plugin-card){position:relative;border:0;border-radius:6px;box-shadow:0 1px 0 #0000000a,0 12px 22px -14px var(--shadow)}
+:root[data-style=sticker] .project-card{border-top:0;background:linear-gradient(var(--project-color,var(--accent)) 0 0) top/100% 5px no-repeat,var(--sheet)}
+:root[data-style=sticker] .project-card:nth-child(odd){transform:rotate(-.6deg)}:root[data-style=sticker] .project-card:nth-child(even){transform:rotate(.5deg)}
+:root[data-style=sticker] .project-card:hover{transform:rotate(0) translateY(-3px)}
+:root[data-style=sticker] .project-card .project-time{font-family:var(--display);font-weight:normal}
+:root[data-style=sticker] .plugin-card::before{content:"";position:absolute;top:-10px;left:28px;width:70px;height:20px;transform:rotate(-4deg);background:repeating-linear-gradient(45deg,var(--tape-2,var(--tape-1)) 0 8px,#ffffff80 8px 16px);box-shadow:0 1px 2px #0000001a}

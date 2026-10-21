@@ -78,7 +78,7 @@ test('default, legacy mode, valid skin and malformed JSON are safe before paint'
   const broken = setup({stored:{[KEY]:'{oops', 'leisurelog:theme':'light'}});
   assert.deepEqual(plain(broken.appearance.current), {style:'sticker', mode:'light'});
   const current = setup({stored:{[KEY]:JSON.stringify({style:'minimal', mode:'dark'})}});
-  assert.equal(current.links[0].href, '/static/skins/minimal.css?v=redesign1');
+  assert.equal(current.links[0].href, '/static/skins/minimal.css?v=art2');
 });
 test('unknown skin and mode never become an arbitrary stylesheet URL', () => {
   for (const style of ['__proto__', 'constructor', '/external.css', {}, null]) {
@@ -108,7 +108,7 @@ test('startup asset failure displays the fallback without erasing the saved sele
   const env = setup({stored:{[KEY]:saved}});
   env.links[0].onerror();
   assert.equal(env.root.dataset.style, 'sticker');
-  assert.equal(env.links[0].href, '/static/style.css?v=redesign1');
+  assert.equal(env.links[0].href, '/static/style.css?v=art2');
   assert.equal(env.store.get(KEY), saved);
 });
 test('a skin replaces the previous CSS only after it loads, then persists', async () => {

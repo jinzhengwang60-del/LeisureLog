@@ -1,6 +1,5 @@
+import {categoryName} from "/static/category-labels.js?v=1";
 const $ = id => document.getElementById(id);
-const categories = {game:'游戏',video:'视频',reading:'阅读',anime:'动画',film:'影视',movie:'影视',music:'音乐',social:'社交',work:'工作',system:'系统与工具',unknown:'未分类',live:'直播',browsing:'网页浏览',other:'其他'};
-const categoryName = value => categories[value] || value;
 const apps = {'msedge.exe':'Microsoft Edge','chrome.exe':'Chrome','GenshinImpact.exe':'原神'};
 const appName = value => apps[value] || value;
 let offset = 0, dayOffset = 0, current = null, busy = false, ticket = 0, detailTicket = 0;

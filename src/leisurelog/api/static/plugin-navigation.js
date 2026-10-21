@@ -35,8 +35,18 @@ export async function refreshPluginNavigation() {
   }
 }
 
+// On narrow screens the navigation is one scrolling row; keep the current page in view.
+function revealCurrentPage() {
+  const nav = document.querySelector('.site-nav');
+  const current = nav?.querySelector('[aria-current=page]');
+  if (!current || nav.scrollWidth <= nav.clientWidth) return;
+  const offset = current.getBoundingClientRect().left - nav.getBoundingClientRect().left;
+  nav.scrollLeft += offset - (nav.clientWidth - current.offsetWidth) / 2;
+}
+
 if (typeof window !== 'undefined') {
-  refreshPluginNavigation();
+  revealCurrentPage();
+  refreshPluginNavigation().then(revealCurrentPage);
   window.addEventListener('focus', refreshPluginNavigation);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshPluginNavigation();

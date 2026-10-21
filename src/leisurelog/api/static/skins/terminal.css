@@ -1,4 +1,4 @@
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 /* 旧电脑: Windows 98 in Chinese. Tahoma with SimSun, silver bevels, a navy caption gradient,
    list-view selection on hover and a taskbar. The stable "terminal" ID is kept for saved preferences. */
 :root{
@@ -28,7 +28,7 @@
  --backdrop:rgba(0,0,0,.65);--shadow:rgba(0,0,0,.5);--tip-bg:#2c3134;--tip-fg:#e8e8e8;
 }
 body{background:var(--paper);padding:28px 28px 64px;--retro-page:"活动记录"}
-body[data-page=unclassified]{--retro-page:"待分类"}body[data-page=statistics]{--retro-page:"统计与趋势"}body[data-page=games]{--retro-page:"游戏"}body[data-page=preferences]{--retro-page:"类型与偏好"}body[data-page=library]{--retro-page:"玩过看过"}body[data-page=review]{--retro-page:"每周回顾"}
+body[data-page=unclassified]{--retro-page:"待确认"}body[data-page=projects]{--retro-page:"项目"}body[data-page=plugins]{--retro-page:"插件管理"}body[data-page=statistics]{--retro-page:"统计与趋势"}body[data-page=games]{--retro-page:"游戏"}body[data-page=preferences]{--retro-page:"类型与偏好"}body[data-page=library]{--retro-page:"玩过看过"}body[data-page=review]{--retro-page:"每周回顾"}
 /* One application window sits on the desktop, rather than loose modern cards. */
 .top,main{max-width:1184px;width:100%;margin-inline:auto;border:2px solid;border-color:var(--chrome-light) var(--chrome-edge) var(--chrome-edge) var(--chrome-light);background:var(--chrome);box-shadow:2px 2px 0 var(--chrome-edge)}
 .top{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:32px 38px;gap:4px 12px;padding:3px 9px 0;min-height:0;border-bottom:0;z-index:20;isolation:isolate}
@@ -62,20 +62,23 @@ input[type=radio],input[type=checkbox]{box-shadow:none;border:0;padding:0;backgr
 .metrics article{border:0;border-right:1px solid var(--chrome-dark);border-radius:0;background:none;padding:4px 14px 6px;box-shadow:1px 0 var(--chrome-light)}
 .metrics article:last-child{border-right:0;box-shadow:none}.metrics span{font-size:11px;font-weight:600;color:var(--ink-2)}
 .metrics strong{background:var(--display-bg);color:var(--display-fg);font:normal 24px/1.3 var(--num);letter-spacing:0;padding:7px 9px;margin:6px 0;box-shadow:var(--sunken);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-.metrics small{color:var(--muted);font-size:10px;line-height:1.6}
+.metrics small{color:var(--muted);font-size:11px;line-height:1.6}
 .records,.chart-panel,.ribbon{border-radius:0;border:1px solid var(--chrome-dark);background:var(--chrome);box-shadow:var(--raised),1px 1px var(--chrome-edge);overflow:hidden}
 /* Navy panel captions and ivory work areas echo desktop utility windows. */
 .section-head{display:flex;align-items:center;padding:8px 12px;background:var(--title-bar);color:var(--title-text);border:3px solid var(--chrome);margin:0;gap:12px}
-.section-head h2{font-size:13px;color:var(--title-text)}.section-head h2 span{color:var(--title-text);background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:0;font-size:10px;padding:0 5px}
-.section-head p{color:#d9e1f2;font-size:10px;margin:2px 0 0}.section-head a{color:#fff3bf;font-size:11px}.section-head label{color:var(--title-text)}
+.section-head h2{font-size:13px;color:var(--title-text)}.section-head h2 span{color:var(--title-text);background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:0;font-size:11px;padding:0 5px}
+.section-head p{color:#d9e1f2;font-size:11px;margin:2px 0 0}.section-head a{color:#fff3bf;font-size:11px}.section-head label{color:var(--title-text)}
 :root[data-style=terminal] .section-head .legend{color:#d9e1f2}
+:root[data-style=terminal] .section-head .batch-tools{color:var(--title-text)}
+/* Disabled controls keep their raised grey surface on the navy caption. */
+:root[data-style=terminal] .section-head .batch-tools button:disabled{opacity:1;color:var(--muted)}
 :root[data-style=terminal] .section-head select,:root[data-style=terminal] .section-head input{color:var(--ink);background:var(--sheet)}
 .ranking,.type-distribution,.months,.recent,.trend-scroll,.hours-scroll,.manage,.type-form{background:var(--sheet)}
 .table-wrap{margin:4px;box-shadow:var(--sunken);border:1px solid var(--chrome-dark);background:var(--sheet)}
 table{font-size:12px;background:var(--sheet)}th{font-size:11px;color:var(--ink);font-weight:500;background:var(--chrome);padding:7px 12px;border:1px solid var(--chrome-dark);box-shadow:var(--raised)}
 td{padding:10px 12px;border-bottom:1px solid var(--rule-soft)}td.time{font-family:var(--num);font-size:11px}.app-name{font-size:12px}.title{font-size:11px}.app-icon{width:10px;height:10px;border-radius:0;border:1px solid var(--chrome-dark)}
 .badge{font-size:11px;background:transparent;border:0;padding:2px 0;color:var(--ink)}.badge::before{border:1px solid var(--chrome-dark);width:8px;height:8px;border-radius:0}
-.bar{border-radius:0;height:7px;border:1px solid var(--chrome-dark)}.bar-label{font-size:10px}.detail-button{box-shadow:none;background:transparent;border:0;color:var(--link);font-size:11px;padding:3px 7px;min-height:24px}.detail-button:hover{background:var(--accent-soft)}
+.bar{border-radius:0;height:7px;border:1px solid var(--chrome-dark)}.bar-label{font-size:11px}.detail-button{box-shadow:none;background:transparent;border:0;color:var(--link);font-size:11px;padding:3px 7px;min-height:24px}.detail-button:hover{background:var(--accent-soft)}
 .pagination{border:0;box-shadow:var(--sunken);margin:4px;padding:8px 10px;font-size:11px;background:var(--chrome)}
 .toolbar{padding:10px;border:1px solid var(--chrome-dark);box-shadow:var(--raised);background:var(--chrome);margin-bottom:14px;gap:10px}
 .filter-controls{gap:6px}.list-switches{gap:12px}.switch{font-size:11px;color:var(--ink)}.switch input{box-shadow:none;border:0;width:13px;height:13px}
@@ -83,14 +86,14 @@ td{padding:10px 12px;border-bottom:1px solid var(--rule-soft)}td.time{font-famil
 .ribbon::before{content:"24 小时活动时间带";display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
 .ribbon-track{height:48px;background:repeating-linear-gradient(90deg,var(--rule-soft) 0 1px,transparent 1px calc(100%/24)),var(--sheet);box-shadow:var(--sunken);border:1px solid var(--chrome-dark);border-radius:0}
 .ribbon-track .block{top:7px;bottom:7px;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.22) 2px 3px),var(--cat)}.ribbon-track .block:hover{top:4px;bottom:4px}
-.ribbon-hours{font-family:var(--num);font-size:10px;margin-top:6px;height:16px}.ribbon-legend{gap:3px 9px;padding-top:7px;margin-top:6px;border-top:1px solid var(--chrome-dark);font-size:11px}
+.ribbon-hours{font-family:var(--num);font-size:11px;margin-top:6px;height:16px}.ribbon-legend{gap:3px 9px;padding-top:7px;margin-top:6px;border-top:1px solid var(--chrome-dark);font-size:11px}
 .legend-filter{box-shadow:none;border:0;background:transparent;color:var(--ink);font-size:11px;padding:3px 4px;min-height:24px}.legend-filter:hover{background:var(--wash)}.legend-filter[aria-pressed=true]{background:var(--accent-soft);box-shadow:var(--sunken)}.ribbon-legend i{border-radius:0;width:8px;height:8px;border:1px solid var(--chrome-dark)}
-.footnote{max-width:none;font-size:10px;line-height:1.7;color:var(--muted);margin:14px 2px 0}
+.footnote{max-width:none;font-size:11px;line-height:1.7;color:var(--muted);margin:14px 2px 0}
 .error,.notice{border-radius:0;font-size:12px}.empty{background:var(--sheet)}.empty h3{font-size:16px}
 /* Secondary windows follow the same caption / client-area / button language. */
 dialog{background:var(--chrome);border:2px solid;border-color:var(--chrome-light) var(--chrome-edge) var(--chrome-edge) var(--chrome-light);border-radius:0;padding:8px 20px 20px;box-shadow:var(--raised),4px 4px var(--shadow)}
 .dialog-head{background:linear-gradient(90deg,var(--title-bar),var(--title-end));color:var(--title-text);padding:7px 8px;margin:0 -14px 14px;align-items:center;gap:12px}
-.dialog-head h2{font-size:16px;color:var(--title-text)}.dialog-head .eyebrow{color:#d9e1f2;font-size:9px;margin:0 0 2px}
+.dialog-head h2{font-size:16px;color:var(--title-text)}.dialog-head .eyebrow{color:#d9e1f2;font-size:10px;margin:0 0 2px}
 .dialog-head button{background:var(--chrome);color:var(--ink);width:28px;min-height:24px;border:1px solid var(--chrome-edge);box-shadow:var(--raised);border-radius:0;font-size:12px}
 .detail-summary div{box-shadow:var(--sunken);background:var(--sheet);border-radius:0}.detail-summary strong{font-family:var(--num)}
 /* Specificity is intentional: these must override the shared per-page sheets. */
@@ -122,11 +125,11 @@ body[data-page=activity] .day-head{grid-row:1}.metrics{min-width:0}
 body[data-page=activity] .today{grid-row:2}body[data-page=activity] .ribbon{grid-row:3}
 @media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics article:nth-child(2){border-right:0;box-shadow:none}.metrics article:nth-child(-n+2){padding-bottom:12px;margin-bottom:8px;border-bottom:1px solid var(--chrome-dark)}.brand::after{display:none}}
 @media(max-width:760px){
- body{padding:10px 10px 24px}.top{padding:3px 7px 0;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:32px auto;gap:3px 6px}.brand{font-size:13px}.brand::before{width:17px;height:17px;background-size:17px}.top .theme-toggle{padding:2px 6px;min-height:24px}.top .theme-toggle span{font-size:10px}
+ body{padding:10px 10px 24px}.top{padding:3px 7px 0;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:32px auto;gap:3px 6px}.brand{font-size:13px}.brand::before{width:17px;height:17px;background-size:17px}.top .theme-toggle{padding:2px 6px;min-height:24px}.top .theme-toggle span{font-size:11px}
  .site-nav{grid-column:1/-1;grid-row:2;width:auto;margin:0;padding:3px 0 6px}.site-nav a{font-size:11px;padding:4px 8px;min-height:27px}.top .tools{grid-column:1/-1;grid-row:3;justify-self:end;margin-bottom:5px}
- main{padding:14px 10px 10px}.heading{gap:10px;margin-bottom:16px}h1{font-size:23px}.day-head{gap:10px}.day-title h1{font-size:28px}.day-title{gap:10px}.day-tools{align-items:flex-start}.date-control{gap:4px}.date-control input[type=date]{width:138px}.statusbox{font-size:10px;flex-wrap:wrap}
- .metrics{padding:5px}.metrics article{padding:5px 9px}.metrics strong{font-size:19px;padding:6px}.metrics small{font-size:10px}.ribbon{padding:10px}.ribbon-legend{gap:3px 5px}.ribbon-hours span:nth-child(even){display:none}
- .toolbar{padding:8px;gap:8px}.filter-controls select{max-width:48%;min-width:0}.list-switches{gap:8px}.section-head{padding:7px 9px;flex-wrap:wrap;align-items:flex-start}.section-head p{font-size:10px}.section-head h2{font-size:12px}.pagination{padding:7px 8px}.pagination button{padding:4px 7px;font-size:11px}.footnote{font-size:10px}
+ main{padding:14px 10px 10px}.heading{gap:10px;margin-bottom:16px}h1{font-size:23px}.day-head{gap:10px}.day-title h1{font-size:28px}.day-title{gap:10px}.day-tools{align-items:flex-start}.date-control{gap:4px}.date-control input[type=date]{width:138px}.statusbox{font-size:11px;flex-wrap:wrap}
+ .metrics{padding:5px}.metrics article{padding:5px 9px}.metrics strong{font-size:19px;padding:6px}.metrics small{font-size:11px}.ribbon{padding:10px}.ribbon-legend{gap:3px 5px}.ribbon-hours span:nth-child(even){display:none}
+ .toolbar{padding:8px;gap:8px}.list-switches{gap:8px}.section-head{padding:7px 9px;flex-wrap:wrap;align-items:flex-start}.section-head p{font-size:11px}.section-head h2{font-size:12px}.pagination{padding:7px 8px}.pagination button{padding:4px 7px;font-size:11px}.footnote{font-size:11px}
  dialog{padding:8px 14px 16px}.dialog-head{margin-inline:-8px}.dialog-head h2{font-size:15px}.detail-summary{grid-template-columns:1fr}.appearance-footer{flex-wrap:wrap}.appearance-footer span{max-width:70%}
 }
 /* Explorer-style selection, a taskbar and a Start button. */
@@ -150,8 +153,21 @@ body::after{content:"开始";position:fixed;z-index:26;left:3px;bottom:3px;heigh
 .data-details>summary{font-size:11px;color:var(--ink)}
 .cover-art{border-radius:0;box-shadow:var(--sunken);border:2px solid var(--chrome)}
 .cover-card:hover .cover-art{transform:none;outline:1px dotted var(--ink);outline-offset:2px}
-.cover-tag{border-radius:0;background:var(--title-bar);font-size:10px}
+.cover-tag{border-radius:0;background:var(--title-bar);font-size:11px}
 .cover-wall{background:var(--sheet);margin:4px;box-shadow:var(--sunken)}
 .view-switch{border-radius:0;box-shadow:var(--raised);border:1px solid var(--chrome-edge)}
 :root .view-switch button{color:var(--ink);background:var(--chrome);box-shadow:var(--raised);border-radius:0}
 :root .view-switch button[aria-pressed=true]{color:var(--ink);background:var(--chrome);box-shadow:var(--sunken);font-weight:700}
+/* The week reads like a small LED bar meter on the instrument panel. */
+.today-week{--pb:4px;background:var(--display-bg);box-shadow:var(--sunken);padding:12px 10px var(--pb);gap:5px}
+.week-day i{border-radius:0;max-width:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--display-fg) 35%,transparent) 0 3px,transparent 3px 5px)}
+.week-day.current i{background:repeating-linear-gradient(0deg,var(--display-fg) 0 3px,transparent 3px 5px);filter:drop-shadow(0 0 3px color-mix(in srgb,var(--display-fg) 60%,transparent))}
+.week-day small,.week-day.current small{color:var(--display-fg)!important;font-family:var(--num);opacity:.75}.week-day.current small{opacity:1}
+.week-average{border-top-color:color-mix(in srgb,var(--display-fg) 50%,transparent)}
+/* Project and plugin cards become small raised windows with a coloured caption strip. */
+:root[data-style=terminal] :is(.project-card,.plugin-card){border:1px solid var(--chrome-dark);border-radius:0;background:var(--chrome);box-shadow:var(--raised),1px 1px var(--chrome-edge)}
+:root[data-style=terminal] .project-card{border-top:0;background:linear-gradient(90deg,var(--project-color,var(--title-bar)),var(--title-end)) top/100% 6px no-repeat,var(--chrome);padding-top:26px}
+:root[data-style=terminal] .project-card .project-time{font-family:var(--num);font-weight:normal;background:var(--display-bg);color:var(--display-fg);padding:4px 10px;box-shadow:var(--sunken);display:inline-block}
+:root[data-style=terminal] dialog .context-actions:has(.primary){background:var(--chrome);border-top:1px solid var(--chrome-dark);box-shadow:inset 0 1px var(--chrome-light)}
+/* An etched toolbar separator between everyday pages and the rest. */
+:root[data-style=terminal] .site-nav>a[href="/projects"]::after{background:var(--chrome-dark);box-shadow:1px 0 var(--chrome-light);top:15%;bottom:15%}

@@ -31,8 +31,42 @@ AND (r.event_id IN (SELECT id FROM activity_events)
 BACKUP_NAME = re.compile(r"leisurelog-\d{8}T\d{6}Z-[a-f0-9]{12}\.db\Z")
 
 
+def validate_manifest(manifest):
+    """Validate metadata before listing, scheduling or trusting a recovery bundle."""
+    if not isinstance(manifest, dict):
+        raise ValueError("Invalid backup manifest")
+    created = datetime.fromisoformat(manifest["created_at"])
+    verification = manifest["verification"]
+    if (
+        created.utcoffset() is None
+        or type(manifest.get("automatic", False)) is not bool
+        or not isinstance(verification, dict)
+        or verification.get("verified") is not True
+        or not isinstance(verification.get("database_revision"), str)
+        or not isinstance(verification.get("tables"), dict)
+        or not verification["tables"]
+    ):
+        raise ValueError("Invalid backup manifest")
+    for name, entry in verification["tables"].items():
+        if (
+            not isinstance(name, str)
+            or not isinstance(entry, dict)
+            or type(entry.get("count")) is not int
+            or entry["count"] < 0
+            or not isinstance(entry.get("sha256"), str)
+            or not re.fullmatch(r"[a-f0-9]{64}", entry["sha256"])
+        ):
+            raise ValueError("Invalid backup table verification")
+    return manifest
+
+
 def connect_readonly(path: Path):
     return closing(sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True, timeout=30))
+
+
+def file_sha256(path: Path) -> str:
+    with path.open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
 
 
 def fingerprint(db) -> dict:
@@ -154,6 +188,7 @@ class SQLiteStorage:
             **sizes,
             "live_bytes": sum(sizes.values()),
             "backup_bytes": backup_bytes,
+            "invalid_backups": self._scan_backups()[1],
             "counts": counts,
             "superseded_snapshots": removable,
             "earliest_record_at": earliest.replace(" ", "T") + "+00:00" if earliest else None,
@@ -168,20 +203,30 @@ class SQLiteStorage:
             return 0
 
     def backups(self) -> list[dict]:
+        return self._scan_backups()[0]
+
+    def _scan_backups(self):
         if not self.directory.exists():
-            return []
-        result = []
+            return [], []
+        result, invalid = [], []
         for path in sorted(self.directory.glob("leisurelog-*.db"), reverse=True):
             if not BACKUP_NAME.fullmatch(path.name):
                 continue
             try:
-                manifest = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
-            except (OSError, ValueError):
+                metadata = path.with_suffix(".json")
+                if path.is_symlink() or metadata.is_symlink():
+                    raise ValueError("Linked backup file")
+                if metadata.stat().st_size > 1024 * 1024:
+                    raise ValueError("Backup manifest too large")
+                manifest = validate_manifest(json.loads(metadata.read_text(encoding="utf-8")))
+                size = path.stat().st_size
+            except (OSError, ValueError, TypeError, KeyError):
+                invalid.append(path.name)
                 continue
             result.append(
                 {
                     "name": path.name,
-                    "bytes": path.stat().st_size,
+                    "bytes": size,
                     "created_at": manifest["created_at"],
                     "verified": manifest["verification"]["verified"],
                     "automatic": bool(manifest.get("automatic", False)),
@@ -192,7 +237,7 @@ class SQLiteStorage:
                     "archive_url": f"/api/storage/backups/{path.name}/archive",
                 }
             )
-        return result
+        return result, invalid
 
     def download_path(self, name: str) -> Path:
         if not BACKUP_NAME.fullmatch(name):
@@ -240,6 +285,10 @@ class SQLiteStorage:
                 "created_at": now.isoformat(),
                 "automatic": automatic,
                 "verification": verification,
+                "files": {
+                    "leisurelog.db": file_sha256(temporary),
+                    "config/rules.yaml": file_sha256(path.with_suffix(".rules.yaml")),
+                },
                 "supplemental_files": {
                     name: {"bytes": len(value), "sha256": hashlib.sha256(value).hexdigest()}
                     for name, value in supplements.items()

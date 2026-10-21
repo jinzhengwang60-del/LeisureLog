@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "leisurelog"
-version = "0.4.0b1"
+version = "0.4.0b2"
 description = "Local-first modular computer activity tracking and project analytics"
 requires-python = ">=3.11"
 dependencies = [
@@ -20,6 +20,7 @@ packaging = ["pyinstaller>=6.20,<7"]
 
 [project.scripts]
 leisurelog-desktop = "leisurelog.desktop.launcher:main"
+leisurelog-recover = "leisurelog.recovery:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

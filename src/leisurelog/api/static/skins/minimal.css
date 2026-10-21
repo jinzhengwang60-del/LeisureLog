@@ -1,5 +1,5 @@
 /* 素白: warm paper, one ink-blue accent and large tabular numbers. Colour is reserved for categories. */
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 :root[data-style=minimal]{
  --text:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
  --display:"Segoe UI Variable Display","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;--num:var(--display);--radius:10px;
@@ -104,3 +104,7 @@
 :root[data-style=minimal] .split-bar{height:8px}
 :root[data-style=minimal] .cover-art{border-radius:10px}
 :root[data-style=minimal] .view-switch button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+:root[data-style=minimal] .week-day i{border-radius:4px 4px 1px 1px;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+:root[data-style=minimal] .week-day.current i{background:var(--ink)}
+:root[data-style=minimal] :is(.project-card,.plugin-card){border-radius:16px;box-shadow:0 1px 2px var(--shadow)}
+:root[data-style=minimal] .project-card:hover{box-shadow:0 10px 30px -16px var(--shadow);transform:translateY(-2px)}

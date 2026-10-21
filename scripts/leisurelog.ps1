@@ -48,7 +48,8 @@ function Start-LeisureLog {
     }
     New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
     $arguments = @('-m', 'uvicorn', 'leisurelog.main:create_app', '--factory',
-                   '--host', '127.0.0.1', '--port', "$Port")
+                   '--host', '127.0.0.1', '--port', "$Port",
+                   '--log-config', 'config/logging.json')
     Start-Process -FilePath $Python -ArgumentList $arguments -WorkingDirectory $Root `
         -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $LogDir 'server.out.log') `
@@ -60,7 +61,7 @@ function Start-LeisureLog {
             return $true
         }
     }
-    Write-Host '30 秒内没有启动成功。请查看 data\logs\server.err.log 里的错误信息。'
+    Write-Host '30 秒内没有启动成功。请查看 data\logs\server.log 和 server.err.log 里的错误信息。'
     Write-Host '如果提示数据库版本不对，需要先运行：.\.venv\Scripts\alembic.exe upgrade head'
     return $false
 }

@@ -24,7 +24,7 @@ function weekBefore(day){
   if(!compareCache.has(day)){
     const noon=new Date(`${day}T12:00:00+08:00`).getTime(),back=n=>dayText(new Date(noon-n*86400000));
     compareCache.set(day,request(`/api/statistics?${new URLSearchParams({start:back(7),end:back(1),granularity:"day"})}`)
-      .then(d=>{const days=d.trend.filter(t=>t.has_records).length;return days?{avg:d.totals.active_seconds/days,days}:null;}).catch(()=>null));
+      .then(d=>{const days=d.trend.filter(t=>t.has_records).length;return days?{avg:d.totals.active_seconds/days,days,trend:d.trend}:null;}).catch(()=>null));
   }
   return compareCache.get(day);
 }
@@ -39,12 +39,26 @@ function renderToday(h,day,isToday){
   const note=$("leisure-compare");note.className="";note.textContent="正在和前 7 天比较…";
   weekBefore(day).then(result=>{
     if($("day").value!==day)return;
+    renderWeek(result,h.activity_seconds,day);
     if(!result){note.textContent="前 7 天没有记录可以比较";return;}
     if(isToday){note.textContent=`前 7 天平均每天 ${hm(result.avg)}`;return;}
     const diff=h.activity_seconds-result.avg;
     if(Math.abs(diff)<300||Math.abs(diff)<result.avg*.1){note.textContent=`和前 7 天平均（${hm(result.avg)}）差不多`;note.className="even";}
     else{note.textContent=`比前 7 天平均${diff>0?"多":"少"} ${hm(Math.abs(diff))}（平均 ${hm(result.avg)}）`;note.className=diff>0?"more":"less";}
   });
+}
+// Eight small columns: the seven days before plus the chosen day, scaled to the busiest one.
+function renderWeek(result,seconds,day){
+  const week=$("today-week");if(!week)return;week.replaceChildren();
+  const days=[...(result?.trend||[]).slice(-7).map(t=>({period:t.period,seconds:t.has_records?t.active_seconds:0})),{period:day,seconds,current:true}];
+  if(days.length<2){week.hidden=true;return;}week.hidden=false;
+  const top=Math.max(...days.map(d=>d.seconds),result?.avg||0,1);
+  for(const item of days){
+    const column=node("span",undefined,item.current?"week-day current":"week-day"),bar=node("i");
+    bar.style.height=`calc(${Math.max(item.seconds/top,item.seconds?.06:0)} * var(--plot))`;column.title=`${item.period.slice(5).replace("-","月")}日 · ${hm(item.seconds)}`;
+    column.append(bar,node("small","日一二三四五六"[new Date(`${item.period}T12:00:00+08:00`).getDay()]));week.append(column);
+  }
+  if(result?.avg){const line=node("b",undefined,"week-average");line.style.bottom=`calc(${result.avg/top} * var(--plot) + var(--pb) + 20px)`;line.title=`前 7 天平均 ${hm(result.avg)}`;week.append(line);}
 }
 function node(tag,text,cls){const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(cls)element.className=cls;return element;}
 async function request(url){const response=await fetch(url,{cache:"no-store"});if(!response.ok)throw new Error(response.status===404?"这条活动已重新合并，请刷新列表后再查看。":"读取失败，请检查 LeisureLog 是否正在运行。");return response.json();}

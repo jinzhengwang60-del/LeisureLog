@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 
 from leisurelog.analytics.highlights import group_of, highlights
-from leisurelog.analytics.query import BEIJING, day_sessions
+from leisurelog.analytics.query import BEIJING, clip_sessions, day_sessions
 
 LATE_START, LATE_END = time(0), time(5)
 
@@ -15,27 +15,28 @@ def week_of(day: date) -> tuple[date, date]:
     return monday, monday + timedelta(days=6)
 
 
-def _late_seconds(session, day: date) -> float:
-    """Leisure between midnight and 5 a.m., scaled by the share of the session that counted."""
+def _late_seconds(sessions, events, idle, day: date) -> float:
+    """Count exact evidence in [00:00, 05:00), including explicit AFK-retention choices."""
     start = datetime.combine(day, LATE_START, BEIJING)
     end = datetime.combine(day, LATE_END, BEIJING)
-    overlap = (min(session.end_time, end) - max(session.start_time, start)).total_seconds()
-    if overlap <= 0 or session.recorded_seconds <= 0:
-        return 0.0
-    return overlap * session.active_seconds / session.recorded_seconds
+    clipped, _, _ = clip_sessions(sessions, events, idle, start, end)
+    return sum(
+        s.active_seconds for s in clipped if group_of(s.classification.category) == "leisure"
+    )
 
 
 def _week(repo, monday: date, today: date) -> dict:
     days, activities = [], {}
     by_category = defaultdict(float)
-    longest, late = None, 0.0
+    continuous, late = {}, 0.0
     for offset in range(7):
         day = monday + timedelta(days=offset)
         if day > today:
             days.append({"day": day.isoformat(), "future": True, "groups": None,
                          "leisure_by_category": {}})
             continue
-        sessions, _, _ = day_sessions(repo, day)
+        sessions, events, idle = day_sessions(repo, day)
+        late += _late_seconds(sessions, events, idle, day)
         summary = highlights(sessions, top=0)
         days.append({"day": day.isoformat(), "future": False, "groups": summary["groups"],
                      "leisure_by_category": summary["leisure_by_category"]})
@@ -43,9 +44,19 @@ def _week(repo, monday: date, today: date) -> dict:
             by_category[category] += seconds
         for session in sessions:
             category = session.classification.category
-            if group_of(category) != "leisure" or session.active_seconds <= 0:
+            if group_of(category) != "leisure":
                 continue
-            late += _late_seconds(session, day)
+            # A continuous Session keeps its ID across calendar-day slices. Sum only
+            # the slices in this week; never pull in time outside the selected week.
+            candidate = continuous.setdefault(
+                session.id,
+                {"category": category, "content": session.classification.content,
+                 "app": session.app, "active_seconds": 0.0,
+                 "start_time": session.start_time.isoformat()},
+            )
+            candidate["active_seconds"] += session.active_seconds
+            if session.active_seconds <= 0:
+                continue
             name = session.classification.content or session.app
             entry = activities.setdefault(
                 (category, name),
@@ -54,10 +65,6 @@ def _week(repo, monday: date, today: date) -> dict:
             )
             entry["active_seconds"] += session.active_seconds
             entry["days"].add(day.isoformat())
-            if longest is None or session.active_seconds > longest["active_seconds"]:
-                longest = {"category": category, "content": session.classification.content,
-                           "app": session.app, "active_seconds": session.active_seconds,
-                           "start_time": session.start_time.isoformat()}
     totals = defaultdict(float)
     for entry in days:
         for group, seconds in (entry["groups"] or {}).items():
@@ -67,7 +74,10 @@ def _week(repo, monday: date, today: date) -> dict:
         "totals": dict(totals),
         "leisure_by_category": dict(by_category),
         "activities": activities,
-        "longest": longest,
+        "longest": max(
+            (item for item in continuous.values() if item["active_seconds"] > 0),
+            key=lambda item: item["active_seconds"], default=None,
+        ),
         "late_night_seconds": late,
         "days_with_records": sum(1 for d in days if d["groups"] and sum(d["groups"].values()) > 0),
     }

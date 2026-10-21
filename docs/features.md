@@ -12,7 +12,7 @@
 
 - “玩过看过”顶部会提示同一分类下名称相同的条目（忽略大小写、全半角、空格和 `·` `-` `_` `:` 等分隔符，例如“棕色尘埃 2”与“棕色尘埃2”）。同一个游戏来自启动器、本体、辅助工具等不同程序时就会出现这种情况。“全部合并”在一个事务内完成，每组保留时长最多的名称，任一组不符合合并条件（如分类不同）时全部不改动；合并后仍可在详情中拆分名称。接口：`GET /api/library/duplicates`，`POST /api/library/duplicates/merge`（`groups: [{target_id, source_ids}]`）。
 - 自动备份：每轮自动同步后最多每小时检查一次，最新的备份（手动或自动）超过 `LEISURELOG_AUTO_BACKUP_DAYS` 天（默认 7，设为 0 关闭）就创建一份自动备份，使用与手动备份相同的复制与恢复核对流程。自动备份只保留最近 `LEISURELOG_AUTO_BACKUP_KEEP` 份（默认 4），手动备份不会被自动删除。备份失败只记日志，不影响同步。“存储与备份”中会标明每份是自动还是手动。
-- “存储与备份”概况中“可清理的旧快照”查询改为一次性建立临时索引的写法，结果不变；原写法在原始快照约 5 万条时需要数分钟，现在约 0.1 秒。
+- “存储与备份”概况中的“可清理的旧快照”查询使用一次性临时索引，减少重复扫描；查询结果和整理边界保持一致。实际耗时取决于数据规模和运行环境。
 
 ## 每周回顾与玩过看过的封面墙（2026-10-10）
 
@@ -93,11 +93,11 @@
 
 无记录日期与有记录但扣除后为零的日期分别显示。实际有记录日期范围和天数明确展示，不将数据开始之前的日期当作零使用。月汇总仅包含所选起止范围内的日期，当前月可能尚未结束，不能把已有一天的记录当作完整年度行为。
 
-每日数据由纯 domain 的 daily_activity 从每个 Session 所关联的实际事件区间并集生成，跨午夜按北京时间切分；分别与 AFK/已知状态区间相交，合并间隙不计入，冲突 AFK 优先，未知设备不匹配。Migration 0005 新增派生 daily_activity 表及日期索引；升级已有数据库后执行 `POST /api/reprocess` 回填每日统计（无需 ActivityWatch 在线）；增量同步仅更新受影响范围，不能代替旧版本全历史回填。本机已回填。它不替代原始数据，可随算法变化重建。
+每日数据由纯 domain 的 daily_activity 从每个 Session 所关联的实际事件区间并集生成，跨午夜按北京时间切分；分别与 AFK/已知状态区间相交，合并间隙不计入，冲突 AFK 优先，未知设备不匹配。Migration 0005 新增派生 daily_activity 表及日期索引；从缺少每日统计的旧版升级后，应执行 `POST /api/reprocess` 回填（无需 ActivityWatch 在线）；增量同步仅更新受影响范围，不能代替旧版本全历史回填。它不替代原始数据，可随算法变化重建。
 
 ProcessingService 在同一事务内重建 Session 和每日数据。SQLiteRepository 执行日期范围 WHERE / GROUP BY / SUM；analytics 负责分类口径和补齐时间轴，API 校验参数。年度查询不调用全量 events()/sessions()，不在网页加载全部历史明细。普通同步与本次记录纠错已采用增量处理；全局规则/游戏目录变更仍完整重建。
 
-新增 `GET /api/statistics?start=2026-01-01&end=2026-12-31&granularity=auto`，返回 totals、coverage、categories、apps、contents、trend 和统计口径。此次备份和恢复验证自动包括 daily_activity，升级前完整备份已保存。
+`GET /api/statistics?start=2026-01-01&end=2026-12-31&granularity=auto` 返回 totals、coverage、categories、apps、contents、trend 和统计口径。完整数据库备份与恢复核对包含 daily_activity；升级前应自行创建并验证完整备份。
 
 ## Edge / Chrome 网页接入（迁移 0006）
 
@@ -183,11 +183,11 @@ Migration 0007 新增 timing_overrides 和派生计时依据列；升级 backfil
 
 ## Playnite 本地游戏资料接入（2026-10-02）
 
-此功能由迁移 **0009** 引入，当前数据库版本为 **0012**；升级时停止旧服务并执行 `alembic upgrade head` 后运行新版。游戏目录与源快照独立存储，分类优先级为人工覆盖 > 用户记住的规则 > YAML 分类规则 > Playnite 游戏分类器 > unknown。游戏资料不产生时间记录，时长仍来自 ActivityWatch；不叠加 Playnite 或 Steam 的历史累计时间。未安装条目仅用于查看，进程匹配冲突时保持未识别。
+此功能由迁移 **0009** 引入，当前数据库版本为 **0013**；升级时停止旧服务并执行 `alembic upgrade head` 后运行新版。游戏目录与源快照独立存储，分类优先级为人工覆盖 > 用户记住的规则 > YAML 分类规则 > Playnite 游戏分类器 > unknown。游戏资料不产生时间记录，时长仍来自 ActivityWatch；不叠加 Playnite 或 Steam 的历史累计时间。未安装条目仅用于查看，进程匹配冲突时保持未识别。
 
-Playnite 运行时锁定其 LiteDB 库，采用官方 SDK 连接扩展导出本地 JSON；应用不直接读取或修改该库。2026-10-02 已获用户授权并完成安装、真实导出、网页导入以及后台自动导入验证。源码、安装包生成方法及限制见 [连接说明](../integrations/playnite/README.md)。已有资料导出后，每分钟自动同步会读取最新完整文件；也可在首页“Playnite 游戏库”点击“读取最新游戏资料”。读取失败保持最后成功目录，并继续 ActivityWatch 同步。安装包通过 `integrations/playnite/build_package.py` 按需生成到 `dist/LeisureLog-Playnite.pext`；旧安装包不作为运行依赖保留。
+Playnite 运行时锁定其 LiteDB 库，连接扩展通过官方 SDK 导出本地 JSON，LeisureLog 不直接读取或修改该库。使用者需要自行安装扩展并确认导出与导入路径一致；源码、安装包生成方法及限制见 [连接说明](../integrations/playnite/README.md)。已有资料导出后，自动同步会读取最新完整文件；也可在首页“Playnite 游戏库”点击“读取最新游戏资料”。读取失败保持最后成功目录，并继续 ActivityWatch 同步。安装包通过 `integrations/playnite/build_package.py` 按需生成到 `dist/LeisureLog-Playnite.pext`，不作为源码运行的必需文件。
 
-通过启动器启动的游戏，在 `config/playnite-processes.yaml` 配置实际游戏进程；共享进程必须附加标题条件。当前为绝区零、英雄联盟和 Minecraft 提供配置。仅配置了进程并不代表已经验证真实游玩；需要在真实资料导入后检查识别依据和实际活动。没有明确进程的游戏在列表显示“待补充游戏进程”。
+通过启动器启动的游戏，在 `config/playnite-processes.yaml` 配置实际游戏进程；共享进程必须附加标题条件。公开源码保留空绑定模板，由用户按自己的实际程序填写。仅配置了进程并不代表已经验证真实游玩；需要在资料导入后检查识别依据和实际活动。没有明确进程的游戏在列表显示“待补充游戏进程”。
 
 ## 游戏统计
 
@@ -199,7 +199,7 @@ Playnite 运行时锁定其 LiteDB 库，采用官方 SDK 连接扩展导出本�
 
 游戏库分类器的活动以 `playnite:<game-id>` 汇集，目录改名/暂时移除后仍可追溯已识别历史。配置或人工命名的游戏，仅在名称与当前目录精确且唯一匹配时关联；有歧义或无匹配时按应用与名称独立统计，避免同名不同游戏自动混合。修改名称前形成且没有游戏 ID 的活动不会自动推断成改名后的游戏。此处使用识别名称与游戏 ID，不使用玩过看过的展示名称和人工合并关系。
 
-开发分支的模块边界已在插件批次 05 调整：`repositories/game_statistics.py` 提取每日事实，`repositories/game_views.py` 生成有界的只读投影，`leisurelog_plugins/game_analysis` 计算列表与偏好并拥有页面资源；通用 `api/plugin_features.py` 提供宿主已登记的端点，`analysis_integration.py` 负责一致读与人工类型事务。不会读取全部原始活动对象；详情日期和最近片段仍在 SQL 中分页。复用已有覆盖表与 0013 结构；稳定 main 的旧实现没有被替换。完整边界见 [分析与页面迁移](game-analysis-plugin.md)。
+游戏分析的模块边界为：`repositories/game_statistics.py` 提取每日事实，`repositories/game_views.py` 生成有界的只读投影，`leisurelog_plugins/game_analysis` 计算列表与偏好并拥有页面资源；通用 `api/plugin_features.py` 提供宿主已登记的端点，`analysis_integration.py` 负责一致读与人工类型事务。不会读取全部原始活动对象；详情日期和最近片段仍在 SQL 中分页。复用已有覆盖表与 0013 结构。完整边界见 [分析与页面迁移](game-analysis-plugin.md)。
 
 接口：`GET /api/game-statistics`（query、scope=tracked/recorded/all、sort=time/recent、limit、offset）；`GET /api/game-statistics/{key}`（日期 limit、offset）。每页最多 100 项，未知游戏键返回 404；详情返回 item、days、months、recent_sessions 与 day_total。键必须 URL 编码，避免名称中的空格、斜杠或中文改变请求路径。
 
@@ -217,4 +217,4 @@ Playnite 运行时锁定其 LiteDB 库，采用官方 SDK 连接扩展导出本�
 
 接口：`GET /api/game-types` 返回主类型选项；`PUT /api/game-types/{key}` 保存 `{primary, tags}`，标签最多 50 项，每项 1–80 字符；`DELETE /api/game-types/{key}` 恢复自动。游戏键必须 URL 编码。`GET /api/game-preferences?start=2026-01-01&end=2026-12-31` 返回 totals、coverage、types、games、trend、未命名/未知类型时长及口径说明；未知游戏返回 404，无效类型/日期/标签返回 422。游戏统计返回的 game_type 明确区分 source=manual/automatic，并保留原来源标签及自动建议。
 
-升级前创建并验证完整备份，停止旧服务，执行 `alembic upgrade head` 后启动新版。Migration 0010 只新增独立类型覆盖表，不改动已有资料。完整数据库备份自动包含该表，并验证独立恢复后的所有表内容；存储概览增加覆盖条目数。降级 0009 会移除人工主类型与标签选择，原始活动和游戏库资料保留，降级前须备份。当前服务使用 0012，不在启动时自动迁移。
+升级前创建并验证完整备份，停止旧服务，执行 `alembic upgrade head` 后启动新版。Migration 0010 只新增独立类型覆盖表，不改动已有资料。完整数据库备份包含该表，并核对独立恢复后的表内容；存储概览显示覆盖条目数。降级 0009 会移除人工主类型与标签选择，原始活动和游戏库资料保留，降级前须备份。当前源码要求结构 0013，不在启动时自动迁移。

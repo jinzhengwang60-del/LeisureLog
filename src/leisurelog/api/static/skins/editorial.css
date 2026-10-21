@@ -1,6 +1,6 @@
 /* 周刊: a printed weekly. Georgia carries Latin text and old-style figures, Song carries Chinese;
    ink rules, a masthead, drop caps and a left column of figures on the activity page. */
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 :root[data-style=editorial]{
  --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;
  --display:Georgia,"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",serif;--num:Georgia,"Times New Roman",serif;--radius:0px;
@@ -27,7 +27,8 @@
 :root[data-style=editorial] .logo{display:none}
 :root[data-style=editorial] .site-nav{gap:0;padding:0}
 :root[data-style=editorial] .site-nav a{padding:6px 16px;border-right:1px solid var(--rule);color:var(--ink-2);font-size:13px;border-radius:0}
-:root[data-style=editorial] .site-nav a:first-child{padding-left:0}:root[data-style=editorial] .site-nav a:last-child{border-right:0}
+/* Plugin links sit inside a display:contents slot, so only the outer links end the row. */
+:root[data-style=editorial] .site-nav>a:first-child{padding-left:0}:root[data-style=editorial] .site-nav>a:last-child{border-right:0}
 :root[data-style=editorial] .site-nav a:hover{background:transparent;color:var(--accent)}
 :root[data-style=editorial] .site-nav a[aria-current=page]{background:transparent;color:var(--accent);font-weight:600}
 :root[data-style=editorial] .theme-toggle,:root[data-style=editorial] .tools summary{font-size:12px;background:transparent;border:0;border-radius:0;padding:6px 2px;min-height:0;color:var(--ink-2)}
@@ -143,3 +144,16 @@
 :root[data-style=editorial] .cover-name{font-family:var(--display);font-weight:normal;font-size:14px}
 :root[data-style=editorial] .cover-tag{border-radius:0;background:var(--paper);color:var(--accent);font-family:var(--display);backdrop-filter:none}
 :root[data-style=editorial] .cover-glyph{font-weight:normal}
+:root[data-style=editorial] .today-week{gap:4px;border-bottom:1px solid var(--ink);padding-bottom:0}
+:root[data-style=editorial] .week-day i{border-radius:0;max-width:14px;background:color-mix(in srgb,var(--ink) 22%,transparent)}
+:root[data-style=editorial] .week-day.current i{background:var(--accent)}
+:root[data-style=editorial] .week-day small{font-family:var(--display);font-style:italic}
+:root[data-style=editorial] .week-average{border-top:1px dotted var(--ink)}
+/* Cards read as article columns: no box, a heavy rule on top, serif figures. */
+:root[data-style=editorial] :is(.project-card,.plugin-card){border:0;border-top:3px solid var(--ink);border-radius:0;background:transparent;padding:18px 4px 8px;box-shadow:none}
+:root[data-style=editorial] .project-card{border-top-color:var(--project-color,var(--ink))}
+:root[data-style=editorial] .project-card .project-time{font-family:var(--display);font-weight:normal;font-size:34px}
+:root[data-style=editorial] .project-card:hover h2{color:var(--accent)}
+/* The group break is a heavier double rule in place of the usual hairline. */
+:root[data-style=editorial] .site-nav>a[href="/projects"]{margin-right:0;border-right:3px double var(--ink)}
+:root[data-style=editorial] .site-nav>a[href="/projects"]::after{display:none}

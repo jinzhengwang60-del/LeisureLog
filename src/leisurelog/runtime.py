@@ -52,13 +52,12 @@ class AutomaticSync:
             with self.sessions() as db:
                 db.execute(text("BEGIN IMMEDIATE"))
                 repo = SQLiteRepository(db)
-                changed = sum(repo.ingest(record) for record in records)
                 svc = ProcessingService(
                     repo,
                     self.pipeline,
                     self.settings.session_gap_seconds,
                 )
-                result = svc.rebuild_changed()
+                result = svc.ingest(records)
                 cursor = db.get(SyncCheckpointRow, "activitywatch")
                 if cursor is None:
                     db.add(SyncCheckpointRow(source="activitywatch", last_success_end=window_end))
@@ -68,7 +67,7 @@ class AutomaticSync:
                 track(svc)
             totals.update(events=result["events"], sessions=result["sessions"])
             totals["fetched"] += len(records)
-            totals["changed"] += changed
+            totals["changed"] += result["changed"]
             totals["windows"] += 1
             start = window_end
         return {

@@ -14,7 +14,7 @@
 .split-bar>[class*="purpose-"]{background:var(--purpose-color)}
 .split-legend [class*="purpose-"] i,.trend-segment[class*="purpose-"],.rank-fill[class*="purpose-"]{background:var(--purpose-color)}
 .rank-dot[class*="purpose-"]{background:var(--purpose-color)}
-.context-editor{margin:22px 0;padding:20px;border:1px solid var(--line,#d6d3d1);border-radius:var(--radius,10px)}
+.context-editor{--ce-pad:20px;margin:22px 0;padding:var(--ce-pad);border:1px solid var(--line,#d6d3d1);border-radius:var(--radius,10px)}
 .context-editor h3{margin-top:0}.context-help,.context-message{font-size:13px;color:var(--muted,#64748b)}
 .context-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
 .context-field{display:grid;gap:7px;font-size:13px}.context-fields select{min-width:0;width:100%}
@@ -36,9 +36,14 @@
 .project-card h2{font-size:20px;margin:0 0 10px;overflow-wrap:anywhere}.project-card .project-time{display:block;font-size:28px;font-weight:700;margin:16px 0 8px}
 .project-card p{color:var(--muted,#64748b);font-size:13px;overflow-wrap:anywhere}.project-card.archived{opacity:.75}
 .project-empty{padding:32px;border:1px dashed var(--line,#d6d3d1);border-radius:10px;text-align:center}
-.project-form{display:grid;gap:15px}.project-form label{display:grid;gap:7px}.project-form input,.project-form textarea{width:100%;box-sizing:border-box}.project-form input[type=color]{width:80px;min-height:40px}
+.project-form{display:grid;gap:15px}.project-form label:not(.switch){display:grid;gap:7px}.project-form input:not([type=checkbox]):not([type=radio]),.project-form textarea{width:100%;box-sizing:border-box}.project-form input[type=color]{width:80px;min-height:40px}
 .project-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.project-controls input{min-width:0}
 .project-history{display:flex;flex-wrap:wrap;gap:8px}.project-history a{padding:8px 12px;border:1px solid var(--line,#d6d3d1);border-radius:6px}
 .site-nav{flex-wrap:wrap}.top .site-nav{min-width:0}.top{flex-wrap:wrap}
 @media(max-width:1000px){.project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:650px){.context-fields,.project-grid{grid-template-columns:1fr}.context-editor{padding:14px}.filter-controls select{max-width:none}.project-controls{align-items:stretch}}
+@media(max-width:650px){.context-fields,.project-grid{grid-template-columns:1fr}.context-editor{--ce-pad:14px}.filter-controls select{max-width:none}.project-controls{align-items:stretch}}
+/* Long dialogs keep their save row in reach. The row spans the editor's padding and the
+   dialog drops its bottom padding so nothing scrolls visibly beneath it. */
+dialog:has(.context-actions .primary){padding-bottom:0}
+dialog .context-editor:has(.context-actions .primary){margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0}
+dialog .context-actions:has(.primary){position:sticky;bottom:0;z-index:2;margin:16px calc(-1 * var(--ce-pad,0px)) 0;padding:12px var(--ce-pad,0px) 16px;background:linear-gradient(var(--sheet),var(--sheet)),var(--paper);border-top:1px solid var(--rule-soft,var(--rule))}

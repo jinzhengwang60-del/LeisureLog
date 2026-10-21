@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "standard": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}
+  },
+  "handlers": {
+    "service": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "formatter": "standard",
+      "filename": "data/logs/server.log",
+      "maxBytes": 2000000,
+      "backupCount": 3,
+      "encoding": "utf-8",
+      "delay": true
+    }
+  },
+  "root": {"level": "INFO", "handlers": ["service"]},
+  "loggers": {
+    "uvicorn": {"level": "INFO", "handlers": ["service"], "propagate": false},
+    "uvicorn.error": {"level": "INFO", "handlers": [], "propagate": true},
+    "uvicorn.access": {"level": "INFO", "handlers": [], "propagate": true}
+  }
+}

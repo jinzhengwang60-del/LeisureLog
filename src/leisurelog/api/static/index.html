@@ -2,19 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="/static/appearance-init.js?v=redesign1"></script>
+  <script src="/static/appearance-init.js?v=art2"></script>
   <script src="/static/sky-clock.js?v=1"></script>
   <script src="/static/motion.js?v=2" type="module"></script>
   <script src="/static/theme.js?v=motion2" type="module"></script>
   <title>LeisureLog · 活动记录</title>
-  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=redesign1">
+  <link id="skin-stylesheet" rel="stylesheet" href="/static/style.css?v=art2">
   <script>LeisureAppearance.initializeSkin(document.getElementById("skin-stylesheet"));</script>
   <link rel="stylesheet" href="/static/appearance.css?v=motion1">
   <link rel="stylesheet" href="/static/correction.css?v=sticker1">
-  <script src="/static/app.js?v=motion1" type="module"></script>
-  <link rel="stylesheet" href="/static/activity-context.css?v=activity3">
+  <script src="/static/app.js?v=art2" type="module"></script>
+  <link rel="stylesheet" href="/static/activity-context.css?v=art2">
   <link id="motion-stylesheet" rel="stylesheet" href="/static/motion.css?v=1">
-<script type="module" src="/static/plugin-navigation.js?v=1"></script>
+<script type="module" src="/static/plugin-navigation.js?v=art2"></script>
 </head>
 <body data-page="activity">
   <header class="top">
@@ -33,7 +33,7 @@
     <p id="error" class="error" role="alert" hidden></p>
     <p id="notice" class="notice" role="status" hidden></p>
     <section class="today" aria-label="这一天的电脑活动">
-      <article class="today-main"><span class="today-label" id="leisure-label">今天的电脑活动</span><strong id="leisure">—</strong><small id="leisure-compare">正在和近 7 天比较…</small></article>
+      <article class="today-main"><span class="today-label" id="leisure-label">今天的电脑活动</span><strong id="leisure">—</strong><small id="leisure-compare">正在和近 7 天比较…</small><div class="today-week" id="today-week" role="img" aria-label="前 7 天与这一天的电脑活动时长" hidden></div></article>
       <article class="today-top"><span class="today-label">主要活动</span><ol class="top-list" id="top-list"></ol></article>
       <article class="today-split"><span class="today-label">活动用途</span><div class="split-bar" id="split-bar" role="img" aria-label="各用途的活动时间比例"></div><ul class="split-legend" id="split-legend"></ul></article>
     </section>

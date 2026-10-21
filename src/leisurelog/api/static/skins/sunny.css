@@ -1,6 +1,6 @@
 /* 窗边: the window-side illustration spans the page head and follows the real day (sky-clock.js);
    the rest of the page is frosted glass over a soft sky. */
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 :root[data-style=sunny]{
  --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;--display:var(--text);--num:"Segoe UI Variable Display","Segoe UI",var(--text);--radius:14px;
  --ink:#203752;--ink-2:#36516f;--muted:#5a7290;--faint:#7890a8;--paper:#eaf2fa;--sheet:#ffffffc7;--wash:#f1f6fc;
@@ -125,3 +125,14 @@
 :root[data-style=sunny] .top-list i,:root[data-style=sunny] .split-legend i{border-radius:50%}
 :root[data-style=sunny] .cover-art{border-radius:18px}
 :root[data-style=sunny] .view-switch{border-radius:999px}
+:root[data-style=sunny] .week-day i{border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,color-mix(in srgb,#3d7cc9 30%,transparent),color-mix(in srgb,#3d7cc9 12%,transparent))}
+:root[data-style=sunny] .week-day.current i{background:linear-gradient(180deg,#f08a5d,#3d7cc9);box-shadow:0 4px 12px -4px #3d7cc980}
+:root[data-style=sunny][data-theme=dark] .week-day.current i{background:linear-gradient(180deg,#ffb38a,#8ec0ff)}
+:root[data-style=sunny] .today>article{backdrop-filter:blur(14px) saturate(1.2)}
+:root[data-style=sunny] .today>article:hover{transform:translateY(-2px);box-shadow:0 18px 40px -22px #3d7cc980}
+/* Management pages: a shorter window view keeps the scene without pushing data down. */
+:root[data-style=sunny] body:is([data-page=projects],[data-page=plugins],[data-page=unclassified]) .heading{min-height:150px;padding:28px 40px}
+:root[data-style=sunny] :is(.project-card,.plugin-card){border:1px solid var(--glass-edge);border-radius:22px;background:var(--glass);backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 14px 34px -24px var(--shadow)}
+:root[data-style=sunny] .project-card{border-top:4px solid var(--project-color,var(--accent))}
+:root[data-style=sunny] .project-card:hover{transform:translateY(-3px);box-shadow:0 22px 44px -24px var(--shadow)}
+@media(max-width:760px){:root[data-style=sunny] body:is([data-page=projects],[data-page=plugins],[data-page=unclassified]) .heading{min-height:170px;padding:22px 20px}}

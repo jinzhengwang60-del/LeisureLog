@@ -3,12 +3,12 @@
   const KEY = "leisurelog:appearance";
   const MODES = ["system", "light", "dark"];
   const SKINS = {
-    sticker: {name: "手帐", href: "/static/style.css?v=redesign1"},
-    minimal: {name: "素白", href: "/static/skins/minimal.css?v=redesign1"},
-    terminal: {name: "旧电脑", href: "/static/skins/terminal.css?v=redesign1"},
-    sunny: {name: "窗边", href: "/static/skins/sunny.css?v=redesign1"},
-    editorial: {name: "周刊", href: "/static/skins/editorial.css?v=redesign1"},
-    arcade: {name: "掌机", href: "/static/skins/arcade.css?v=redesign1"},
+    sticker: {name: "手帐", href: "/static/style.css?v=art2"},
+    minimal: {name: "素白", href: "/static/skins/minimal.css?v=art2"},
+    terminal: {name: "旧电脑", href: "/static/skins/terminal.css?v=art2"},
+    sunny: {name: "窗边", href: "/static/skins/sunny.css?v=art2"},
+    editorial: {name: "周刊", href: "/static/skins/editorial.css?v=art2"},
+    arcade: {name: "掌机", href: "/static/skins/arcade.css?v=art2"},
   };
   const system = window.matchMedia("(prefers-color-scheme: dark)");
   function normalize(value, fallbackMode = "system") {

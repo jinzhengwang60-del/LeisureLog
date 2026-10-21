@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from dataclasses import asdict
 from typing import Annotated
 
@@ -76,11 +77,14 @@ def sync_status(request: Request):
 
 
 @router.post("/api/sync/activitywatch")
-def sync(body: SyncRequest, request: Request, svc: Service):
+def sync(body: SyncRequest, request: Request):
     try:
-        return svc.sync(request.app.state.source, body.start, body.end, body.buckets)
+        # Network requests must finish before acquiring the SQLite writer lock.
+        records = request.app.state.source.fetch(body.start, body.end, body.buckets)
     except SourceUnavailable as exc:
         raise HTTPException(502, str(exc)) from exc
+    with contextmanager(processing_service)(request, True) as svc:
+        return svc.ingest(records)
 
 
 @router.get("/api/events")

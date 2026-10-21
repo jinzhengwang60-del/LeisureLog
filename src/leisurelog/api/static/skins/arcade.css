@@ -1,6 +1,6 @@
 /* 掌机: a PICO-8 style fantasy console. Its 16-colour palette, hard 2px outlines with offset shadows,
    pressable keys, a scanlined screen for the page head and timeline, and a high-score rail. */
-@import url("/static/skin-base.css?v=dups1");
+@import url("/static/skin-base.css?v=art2");
 :root[data-style=arcade]{
  --text:"Microsoft YaHei UI","Microsoft YaHei",sans-serif;--display:Consolas,"Lucida Console","Microsoft YaHei UI",monospace;--num:Consolas,"Lucida Console",monospace;--radius:0px;
  --ink:#1d2b53;--ink-2:#34406a;--muted:#5f574f;--faint:#776e65;--paper:#fff1e8;--sheet:#fffaf5;--wash:#ffe6d6;
@@ -139,3 +139,19 @@
 :root[data-style=arcade] .cover-card:hover .cover-art{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--key-shadow)}
 :root[data-style=arcade] .cover-tag{border-radius:0;background:var(--screen);font-family:var(--num)}
 :root[data-style=arcade] .view-switch{border:2px solid var(--edge);box-shadow:3px 3px 0 var(--key-shadow)}
+/* Pixel columns: hard edges, stepped heights and a scoreboard highlight. */
+:root[data-style=arcade] .week-day i{border-radius:0;max-width:none;background:repeating-linear-gradient(0deg,var(--hi-2) 0 4px,color-mix(in srgb,var(--hi-2) 70%,#000) 4px 6px);opacity:.45;image-rendering:pixelated}
+:root[data-style=arcade] .week-day.current i{background:repeating-linear-gradient(0deg,var(--hi-1) 0 4px,color-mix(in srgb,var(--hi-1) 70%,#000) 4px 6px);opacity:1;box-shadow:3px 3px 0 color-mix(in srgb,var(--ink) 80%,transparent)}
+:root[data-style=arcade] .week-day small{font-family:var(--num)}
+:root[data-style=arcade] .week-average{border-top:2px dashed var(--hi-4,var(--ink))}
+/* Management pages keep the night scene as a slim banner so the controls stay above the fold. */
+:root[data-style=arcade] body:is([data-page=projects],[data-page=plugins],[data-page=unclassified]) .heading{min-height:132px;padding:22px 32px}
+:root[data-style=arcade] body:is([data-page=projects],[data-page=plugins],[data-page=unclassified]) .heading::before{width:44%;background-size:auto 150%;background-position:right 72%}
+/* Cards share the cartridge treatment used by panels: thick edge, offset shadow, press on hover. */
+:root[data-style=arcade] :is(.project-card,.plugin-card){border:2px solid var(--edge);border-top:8px solid var(--project-color,var(--edge));border-radius:0;box-shadow:5px 5px 0 var(--key-shadow);background:var(--sheet)}
+:root[data-style=arcade] .project-card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--key-shadow)}
+:root[data-style=arcade] .plugin-card{border-top-width:2px}
+:root[data-style=arcade] .plugin-card .badge,:root[data-style=arcade] .plugin-card [class*=state]{border-radius:0}
+@media(max-width:760px){:root[data-style=arcade] body:is([data-page=projects],[data-page=plugins],[data-page=unclassified]) .heading{min-height:150px;padding:20px 16px}}
+:root[data-style=arcade] .site-nav>a[href="/projects"]{--nav-group-gap:22px}
+:root[data-style=arcade] .site-nav>a[href="/projects"]::after{width:4px;top:30%;bottom:30%;background:repeating-linear-gradient(180deg,var(--edge) 0 4px,transparent 4px 8px)}

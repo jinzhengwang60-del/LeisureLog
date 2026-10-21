@@ -80,6 +80,14 @@ dialog::backdrop{background:var(--backdrop)}.dialog-head{display:flex;align-item
 .today-label{display:block;font-size:12px;color:var(--muted)}
 .today-main strong{display:block;font-family:var(--num);font-size:46px;line-height:1.1;font-weight:650;letter-spacing:-1.5px;margin:12px 0 8px;color:var(--ink)}
 .today-main small{display:block;font-size:12px;color:var(--muted)}.today-main small.more{color:var(--link)}.today-main small.less{color:var(--ink-2)}
+/* Seven earlier days and the chosen day; the dashed line is the earlier average. */
+.today-main{display:flex;flex-direction:column}
+.today-week{--plot:52px;--pb:0px;position:relative;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));align-items:end;gap:6px;margin-top:auto;padding:18px 0 var(--pb)}
+.week-day{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:calc(var(--plot) + 20px);min-width:0}
+.week-day i{display:block;width:100%;max-width:26px;min-height:2px;border-radius:calc(var(--radius) * .6) calc(var(--radius) * .6) 2px 2px;background:color-mix(in srgb,var(--ink) 16%,transparent);transition:height .4s cubic-bezier(.2,.8,.2,1)}
+.week-day small{font-size:10px!important;line-height:16px;color:var(--faint,var(--muted))!important}
+.week-day.current i{background:var(--accent)}.week-day.current small{color:var(--ink)!important;font-weight:650}
+.week-average{position:absolute;left:0;right:0;height:0;border-top:1px dashed color-mix(in srgb,var(--ink) 35%,transparent);pointer-events:none}
 .top-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
 .top-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}
 .top-list i{width:9px;height:9px;border-radius:2px;background:var(--cat,var(--c-unknown))}
@@ -88,8 +96,9 @@ dialog::backdrop{background:var(--backdrop)}.dialog-head{display:flex;align-item
 .split-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--rule-soft);margin:16px 0 14px}.split-bar span{height:100%;min-width:0}
 .split-leisure{--cat:var(--accent)}.split-work{--cat:var(--c-work)}.split-other{--cat:var(--c-other)}.split-unknown{--cat:var(--unknown-fill)}
 .split-bar span{background:var(--cat)}
-.split-legend{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12px}
-.split-legend li{display:flex;align-items:center;gap:7px;min-width:0}.split-legend i{width:8px;height:8px;border-radius:2px;background:var(--cat);flex-shrink:0}.split-legend span{color:var(--muted)}.split-legend b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Fit the card's available width, including narrow desktop sidebars. */
+.split-legend{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:6px 14px;font-size:12px}
+.split-legend li{display:flex;align-items:center;gap:7px;min-width:0}.split-legend i{width:8px;height:8px;border-radius:2px;background:var(--cat);flex-shrink:0}.split-legend span{color:var(--muted);white-space:nowrap;flex-shrink:0}.split-legend b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
 .data-details{margin:0 0 20px}
 .data-details>summary{display:inline-flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-size:12px;color:var(--muted);padding:4px 0}
 .data-details>summary::-webkit-details-marker{display:none}
@@ -120,7 +129,7 @@ dialog::backdrop{background:var(--backdrop)}.dialog-head{display:flex;align-item
 .dup-panel details{margin-top:6px;font-size:12px}.dup-panel summary{color:var(--link);cursor:pointer}
 .dup-panel ul{margin:8px 0 0;padding-left:18px;color:var(--ink-2);line-height:1.8}
 .dup-panel .primary{flex-shrink:0}
-.list-switches{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.switch{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}.switch input{min-height:0;width:15px;height:15px;margin:0;accent-color:var(--accent)}
+.list-switches{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.switch{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}.switch input{min-height:0;width:15px;height:15px;margin:0;padding:0;flex-shrink:0;accent-color:var(--accent)}
 .group-count{display:block;font-size:11px;color:var(--link);margin-top:3px}.group-row[data-open="1"] td,.child-row td{background:var(--wash)}.child-row td{font-size:12px;padding-block:8px}.child-row td.time{padding-left:30px;color:var(--muted)}
 @media(max-width:1100px){.today{grid-template-columns:1fr 1fr}.today-main{grid-column:1/-1}.top{gap:10px;padding-inline:20px}.site-nav a{padding-inline:8px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.scope{display:none}}
 @media(max-width:760px){
@@ -131,6 +140,20 @@ dialog::backdrop{background:var(--backdrop)}.dialog-head{display:flex;align-item
  .today{grid-template-columns:1fr}.today>article{padding:18px}.today-main strong{font-size:38px}
  .metrics{gap:10px}.metrics article{padding:16px}.metrics strong{font-size:23px}.ribbon{padding:18px 12px}.ribbon-hours span:nth-child(even){display:none}
  body[data-page=activity] .records :is(th,td):is(:nth-child(4),:nth-child(6)){display:none}td.content{min-width:0}.title{max-width:52vw}
- .filter-controls{width:100%}.filter-controls select{flex:1}input[type=search]{width:100%}.list-switches{width:100%;justify-content:space-between}.section-head{padding:16px;flex-wrap:wrap}.pagination{padding:12px 16px}dialog{padding:22px 18px}.detail-summary{grid-template-columns:1fr}
+ .filter-controls{width:100%}.filter-controls select{flex:1 1 140px;min-width:0}input[type=search]{width:100%}.list-switches{width:100%;justify-content:space-between}.section-head{padding:16px;flex-wrap:wrap}.pagination{padding:12px 16px}dialog{padding:22px 18px}.detail-summary{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Shared finish: calmer motion on interactive rows and cards, consistent numerals. */
+tbody tr td{transition:background-color .15s ease}
+.today>article,.project-card,.records,.ribbon{transition:box-shadow .2s ease,transform .2s ease}
+.top-list em,.split-legend b,.ribbon-legend b,.today-main strong{font-variant-numeric:tabular-nums}
+.split-legend li{cursor:pointer;border-radius:var(--radius);padding:1px 4px;margin:0 -4px}.split-legend li:hover{background:var(--wash)}
+@media(prefers-reduced-motion:reduce){.week-day i,tbody tr td,.today>article,.project-card{transition:none}}
+/* Navigation groups: everyday pages first, a quiet divider, then library, optional features and plugin management. */
+.site-nav>a[href="/projects"]{position:relative;margin-right:var(--nav-group-gap,14px)}
+.site-nav>a[href="/projects"]::after{content:"";position:absolute;top:22%;bottom:22%;right:calc(var(--nav-group-gap,14px) / -2 - 1px);width:1px;background:var(--rule-strong);pointer-events:none}
+@media(max-width:760px){
+ /* One swipeable row instead of three wrapped rows; the fade hints at more links. */
+ .site-nav{flex-wrap:nowrap!important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);padding-right:28px}
+ .site-nav::-webkit-scrollbar{display:none}.site-nav a{flex-shrink:0}
+}

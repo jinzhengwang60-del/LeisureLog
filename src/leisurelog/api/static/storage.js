@@ -69,6 +69,7 @@ export async function openStorage() {
         : "自动备份已关闭，仍然可以手动创建完整备份。"));
     if (automatic.enabled) history.append(node("p", `最近检查：${time(automatic.last_attempt_at)} · ${automatic.running ? "正在检查" : automatic.last_error ? "检查失败，将在下次重试" : "等待下一次检查"}`));
     if (automatic.last_error) history.append(node("p", "自动备份检查失败。请检查磁盘空间及目录权限；也可以尝试手动备份。", "error"));
+    if (data.invalid_backups?.length) history.append(node("p", `发现 ${data.invalid_backups.length} 份备份的说明文件缺失或异常，已保留原文件并跳过自动轮换。请先创建新的完整备份，再按维护说明检查异常文件。`, "error"));
     if (!data.backups.length) history.append(node("p", "还没有备份，点击上方按钮创建第一份。"));
     for (const item of data.backups) {
       const row = node("article", undefined, "correction");
