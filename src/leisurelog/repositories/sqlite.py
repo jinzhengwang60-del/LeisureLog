@@ -19,6 +19,7 @@ from leisurelog.domain.models import (
 )
 from leisurelog.domain.processing import ProcessingRange
 from leisurelog.repositories.activity_context import SQLiteContext
+from leisurelog.repositories.context_processing import SQLiteContextProcessing
 from leisurelog.repositories.library import SQLiteLibrary
 from leisurelog.repositories.models import (
     ActivityEventRow,
@@ -73,9 +74,13 @@ class SQLiteRepository:
     def processing_scope(self, gap_seconds):
         return plan(self.db, self._changes, gap_seconds)
 
-    def context_overrides(self, scope=None):
+    def context_overrides(self, scope=None, *, window_ids=None):
         return SQLiteContext(self.db).context_overrides(
-            self.window_ids(scope) if scope is not None else None
+            window_ids
+            if window_ids is not None
+            else self.window_ids(scope)
+            if scope is not None
+            else None
         )
 
     def context_rules(self):
@@ -84,8 +89,22 @@ class SQLiteRepository:
     def projects(self):
         return SQLiteContext(self.db).projects()
 
-    def mark_context_changed(self, event):
-        self.mark_changed(self.db.get(ActivityEventRow, event.window_event_id))
+    def context_events(self, window_ids):
+        return [resolved_value(row) for row in SQLiteContextProcessing(self.db).events(window_ids)]
+
+    def save_contexts(self, events):
+        SQLiteContextProcessing(self.db).save_contexts(events)
+
+    def context_batches(self, event_ids):
+        store = SQLiteContextProcessing(self.db)
+        batches = [(ids, []) for ids in store.session_groups(event_ids)]
+        by_session = {key: values for ids, values in batches for key in ids}
+        for session_id, row in store.session_events(by_session):
+            by_session[session_id].append(resolved_value(row))
+        return batches
+
+    def replace_context_sessions(self, sessions, old_ids, daily):
+        SQLiteContextProcessing(self.db).replace_sessions(sessions, old_ids, daily)
 
     def clear_changes(self):
         self._changes.clear()

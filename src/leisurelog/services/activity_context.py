@@ -135,8 +135,11 @@ class ActivityContextService:
             self.store.save_context_rule(rule)
         for event in selected:
             self.store.save_context(event, assignments)
-            self.processing.repo.mark_context_changed(event)
-        result = self.processing.rebuild() if remember_scope else self.processing.rebuild_changed()
+        result = (
+            self.processing.rebuild()
+            if remember_scope
+            else self.processing.refresh_context(selected)
+        )
         after = self.store.decision_snapshot(event_ids, rule.id if rule else None)
         change_id = self.store.save_change("remember" if rule else "attribute", before, after)
         return {"updated": len(selected), "change_id": change_id, **result}
@@ -148,8 +151,7 @@ class ActivityContextService:
         before = self.store.decision_snapshot(event_ids)
         for event in selected:
             self.store.save_context(event, None)
-            self.processing.repo.mark_context_changed(event)
-        result = self.processing.rebuild_changed()
+        result = self.processing.refresh_context(selected)
         change_id = self.store.save_change(
             "restore", before, self.store.decision_snapshot(event_ids)
         )

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime
 
@@ -14,6 +15,7 @@ from leisurelog.domain.learned_rules import LearnedRuleClassifier, is_browser, r
 from leisurelog.domain.library import identities
 from leisurelog.domain.models import Classification
 from leisurelog.domain.ports import ActivitySource, Repository
+from leisurelog.domain.processing import ProcessingRange
 from leisurelog.domain.sessionization import merge_sessions
 from leisurelog.domain.timing import resolve_timing
 
@@ -22,6 +24,54 @@ class ProcessingService:
     def __init__(self, repo: Repository, pipeline: ClassificationPipeline, gap_seconds: float):
         self.repo, self.pipeline, self.gap_seconds = repo, pipeline, gap_seconds
         self.last_work = {}
+
+    def refresh_context(self, selected):
+        """Update attribution using existing resolved facts, without reclassifying history."""
+        window_ids = {event.window_event_id for event in selected}
+        overrides = self.repo.context_overrides(window_ids=window_ids)
+        classifiers = [
+            LearnedContextClassifier(self.repo.context_rules()),
+            *self.pipeline.context_classifiers,
+            CategoryPurposeClassifier(),
+        ]
+        changed = []
+        for event in self.repo.context_events(window_ids):
+            context = resolve_context(event, classifiers, overrides)
+            if context != event.context:
+                changed.append(replace(event, context=context))
+        self.repo.save_contexts(changed)
+        batches = self.repo.context_batches({event.id for event in changed})
+        old_ids = {key for ids, _ in batches for key in ids}
+        events = [event for _, values in batches for event in values]
+        sessions = [
+            session for _, values in batches for session in merge_sessions(values, self.gap_seconds)
+        ]
+        intervals = defaultdict(list)
+        for event in events:
+            intervals[event.source, event.device, None].append(event)
+        scope = [
+            ProcessingRange(
+                *key, min(e.start_time for e in values), max(e.end_time for e in values)
+            )
+            for key, values in intervals.items()
+        ]
+        idle = [
+            event
+            for start in range(0, len(scope), 128)
+            for event in self.repo.idle_events(scope=scope[start : start + 128])
+        ]
+        apply_idle(sessions, events, idle)
+        self.repo.replace_context_sessions(
+            sessions, old_ids, daily_activity(sessions, events, idle)
+        )
+        self.last_work = {
+            "mode": "context",
+            "processed_windows": 0,
+            "processed_events": len(events),
+            "changed_contexts": len(changed),
+            "replaced_sessions": len(old_ids),
+        }
+        return self.repo.counts()
 
     def rebuild_changed(self) -> dict:
         scope = self.repo.processing_scope(self.gap_seconds)
